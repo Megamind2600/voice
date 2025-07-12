@@ -7,7 +7,11 @@ This is a Flask-based web application that provides an educational text-to-speec
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-Voice settings: More energetic and faster speech for YouTube Shorts content - prefers dynamic delivery over slow educational speech.
+Voice settings: 
+- Maximum speed and energy for YouTube Shorts content
+- Prefers male voice characteristics when possible
+- Wants very fast speech delivery over clarity
+- Suggests trying German or Russian languages for potentially deeper, more masculine-sounding voices
 
 ## System Architecture
 

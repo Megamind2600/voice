@@ -37,20 +37,20 @@
                                     Language
                                 </label>
                                 <select class="form-select" id="langSelect">
-                                    <option value="en">English (en)</option>
-                                    <option value="hi">Hindi (hi)</option>
-                                    <option value="es">Spanish (es)</option>
-                                    <option value="fr">French (fr)</option>
-                                    <option value="de">German (de)</option>
-                                    <option value="it">Italian (it)</option>
-                                    <option value="pt">Portuguese (pt)</option>
-                                    <option value="ru">Russian (ru)</option>
-                                    <option value="ja">Japanese (ja)</option>
-                                    <option value="ko">Korean (ko)</option>
-                                    <option value="zh">Chinese (zh)</option>
-                                    <option value="ar">Arabic (ar)</option>
+                                    <option value="en">English (en) - Natural Voice</option>
+                                    <option value="de">German (de) - Deeper Tone</option>
+                                    <option value="ru">Russian (ru) - Strong Voice</option>
+                                    <option value="fr">French (fr) - Smooth Voice</option>
+                                    <option value="es">Spanish (es) - Energetic Voice</option>
+                                    <option value="it">Italian (it) - Expressive Voice</option>
+                                    <option value="pt">Portuguese (pt) - Rich Voice</option>
+                                    <option value="hi">Hindi (hi) - Clear Voice</option>
+                                    <option value="ja">Japanese (ja) - Crisp Voice</option>
+                                    <option value="ko">Korean (ko) - Dynamic Voice</option>
+                                    <option value="zh">Chinese (zh) - Balanced Voice</option>
+                                    <option value="ar">Arabic (ar) - Resonant Voice</option>
                                 </select>
-                                <div class="form-text">Select the language for speech synthesis.</div>
+                                <div class="form-text">Select the language for speech synthesis. Some languages may have deeper or more masculine-sounding default voices.</div>
                             </div>
                             
                             <div class="mb-3">
@@ -60,10 +60,10 @@
                                 </label>
                                 <select class="form-select" id="speedSelect">
                                     <option value="slow">Slow (Clear & Educational)</option>
-                                    <option value="normal" selected>Normal (Energetic & Balanced)</option>
-                                    <option value="fast">Fast (Very Energetic)</option>
+                                    <option value="normal" selected>Normal (Fast & Energetic)</option>
+                                    <option value="fast">Fast (Maximum Speed)</option>
                                 </select>
-                                <div class="form-text">Choose speech speed for your YouTube Shorts content. Normal and Fast provide more energetic delivery.</div>
+                                <div class="form-text">Choose speech speed for your YouTube Shorts content. Normal and Fast use maximum speed delivery for energetic content.</div>
                             </div>
                             
                             <div class="mb-3">
@@ -141,6 +141,12 @@
                         </h5>
                     </div>
                     <div class="card-body">
+                        <div class="alert alert-info">
+                            <i data-feather="mic" class="me-2"></i>
+                            <strong>Voice Tip:</strong> For potentially more masculine-sounding voices, try German (de) or Russian (ru) languages. 
+                            Google TTS doesn't allow direct voice gender control, but some languages may have naturally deeper default voices.
+                        </div>
+                        
                         <h6>Endpoint:</h6>
                         <p><code>POST /speak</code></p>
                         

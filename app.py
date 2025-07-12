@@ -108,15 +108,11 @@ def speak():
             }), 400
         
         # Determine gTTS slow parameter based on speed and educational mode
-        # For more energetic voice, use fast speech by default unless explicitly set to slow
+        # For maximum energy and speed, always use fast speech unless explicitly set to slow
         use_slow_speech = False
         if speed == 'slow':
             use_slow_speech = True
-        elif speed == 'normal':
-            # Even normal speed should be energetic for YouTube Shorts
-            use_slow_speech = False
-        elif speed == 'fast':
-            use_slow_speech = False
+        # All other speeds (normal, fast) use the fastest possible delivery
         
         # Log the conversion details
         logger.info(f"Converting text to speech - Language: {lang}, Speed: {speed}, Educational: {educational}, Text length: {len(text)}")
