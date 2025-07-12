@@ -1,8 +1,8 @@
-# Text-to-Speech API Service
+# Educational Text-to-Speech API for YouTube Shorts
 
 ## Overview
 
-This is a Flask-based web application that provides a text-to-speech (TTS) API service. The application converts text input into audio files using Google Text-to-Speech (gTTS) and serves them via a REST API. It includes a web interface for testing the TTS functionality with support for multiple languages.
+This is a Flask-based web application that provides an educational text-to-speech (TTS) API service optimized for YouTube Shorts content creation. The application converts educational text input into clear, well-pronounced audio files using Google Text-to-Speech (gTTS) and serves them via a REST API. It includes a web interface for testing the TTS functionality with support for multiple languages, adjustable speech speeds, and educational mode for clearer pronunciation.
 
 ## User Preferences
 
@@ -26,9 +26,10 @@ Preferred communication style: Simple, everyday language.
 
 ### Core Application (`app.py`)
 - **Flask Application**: Main application instance with session management
-- **TTS Endpoint**: `/speak` POST endpoint for text-to-speech conversion
-- **Web Interface**: `/` GET endpoint serving the test page
-- **Language Support**: Integration with gTTS supported languages
+- **TTS Endpoint**: `/speak` POST endpoint for educational text-to-speech conversion
+- **Educational Features**: Speech speed control (slow/normal/fast) and educational mode for clearer pronunciation
+- **Web Interface**: `/` GET endpoint serving the YouTube Shorts-optimized test page
+- **Language Support**: Integration with gTTS supported languages (default: English)
 - **Logging**: Comprehensive logging for debugging and monitoring
 
 ### Application Runner (`main.py`)

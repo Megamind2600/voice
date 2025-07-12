@@ -29,12 +29,14 @@ def index():
 @app.route('/speak', methods=['POST'])
 def speak():
     """
-    Text-to-speech conversion endpoint
+    Text-to-speech conversion endpoint optimized for educational content
     
     Expected JSON payload:
     {
         "text": "Text to convert to speech (required)",
-        "lang": "Language code (optional, defaults to 'hi')"
+        "lang": "Language code (optional, defaults to 'en')",
+        "speed": "Speech speed - 'slow', 'normal', or 'fast' (optional, defaults to 'normal')",
+        "educational": "Boolean to enable educational mode with clearer pronunciation (optional, defaults to true)"
     }
     
     Returns:
@@ -80,8 +82,14 @@ def speak():
                 "message": "The 'text' field cannot be empty"
             }), 400
         
-        # Get language code (default to 'hi' for Hindi)
-        lang = data.get('lang', 'hi')
+        # Get language code (default to 'en' for English - better for educational content)
+        lang = data.get('lang', 'en')
+        
+        # Get speed setting (default to 'normal')
+        speed = data.get('speed', 'normal')
+        
+        # Get educational mode setting (default to True)
+        educational = data.get('educational', True)
         
         # Validate language code
         if lang not in SUPPORTED_LANGUAGES:
@@ -91,8 +99,23 @@ def speak():
                 "message": f"Language code '{lang}' is not supported. Supported languages: {list(SUPPORTED_LANGUAGES.keys())}"
             }), 400
         
+        # Validate speed setting
+        if speed not in ['slow', 'normal', 'fast']:
+            logger.warning(f"Invalid speed setting: {speed}")
+            return jsonify({
+                "error": "Invalid speed setting",
+                "message": "Speed must be 'slow', 'normal', or 'fast'"
+            }), 400
+        
+        # Determine gTTS slow parameter based on speed and educational mode
+        use_slow_speech = educational and speed != 'fast'
+        if speed == 'slow':
+            use_slow_speech = True
+        elif speed == 'fast':
+            use_slow_speech = False
+        
         # Log the conversion details
-        logger.info(f"Converting text to speech - Language: {lang}, Text length: {len(text)}")
+        logger.info(f"Converting text to speech - Language: {lang}, Speed: {speed}, Educational: {educational}, Text length: {len(text)}")
         
         # Generate unique filename
         audio_id = str(uuid.uuid4())
@@ -101,8 +124,8 @@ def speak():
         audio_path = os.path.join(temp_dir, audio_filename)
         
         try:
-            # Create gTTS object and save to file
-            tts = gTTS(text=text.strip(), lang=lang, slow=False)
+            # Create gTTS object with educational-optimized settings
+            tts = gTTS(text=text.strip(), lang=lang, slow=use_slow_speech)
             tts.save(audio_path)
             logger.info(f"Audio file created successfully: {audio_path}")
             
@@ -111,7 +134,7 @@ def speak():
                 audio_path,
                 mimetype='audio/mpeg',
                 as_attachment=True,
-                download_name=f"speech_{audio_id}.mp3"
+                download_name=f"youtube_shorts_speech_{audio_id}.mp3"
             )
             
         except Exception as e:
