@@ -88,8 +88,8 @@ def speak():
         # Get speed setting (default to 'normal')
         speed = data.get('speed', 'normal')
         
-        # Get educational mode setting (default to True)
-        educational = data.get('educational', True)
+        # Get educational mode setting (default to False for more energetic voice)
+        educational = data.get('educational', False)
         
         # Validate language code
         if lang not in SUPPORTED_LANGUAGES:
@@ -108,9 +108,13 @@ def speak():
             }), 400
         
         # Determine gTTS slow parameter based on speed and educational mode
-        use_slow_speech = educational and speed != 'fast'
+        # For more energetic voice, use fast speech by default unless explicitly set to slow
+        use_slow_speech = False
         if speed == 'slow':
             use_slow_speech = True
+        elif speed == 'normal':
+            # Even normal speed should be energetic for YouTube Shorts
+            use_slow_speech = False
         elif speed == 'fast':
             use_slow_speech = False
         

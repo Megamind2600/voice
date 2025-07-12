@@ -7,6 +7,7 @@ This is a Flask-based web application that provides an educational text-to-speec
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Voice settings: More energetic and faster speech for YouTube Shorts content - prefers dynamic delivery over slow educational speech.
 
 ## System Architecture
 
