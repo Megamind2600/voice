@@ -146,7 +146,8 @@ def speak():
                 audio_path,
                 mimetype='audio/mpeg',
                 as_attachment=True,
-                download_name=f"energetic_youtube_shorts_{audio_id}.mp3"
+                download_name=f"output.mp3",
+                conditional=False
             )
 
         except Exception as e:
