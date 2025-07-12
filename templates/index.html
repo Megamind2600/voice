@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-Speech API Tester</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <i data-feather="volume-2" class="me-2"></i>
+                            Text-to-Speech API Tester
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="ttsForm">
+                            <div class="mb-3">
+                                <label for="textInput" class="form-label">
+                                    <i data-feather="edit-3" class="me-1"></i>
+                                    Text to Convert
+                                </label>
+                                <textarea class="form-control" id="textInput" rows="4" 
+                                          placeholder="Enter the text you want to convert to speech..." 
+                                          required></textarea>
+                                <div class="form-text">Enter any text you want to convert to speech.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="langSelect" class="form-label">
+                                    <i data-feather="globe" class="me-1"></i>
+                                    Language
+                                </label>
+                                <select class="form-select" id="langSelect">
+                                    <option value="hi">Hindi (hi)</option>
+                                    <option value="en">English (en)</option>
+                                    <option value="es">Spanish (es)</option>
+                                    <option value="fr">French (fr)</option>
+                                    <option value="de">German (de)</option>
+                                    <option value="it">Italian (it)</option>
+                                    <option value="pt">Portuguese (pt)</option>
+                                    <option value="ru">Russian (ru)</option>
+                                    <option value="ja">Japanese (ja)</option>
+                                    <option value="ko">Korean (ko)</option>
+                                    <option value="zh">Chinese (zh)</option>
+                                    <option value="ar">Arabic (ar)</option>
+                                </select>
+                                <div class="form-text">Select the language for speech synthesis.</div>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary" id="convertBtn">
+                                    <i data-feather="play" class="me-1"></i>
+                                    Convert to Speech
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="loadLanguagesBtn">
+                                    <i data-feather="refresh-cw" class="me-1"></i>
+                                    Load All Languages
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div id="alertContainer" class="mt-3"></div>
+                        
+                        <div id="resultContainer" class="mt-4" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i data-feather="headphones" class="me-2"></i>
+                                        Generated Audio
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <audio id="audioPlayer" controls class="w-100 mb-3" style="display: none;">
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-success" id="downloadBtn" style="display: none;">
+                                            <i data-feather="download" class="me-1"></i>
+                                            Download Audio
+                                        </button>
+                                        <button type="button" class="btn btn-info" id="playBtn" style="display: none;">
+                                            <i data-feather="play" class="me-1"></i>
+                                            Play Audio
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="languageContainer" class="mt-4" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i data-feather="list" class="me-2"></i>
+                                        Supported Languages
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="languageList" class="row g-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i data-feather="info" class="me-2"></i>
+                            API Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Endpoint:</h6>
+                        <p><code>POST /speak</code></p>
+                        
+                        <h6>Request Format:</h6>
+                        <pre class="bg-dark p-3 rounded"><code>{
+  "text": "Your text here (required)",
+  "lang": "Language code (optional, defaults to 'hi')"
+}</code></pre>
+                        
+                        <h6>Response:</h6>
+                        <p>Returns an MP3 audio file or JSON error message with appropriate HTTP status codes.</p>
+                        
+                        <h6>Additional Endpoints:</h6>
+                        <p><code>GET /languages</code> - Get list of all supported languages</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"></script>
+    <script>
+        // Initialize Feather icons
+        feather.replace();
+        
+        let currentAudioBlob = null;
+        let currentFilename = null;
+        
+        // Function to show alerts
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alertDiv);
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.classList.remove('show');
+                    setTimeout(() => alertDiv.remove(), 150);
+                }
+            }, 5000);
+        }
+        
+        // Handle form submission
+        document.getElementById('ttsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const text = document.getElementById('textInput').value.trim();
+            const lang = document.getElementById('langSelect').value;
+            const convertBtn = document.getElementById('convertBtn');
+            const originalBtnText = convertBtn.innerHTML;
+            
+            if (!text) {
+                showAlert('Please enter some text to convert.', 'warning');
+                return;
+            }
+            
+            // Show loading state
+            convertBtn.innerHTML = '<i data-feather="loader" class="me-1"></i> Converting...';
+            convertBtn.disabled = true;
+            feather.replace();
+            
+            try {
+                const response = await fetch('/speak', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        lang: lang
+                    })
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    currentAudioBlob = blob;
+                    currentFilename = `speech_${Date.now()}.mp3`;
+                    
+                    // Create object URL for audio
+                    const audioUrl = URL.createObjectURL(blob);
+                    const audioPlayer = document.getElementById('audioPlayer');
+                    audioPlayer.src = audioUrl;
+                    audioPlayer.style.display = 'block';
+                    
+                    // Show download and play buttons
+                    document.getElementById('downloadBtn').style.display = 'inline-block';
+                    document.getElementById('playBtn').style.display = 'inline-block';
+                    document.getElementById('resultContainer').style.display = 'block';
+                    
+                    showAlert('Audio generated successfully!', 'success');
+                    
+                    // Auto-play the audio
+                    audioPlayer.play().catch(e => {
+                        console.log('Auto-play prevented by browser');
+                    });
+                    
+                } else {
+                    const errorData = await response.json();
+                    showAlert(`Error: ${errorData.message || 'Unknown error occurred'}`, 'danger');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Failed to connect to the server. Please try again.', 'danger');
+            } finally {
+                // Restore button state
+                convertBtn.innerHTML = originalBtnText;
+                convertBtn.disabled = false;
+                feather.replace();
+            }
+        });
+        
+        // Handle download button
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            if (currentAudioBlob) {
+                const url = URL.createObjectURL(currentAudioBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = currentFilename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        });
+        
+        // Handle play button
+        document.getElementById('playBtn').addEventListener('click', function() {
+            const audioPlayer = document.getElementById('audioPlayer');
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                this.innerHTML = '<i data-feather="pause" class="me-1"></i> Pause Audio';
+            } else {
+                audioPlayer.pause();
+                this.innerHTML = '<i data-feather="play" class="me-1"></i> Play Audio';
+            }
+            feather.replace();
+        });
+        
+        // Handle audio events
+        document.getElementById('audioPlayer').addEventListener('play', function() {
+            const playBtn = document.getElementById('playBtn');
+            playBtn.innerHTML = '<i data-feather="pause" class="me-1"></i> Pause Audio';
+            feather.replace();
+        });
+        
+        document.getElementById('audioPlayer').addEventListener('pause', function() {
+            const playBtn = document.getElementById('playBtn');
+            playBtn.innerHTML = '<i data-feather="play" class="me-1"></i> Play Audio';
+            feather.replace();
+        });
+        
+        // Handle load languages button
+        document.getElementById('loadLanguagesBtn').addEventListener('click', async function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i data-feather="loader" class="me-1"></i> Loading...';
+            btn.disabled = true;
+            feather.replace();
+            
+            try {
+                const response = await fetch('/languages');
+                if (response.ok) {
+                    const data = await response.json();
+                    displayLanguages(data.supported_languages);
+                    showAlert(`Loaded ${data.total_count} supported languages.`, 'success');
+                } else {
+                    const errorData = await response.json();
+                    showAlert(`Error loading languages: ${errorData.message}`, 'danger');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Failed to load languages. Please try again.', 'danger');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                feather.replace();
+            }
+        });
+        
+        // Display languages function
+        function displayLanguages(languages) {
+            const languageList = document.getElementById('languageList');
+            const languageContainer = document.getElementById('languageContainer');
+            
+            languageList.innerHTML = '';
+            
+            Object.entries(languages).forEach(([code, name]) => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4';
+                col.innerHTML = `
+                    <div class="card card-body py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>${name}</span>
+                            <code class="text-muted">${code}</code>
+                        </div>
+                    </div>
+                `;
+                languageList.appendChild(col);
+            });
+            
+            languageContainer.style.display = 'block';
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default text for demonstration
+            document.getElementById('textInput').value = 'Hello! This is a text-to-speech conversion test.';
+        });
+    </script>
+</body>
+</html>
