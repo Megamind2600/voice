@@ -11,6 +11,9 @@ Voice settings:
 - Maximum speed and energy for YouTube Shorts content
 - Prefers male voice characteristics when possible
 - Wants very fast speech delivery over clarity
+- Hindi language as default for API requests
+- Fast speed as default setting for maximum energy
+- Dynamic text enhancement (extra punctuation) for more energetic delivery
 - Suggests trying German or Russian languages for potentially deeper, more masculine-sounding voices
 
 ## System Architecture

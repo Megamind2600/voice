@@ -82,11 +82,11 @@ def speak():
                 "message": "The 'text' field cannot be empty"
             }), 400
         
-        # Get language code (default to 'en' for English - better for educational content)
-        lang = data.get('lang', 'en')
+        # Get language code (default to 'hi' for Hindi as requested)
+        lang = data.get('lang', 'hi')
         
-        # Get speed setting (default to 'normal')
-        speed = data.get('speed', 'normal')
+        # Get speed setting (default to 'fast' for maximum energy)
+        speed = data.get('speed', 'fast')
         
         # Get educational mode setting (default to False for more energetic voice)
         educational = data.get('educational', False)
@@ -114,8 +114,20 @@ def speak():
             use_slow_speech = True
         # All other speeds (normal, fast) use the fastest possible delivery
         
+        # Enhance text for more energetic delivery
+        enhanced_text = text.strip()
+        
+        # Add slight pauses and emphasis for more dynamic speech
+        if not educational:
+            # Replace periods with slight pauses for more natural flow
+            enhanced_text = enhanced_text.replace('.', '...')
+            # Add emphasis to exclamations
+            enhanced_text = enhanced_text.replace('!', '!!!')
+            # Add emphasis to questions
+            enhanced_text = enhanced_text.replace('?', '???')
+        
         # Log the conversion details
-        logger.info(f"Converting text to speech - Language: {lang}, Speed: {speed}, Educational: {educational}, Text length: {len(text)}")
+        logger.info(f"Converting text to speech - Language: {lang}, Speed: {speed}, Educational: {educational}, Text length: {len(enhanced_text)}")
         
         # Generate unique filename
         audio_id = str(uuid.uuid4())
@@ -124,8 +136,8 @@ def speak():
         audio_path = os.path.join(temp_dir, audio_filename)
         
         try:
-            # Create gTTS object with educational-optimized settings
-            tts = gTTS(text=text.strip(), lang=lang, slow=use_slow_speech)
+            # Create gTTS object with energetic settings
+            tts = gTTS(text=enhanced_text, lang=lang, slow=use_slow_speech)
             tts.save(audio_path)
             logger.info(f"Audio file created successfully: {audio_path}")
             
@@ -134,7 +146,7 @@ def speak():
                 audio_path,
                 mimetype='audio/mpeg',
                 as_attachment=True,
-                download_name=f"youtube_shorts_speech_{audio_id}.mp3"
+                download_name=f"energetic_youtube_shorts_{audio_id}.mp3"
             )
             
         except Exception as e:

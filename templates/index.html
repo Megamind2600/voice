@@ -37,6 +37,7 @@
                                     Language
                                 </label>
                                 <select class="form-select" id="langSelect">
+                                    <option value="hi" selected>Hindi (hi) - Clear Voice</option>
                                     <option value="en">English (en) - Natural Voice</option>
                                     <option value="de">German (de) - Deeper Tone</option>
                                     <option value="ru">Russian (ru) - Strong Voice</option>
@@ -44,7 +45,6 @@
                                     <option value="es">Spanish (es) - Energetic Voice</option>
                                     <option value="it">Italian (it) - Expressive Voice</option>
                                     <option value="pt">Portuguese (pt) - Rich Voice</option>
-                                    <option value="hi">Hindi (hi) - Clear Voice</option>
                                     <option value="ja">Japanese (ja) - Crisp Voice</option>
                                     <option value="ko">Korean (ko) - Dynamic Voice</option>
                                     <option value="zh">Chinese (zh) - Balanced Voice</option>
@@ -60,8 +60,8 @@
                                 </label>
                                 <select class="form-select" id="speedSelect">
                                     <option value="slow">Slow (Clear & Educational)</option>
-                                    <option value="normal" selected>Normal (Fast & Energetic)</option>
-                                    <option value="fast">Fast (Maximum Speed)</option>
+                                    <option value="normal">Normal (Fast & Energetic)</option>
+                                    <option value="fast" selected>Fast (Maximum Speed)</option>
                                 </select>
                                 <div class="form-text">Choose speech speed for your YouTube Shorts content. Normal and Fast use maximum speed delivery for energetic content.</div>
                             </div>
@@ -143,8 +143,8 @@
                     <div class="card-body">
                         <div class="alert alert-info">
                             <i data-feather="mic" class="me-2"></i>
-                            <strong>Voice Tip:</strong> For potentially more masculine-sounding voices, try German (de) or Russian (ru) languages. 
-                            Google TTS doesn't allow direct voice gender control, but some languages may have naturally deeper default voices.
+                            <strong>Voice Enhancement:</strong> The app now adds dynamic emphasis (extra punctuation) to make speech more energetic! 
+                            Default settings: Hindi language + Fast speed for maximum energy. For potentially deeper voices, try German (de) or Russian (ru).
                         </div>
                         
                         <h6>Endpoint:</h6>
@@ -153,8 +153,8 @@
                         <h6>Request Format:</h6>
                         <pre class="bg-dark p-3 rounded"><code>{
   "text": "Your educational content here (required)",
-  "lang": "Language code (optional, defaults to 'en')",
-  "speed": "Speech speed: 'slow', 'normal', 'fast' (optional, defaults to 'normal')",
+  "lang": "Language code (optional, defaults to 'hi')",
+  "speed": "Speech speed: 'slow', 'normal', 'fast' (optional, defaults to 'fast')",
   "educational": "Enable educational mode for clearer pronunciation (optional, defaults to false)"
 }</code></pre>
                         
@@ -367,8 +367,8 @@
         
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            // Set default energetic educational text for YouTube Shorts demonstration
-            document.getElementById('textInput').value = 'Hey there! Ready to learn something amazing? Did you know your brain can actually rewire itself? That\'s neuroplasticity in action! Hit that subscribe button for more mind-blowing facts!';
+            // Set default energetic Hindi text for YouTube Shorts demonstration
+            document.getElementById('textInput').value = 'नमस्ते दोस्तों! आज मैं आपको एक बहुत ही रोचक बात बताने जा रहा हूँ! क्या आप जानते हैं कि हमारा दिमाग खुद को बदल सकता है? यह न्यूरोप्लास्टिसिटी कहलाता है! और भी शैक्षिक सुझावों के लिए सब्स्क्राइब करें!';
         });
     </script>
 </body>
