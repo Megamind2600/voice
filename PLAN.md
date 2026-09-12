@@ -561,7 +561,7 @@ No hammering government servers — politeness is a design requirement.
 |---|---|---|---|---|---|
 | 0 | **Foundations + bootstrap data** ✅ **DONE** | Vite/Preact/TS scaffold, Pages deploy, design system, a11y baseline, CC0 dataset live, autocomplete, train lookup | **~0** | 5–7 d | Low |
 | 1 | **Routing engine** ✅ **DONE** (4 deviations recorded) | CSA + Pareto, transfers, terminal groups, fare engine, results screen, canvas route diagram, golden corpus v1 | **0** | 12–16 d | Med |
-| 2 | **Availability + leg-splitting** | Tiers 0/1/5, date-flex heatmap, quota/class cascade, status parser, Tatkal arithmetic, all 7 remedies, explained splits, IRCTC deep links | ~5 min/qtr | 20–26 d | **High** |
+| 2 | **Availability + leg-splitting** | Tiers 0/1/5, date-flex heatmap, quota/class cascade, status parser, Tatkal arithmetic, all 7 remedies, explained splits, IRCTC deep links — **2a shipped:** status parser, quota/ARP/Tatkal rules, T0–T5 cascade, split enumeration, all 7 remedies, IRCTC handoff panel | ~5 min/qtr | 20–26 d | **High** |
 | 3 | **Discovery mode** | Reverse sweep, POI index, scoring + MMR, destination cards, weather, sliders | ~22 min/qtr | 14–18 d | Med |
 | 4 | **Inter-modal + stopovers + round trip** | Bus/air/road bridges, auto-derived candidates, stopover promotion, joint round-trip, .ics/share/text export | ~0 | 12–16 d | Med |
 | 5 | **Live-at-runtime + PWA + polish** | NTES runtime path, verify interstitial, offline, perf pass, enable crons | **~252/mo** | 8–12 d | Low |

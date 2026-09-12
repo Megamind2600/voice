@@ -19,6 +19,7 @@ import type { Segment } from '../router/journey';
 import { classLabel, roadModeLabel, wallClock, dayOf } from '../router/journey';
 import { durationLabel, rupees } from '../state/plan';
 import type { StationResolver } from '../router/journey';
+import { AvailabilityPanel } from './AvailabilityPanel';
 
 export interface LegDetailProps {
   segment: Segment;
@@ -160,11 +161,7 @@ export function LegDetail(props: LegDetailProps) {
         </ul>
       )}
 
-      <p class="leg__avail">
-        <strong>Seat availability: not yet connected.</strong> This build shows schedules and
-        estimated fares only. Confirm berths on IRCTC before booking — nothing here is a
-        guarantee that a seat exists.
-      </p>
+      <AvailabilityPanel segment={s} nameOf={nameOf} dateIso={props.dateLabel} />
     </div>
   );
 }

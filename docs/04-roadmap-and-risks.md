@@ -231,6 +231,39 @@ deep links · golden corpus v2 (≥ 35 routes incl. split-requiring cases).
 - [ ] Every leg and remedy has a working IRCTC deep link
 - [ ] Fully functional with network disabled after first load
 
+**Progress — Phase 2a, the rules and structure layer (shipped)**
+
+Built and tested in this increment, all of it pure functions with no network dependency:
+
+| Module | What it settles |
+| --- | --- |
+| `availability/status.ts` | Parses every status form IRCTC and NTES emit (`AVAILABLE-0009`, `WL32/RAC12`, `GNWL14/RAC28`, `REGRET`, `RAC 5`, `TQWL12`, `RLWL7`, `PQWL3`). Waitlist types are **never** collapsed — `WL` alone stays `WL`. Ranks for sorting with the explicit warning that the rank is an *ordering*, never a probability. |
+| `availability/rules.ts` | 60-day ARP counted from the **origin** departure date via `serviceDayOffset`; advance booking opens 08:00 IST with the Aadhaar priority window 08:00–08:15; Tatkal at 10:00 AC / 11:00 non-AC one day before origin departure; `1A` has no Tatkal; the 23:45–00:20 maintenance window handled as a **wrap**; `istNow()` reads IST correctly from any browser timezone; eligibility and quota lookup with the Ladies/Senior/Divyangjan quotas excluded by default. |
+| `availability/tier.ts` | The T0–T5 cascade, memoised per source, with per-tier confidence and reason, a hard deadline so a slow tier can never eat the budget, and a concurrency cap. No sources are registered, so it returns an explicit `UNKNOWN` — it cannot fabricate a number. |
+| `availability/split.ts` | Same-train split enumeration. Never suggests a halt under 10 min; flags under 20 min. **Blocked** candidates are returned with their reason rather than dropped, because "that split is impossible and here is why" is information. |
+| `availability/remedies.ts` | All seven remedies with honest labels: *splits this leg* / *re-runs the search* / *needs an availability source*. Ruled-out options are listed with reasons and pose no queries. |
+| `availability/links.ts` | Handoff to IRCTC with the six values in the form's own order and DD/MM/YYYY dates. Only three verified URLs are referenced. |
+| `ui/AvailabilityPanel.tsx` | Replaces the static "not connected" paragraph on every rail leg with the booking-window facts, the handoff values, a copy button, and a link to IRCTC's charts-and-vacancy page. |
+
+Acceptance criteria from the list above that are now covered by tests: the 12927
+Dadar 23:50 → Borivali 00:06 Tatkal case; no split under a 10-minute halt with a warning below
+20; every split carrying halt time, berth-change, two-ticket and grey-area disclosures;
+Ladies/Senior quotas never suggested to ineligible travellers.
+
+**Two deliberate deviations.** First, *every leg and remedy has a working IRCTC deep link* is
+**not** met and will not be: IRCTC publishes no parameter contract for its booking form, so a
+guessed query string lands on a blank page while appearing to have worked. The app lists the
+exact values beside a link to the bare page instead. If a contract is ever verified, `links.ts`
+is the single place it goes. Second, every criterion that depends on a **prediction model**
+(Brier, calibration, `pConfirm` precision, `PQWL 8` scoring worse than `GNWL 8` in output) is
+untouched — that is Phase 2b, and none of the ranking above should be read as a probability.
+
+**Still to do in Phase 2:** Tier 0 rake data (the real unlock — coach composition, berth
+counts, quota pools); Tier 1 training on the Apache-2.0 corpus; Tier 3 relay (only after Pages
+bandwidth telemetry proves it is needed); Tier 4 bring-your-own-key; wiring remedies into the
+worker so they drive a re-search; `DateFlexHeatmap`; and golden corpus v2 with split-requiring
+cases.
+
 **Risks**
 
 | Risk | Mitigation |

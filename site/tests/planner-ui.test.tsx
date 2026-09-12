@@ -133,9 +133,10 @@ const rail = (j: Journey): RailSegment[] => j.segments.filter((s): s is RailSegm
 describe('LegDetail, rail leg', () => {
   it('says seat availability is not connected, and does not soften it', () => {
     render(<LegDetail segment={rail(overnight)[0]} index={1} total={2} nameOf={nameOf} dateLabel={DATE} />);
-    expect(screen.getByText(/seat availability: not yet connected/i)).toBeTruthy();
+    expect(screen.getByText(/seat availability: not connected/i)).toBeTruthy();
     // The whole reason this notice exists: a reader must be pointed at the real source of truth.
-    expect(screen.getByText(/IRCTC/i)).toBeTruthy();
+    // The panel now mentions IRCTC in several places, so this is a count, not a single match.
+    expect(screen.getAllByText(/IRCTC/i).length).toBeGreaterThan(0);
   });
 
   it('labels the fare an estimate wherever it appears', () => {
@@ -182,6 +183,43 @@ describe('LegDetail, rail leg', () => {
     expect(chairCarLeg.classFellBack, 'fixture: the chair-car train does not offer sleeper').toBe(true);
     render(<LegDetail segment={chairCarLeg} index={2} total={2} nameOf={nameOf} dateLabel={DATE} />);
     expect(document.body.textContent ?? '').toMatch(/preferred class not offered|not offered/i);
+  });
+
+  it('hands over the exact IRCTC values, counted from the train origin date', () => {
+    const s = rail(overnight)[0];
+    render(<LegDetail segment={s} index={1} total={2} nameOf={nameOf} dateLabel={DATE} />);
+    const text = document.body.textContent ?? '';
+    // The six values the form asks for, in its order, with the date in DD/MM/YYYY.
+    for (const label of ['From', 'To', 'Date', 'Class', 'Quota', 'Train']) {
+      expect(text, `the handoff must list ${label}`).toContain(label);
+    }
+    const [y, m, d] = DATE.split('-');
+    expect(text).toContain(`${d}/${m}/${y}`);
+    expect(text).toContain(s.trainNumber);
+  });
+
+  it('links only to IRCTC pages that exist, and never to an invented pre-filled URL', () => {
+    render(<LegDetail segment={rail(overnight)[0]} index={1} total={2} nameOf={nameOf} dateLabel={DATE} />);
+    const links = Array.from(document.querySelectorAll('a')).map((a) => a.getAttribute('href') ?? '');
+    const irctc = links.filter((h) => h.includes('irctc.co.in'));
+    expect(irctc.length).toBeGreaterThan(0);
+    for (const href of irctc) {
+      // A guessed query string lands on a blank form while looking like it worked. The handoff
+      // must be the bare verified page plus values to type.
+      expect(href, `${href} must not carry fabricated parameters`).not.toContain('?');
+      expect(href.startsWith('https://www.irctc.co.in/')).toBe(true);
+    }
+    // The charts page is the one place IRCTC publishes live vacancy with no key and no account.
+    expect(irctc.some((h) => h.includes('/online-charts/'))).toBe(true);
+    // External links must not be able to reach back into the opener.
+    for (const a of Array.from(document.querySelectorAll('a[target="_blank"]'))) {
+      expect(a.getAttribute('rel') ?? '').toMatch(/noopener/);
+    }
+  });
+
+  it('offers to copy the handoff details, for a phone without the app installed', () => {
+    render(<LegDetail segment={rail(overnight)[0]} index={1} total={2} nameOf={nameOf} dateLabel={DATE} />);
+    expect(screen.getByRole('button', { name: /copy these details/i })).toBeTruthy();
   });
 
   it('does not flag a substitution when the traveller got what they asked for', () => {
@@ -245,7 +283,7 @@ describe('ItineraryCard', () => {
     const { container } = render(<ItineraryCard journey={overnight} nameOf={nameOf} date={DATE} />);
     const toggle = toggleOf(container);
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
-    expect(screen.queryByText(/seat availability: not yet connected/i)).toBeNull();
+    expect(screen.queryByText(/seat availability: not connected/i)).toBeNull();
 
     await user.click(toggle);
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
@@ -254,12 +292,12 @@ describe('ItineraryCard', () => {
     expect(container.querySelector(`[id="${controls}"]`)).toBeTruthy();
     // One notice per rail leg. Putting it once per card is how a three-train itinerary ends up
     // with the warning apparently attached to only one of its three trains.
-    expect(screen.getAllByText(/seat availability: not yet connected/i).length).toBe(rail(overnight).length);
+    expect(screen.getAllByText(/seat availability: not connected/i).length).toBe(rail(overnight).length);
   });
 
   it('can be opened on render, for a result worth looking at closely', () => {
     render(<ItineraryCard journey={overnight} nameOf={nameOf} date={DATE} expandedByDefault />);
-    expect(screen.getAllByText(/seat availability: not yet connected/i).length).toBe(rail(overnight).length);
+    expect(screen.getAllByText(/seat availability: not connected/i).length).toBe(rail(overnight).length);
   });
 
   it('is an article landmark, so a screen reader can step between itineraries', () => {

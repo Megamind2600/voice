@@ -448,3 +448,35 @@ code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-si
 }
 .return { margin-top: 1.3rem; border-top: 1px solid var(--line); padding-top: 0.9rem; }
 .return > h3 { margin: 0 0 0.6rem; }
+
+/* --- Phase 2: the availability panel -------------------------------------
+   Deliberately the most visually distinct block on a leg. It carries the one
+   thing the app cannot tell you, so it must not be skimmable as fine print. */
+.avail {
+  margin-top: 0.85rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 6%, var(--card));
+}
+.avail__headline { margin: 0 0 0.5rem; font-size: 0.9rem; line-height: 1.5; }
+.avail__notes { margin: 0 0 0.6rem; padding-left: 1.1rem; font-size: 0.85rem; line-height: 1.55; }
+.avail__notes li { margin-bottom: 0.25rem; }
+.avail__lead { margin: 0 0 0.45rem; font-size: 0.85rem; line-height: 1.5; }
+.avail__fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.35rem 0.8rem;
+  margin: 0 0 0.6rem;
+}
+.avail__field { display: flex; gap: 0.4rem; align-items: baseline; font-size: 0.85rem; }
+.avail__field dt { color: color-mix(in srgb, var(--ink) 62%, transparent); }
+.avail__field dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.avail__actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 0.5rem; }
+.avail__note {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--ink) 68%, transparent);
+}

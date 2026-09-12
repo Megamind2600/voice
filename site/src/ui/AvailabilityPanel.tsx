@@ -1,0 +1,136 @@
+/**
+ * AvailabilityPanel.tsx — what this build can honestly say about seats on one leg.
+ *
+ * It cannot say whether there is a seat. No availability source is connected, and inventing one
+ * would be the single most damaging thing this app could do. What it CAN say is a surprising
+ * amount, all of it verifiable and none of it guessed:
+ *
+ *   - whether this journey is inside the 60-day advance window yet, and the exact morning it
+ *     opens, counted from the date the train leaves its ORIGIN rather than the date you board;
+ *   - when Tatkal opens for this class, or that this class has no Tatkal quota at all;
+ *   - that IRCTC is down for maintenance between 23:45 and 00:20 IST, if that is now;
+ *   - the exact six values to enter on IRCTC for this leg, in the order the form asks for them,
+ *     copyable in one tap;
+ *   - IRCTC's own charts-and-vacancy page, which is live ground truth once a journey is charted.
+ *
+ * ---------------------------------------------------------------------------
+ * WHY THERE IS NO DEEP LINK
+ * ---------------------------------------------------------------------------
+ * The handoff opens IRCTC's booking page and lists the values beside it, rather than opening a
+ * pre-filled URL. IRCTC does not publish a parameter contract for that form — it is a JavaScript
+ * app whose state is not in the served HTML — and a guessed link lands on a blank form while
+ * looking like it worked. Ten seconds of typing beats teaching someone not to trust the links.
+ * See availability/links.ts, which is the single place a verified contract would go.
+ */
+import { useState } from 'preact/hooks';
+import type { RailSegment } from '../router/journey';
+import type { StationResolver } from '../router/journey';
+import { bookingFacts, istNow } from '../availability/rules';
+import { handoff } from '../availability/links';
+
+export interface AvailabilityPanelProps {
+  segment: RailSegment;
+  nameOf: StationResolver;
+  /** ISO date of the traveller's query. */
+  dateIso: string;
+  /** Quota to check. General is the default and the one nearly everyone books under. */
+  quota?: string;
+}
+
+export function AvailabilityPanel(props: AvailabilityPanelProps) {
+  const { segment: s, nameOf, dateIso } = props;
+  const quota = props.quota ?? 'GN';
+  const [copied, setCopied] = useState(false);
+
+  const from = nameOf(s.from);
+  const to = nameOf(s.to);
+  const now = istNow();
+  const facts = bookingFacts(dateIso, s.serviceDayOffset, s.klass, now.dateIso, now.minuteOfDay);
+  const hand = handoff({
+    trainNumber: s.trainNumber,
+    board: from.code,
+    alight: to.code,
+    dateIso: facts.originDate,
+    klass: s.klass,
+    quota,
+  });
+
+  const copy = async (): Promise<void> => {
+    // The same two-step as ExportMenu: the clipboard API where it exists, a hidden textarea and
+    // execCommand where it does not. Losing the button entirely on an older browser or an
+    // insecure origin would be worse than using a deprecated API.
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(hand.copyText);
+      } else {
+        throw new Error('no clipboard API');
+      }
+    } catch {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = hand.copyText;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      } catch {
+        setCopied(false);
+        return;
+      }
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 4000);
+  };
+
+  return (
+    <div class="avail">
+      <p class="avail__headline">
+        <strong>Seat availability: not connected in this build.</strong> Nothing here says whether
+        a berth exists, and no number on this page should be read as one that does. What follows
+        is what can be stated without guessing.
+      </p>
+
+      {facts.notes.length > 0 && (
+        <ul class="avail__notes">
+          {facts.notes.map((n) => <li key={n}>{n}</li>)}
+        </ul>
+      )}
+
+      <div class="avail__handoff">
+        <p class="avail__lead">
+          To check this leg on IRCTC, enter exactly these — the date shown is the train's{' '}
+          <strong>origin</strong> departure date, which is what every booking window counts from.
+        </p>
+        <dl class="avail__fields">
+          {hand.fields.map((f) => (
+            <div class="avail__field" key={f.label}>
+              <dt>{f.label}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <p class="avail__actions">
+          <a class="btn" href={hand.url} target="_blank" rel="noopener noreferrer">
+            Open IRCTC booking
+          </a>
+          <a class="btn" href={hand.chartsUrl} target="_blank" rel="noopener noreferrer">
+            Charts &amp; vacancy
+          </a>
+          <button type="button" class="btn" onClick={() => void copy()}>
+            {copied ? 'Copied' : 'Copy these details'}
+          </button>
+        </p>
+
+        {hand.note && <p class="avail__note">{hand.note}</p>}
+        <p class="avail__note">
+          The charts page is IRCTC's own published vacancy for journeys that have already been
+          charted — the closest thing to ground truth that needs no account and no key.
+        </p>
+      </div>
+    </div>
+  );
+}
