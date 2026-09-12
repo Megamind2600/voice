@@ -289,10 +289,38 @@ the router built the leg from the other. Road times reuse `roadMinutes(haversine
 function the router priced the transfer with, so two numbers for one pair of terminals can never
 disagree on screen.
 
-**Still to do in Phase 2:** Tier 1 training on the Apache-2.0 corpus; Tier 3 relay (only after Pages
-bandwidth telemetry proves it is needed); Tier 4 bring-your-own-key; wiring remedies into the
-worker so they drive a re-search; `DateFlexHeatmap`; and golden corpus v2 with split-requiring
-cases.
+**Progress — Tier 1 inference runtime (scaffold, shipped without a model)**
+
+`availability/model.ts` implements the coefficient-table format from docs/01 §9, a loader that
+rejects malformed tables instead of repairing them, piecewise-linear terms, isotonic calibration,
+and `tier1Source()` for the cascade. `tier1Source(null, …)` reports itself unavailable, so the
+cascade skips the tier exactly as it skips every tier with no source — and because nothing
+reachable imports it, the worker bundle did not grow by a byte (still 12.6 KB of 15.6 KB).
+
+It ships with 41 tests, the load-bearing ones being the refusals: a table with mismatched
+`knots`/`coef` lengths, a calibration curve that decreases, a coefficient that is `NaN`, a
+probability above 1. Inference returns `null` rather than `NaN` when a feature is not finite, and
+an unknown categorical level contributes zero — a train type the model has never seen degrades to
+the intercept instead of crashing the query. One test feeds the literal table from docs/01 §9 into
+`parseModel()`, so the runtime and the spec cannot drift apart quietly.
+
+R3 (prediction mistaken for a reservation) is now policed in code rather than in prose: the verdict
+is always `UNKNOWN` with `source: 'PREDICTED'`, `PREDICTED_BADGE` is exported for the UI to import,
+and a test scans every file in `src/ui/` and fails the build if one mentions `pConfirm` without
+importing the badge. It passes today only because nothing renders a prediction yet — which is
+precisely when such a guard is worth installing. It was verified to fire by temporarily adding an
+unbadged `pConfirm` mention to a UI file.
+
+What is deliberately absent is recorded in docs/01 §9: no `pRac`, no `expectedWl`, and no
+confidence interval unless the table ships `ciHalfWidth`. None of the three is derivable from a
+single logistic head, and inventing them would produce numbers indistinguishable from measured
+ones.
+
+**Still to do in Phase 2:** Tier 1 *training* on the Apache-2.0 corpus (the inference runtime is
+built and tested; it needs a table to run); Tier 3 relay (only after Pages bandwidth telemetry
+proves it is needed); Tier 4 bring-your-own-key; wiring remedies into the worker so they drive a
+re-search; rendering predictions in the UI behind the badge; and golden corpus v2 with
+split-requiring cases.
 
 **Risks**
 

@@ -26,6 +26,7 @@
  */
 
 import type { AvailabilityStatus } from './status';
+import type { Prediction } from './model';
 import { parseStatus } from './status';
 
 /** Which rung of the cascade produced a reading. */
@@ -66,6 +67,15 @@ export interface AvailabilityReading {
   ageSeconds: number | null;
   /** Where this came from, in words a traveller can act on. */
   explanation: string;
+  /**
+   * Present only on a PREDICTED reading. A type-only import, so there is no runtime cycle between
+   * the cascade and the model that feeds it.
+   *
+   * The verdict stays UNKNOWN whenever this is set. A probability about a berth is not a berth, and
+   * a reading that carried verdict AVAILABLE here would be renderable as a live result by any panel
+   * that looks at the verdict and not at the source — which is most of them.
+   */
+  prediction?: Prediction | null;
 }
 
 /** A stable key for memoising: the same tuple must not be asked twice in one session. */

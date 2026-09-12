@@ -403,6 +403,44 @@ remedy exploration costs nothing extra.
   "wlClearanceCurveByCapacity":"…" }
 ```
 
+### What is implemented today
+
+`site/src/availability/model.ts` is the **inference runtime** for exactly the table above: the
+format, a validating loader, piecewise-linear terms, isotonic calibration, the sigmoid, and
+`tier1Source()` for the cascade. It is pinned to this document by a test that feeds the literal
+table above into `parseModel()`, so the two cannot drift apart quietly.
+
+No coefficient table is shipped, so `tier1Source(null, …)` reports `available() === false` and the
+cascade skips Tier 1 — the same shape as every other tier in this build that has no source. The
+runtime is not imported by anything reachable from the app or worker entry point, which is why the
+bundle budget did not move when it landed.
+
+Four refusals are built into it, because each one is a way of producing a confident wrong number:
+
+- **`parseModel()` rejects rather than repairs.** Non-finite coefficients, knots that are not
+  strictly increasing, `knots` and `coef` of different lengths, calibration bins that do not
+  ascend, a calibration curve that *decreases*, probabilities outside `[0,1]`. Every message names
+  the path (`model.numeric.daysToJourney.knots[3]`). Naive inference on a table like this does not
+  throw — it produces `NaN`, and `NaN` renders as "NaN% likely to confirm".
+- **`predict()` returns `null` if any feature or intermediate is non-finite**, or if the calibrated
+  result leaves `[0,1]`. A corrupt table degrades to "Tier 1 declined", not to a number.
+- **An unknown categorical level contributes exactly zero.** A train type or class code outside the
+  training set falls back to the intercept. It must not throw, and it must not borrow a
+  neighbouring level's coefficient.
+- **The verdict is always `UNKNOWN` with `source: 'PREDICTED'`.** A probability about a berth is
+  not a berth. `PREDICTED_BADGE` is exported so the UI and the test that polices it share one
+  string, and a test scans every file in `src/ui/` and fails the build if any of them mentions
+  `pConfirm` without importing the badge.
+
+Deviations from the shape specified above, all of them omissions rather than substitutions:
+
+| Specified | Runtime does | Why |
+|---|---|---|
+| `pRac`, `expectedWl` | typed nullable, always `null` | A single logistic head cannot produce them. A plausible `expectedWl: 4` would be indistinguishable on screen from a measured one |
+| 90% interval | present only if the table ships `ciHalfWidth` (the example above does not) | An interval that looks measured and is not would be the most dangerous thing this module could emit |
+| `wlClearanceCurveByCapacity` | ignored | Unused by inference; unknown top-level keys are tolerated so a later table still loads |
+| a distribution | one calibrated probability | `Prediction` carries `pConfirm` plus the raw pre-calibration value, so a calibration bug stays diagnosable |
+
 ### Training data and its honest limitation
 
 Primary: Kaggle *Indian Railways Schedule-Prices-Availability* (**Apache-2.0**, IRCTC scrape
