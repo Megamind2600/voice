@@ -7,10 +7,10 @@
  * module-worker support gets identical behaviour rather than a reduced feature set.
  */
 
-import { ContainerKind, type Container } from '../lib/binary';
+import { ContainerError, ContainerKind, type Container } from '../lib/binary';
 import { Graph, stationCountOf } from '../lib/graph';
 import { loadDataset, loadManifest } from '../state/cache';
-import type { GraphStats, TrainSummary, WorkerRequest, WorkerResponse } from '../lib/protocol';
+import type { DataLocation, GraphStats, TrainSummary, WorkerRequest, WorkerResponse } from '../lib/protocol';
 import { CsaEngine, DEFAULT_MAX_JOURNEY_MIN, DEFAULT_MAX_WAIT_MIN } from '../router/csa';
 import { buildTimetable, type Timetable } from '../router/timetable';
 import { TransferModel } from '../router/transfers';
@@ -26,6 +26,27 @@ export interface LoadResult {
 
 let graph: Graph | null = null;
 let loadInFlight: Promise<LoadResult> | null = null;
+
+/**
+ * Where to fetch the dataset from. The main thread supplies absolute, page-resolved URLs
+ * with its requests (see `DataLocation`); until the first one arrives these relative
+ * defaults preserve the old behaviour — and its old failure mode, which is why the app
+ * always sends a location before anything needs the graph.
+ */
+let manifestUrl = './data/manifest.json';
+let dataBase = './data/';
+
+/** Remember the dataset location carried by a request, if it has one. */
+function noteDataLocation(data: DataLocation | undefined): void {
+  if (!data) return;
+  manifestUrl = data.manifestUrl;
+  dataBase = data.base;
+}
+
+/** Test hook: where would the next graph load fetch from? */
+export function dataSource(): { manifestUrl: string; base: string } {
+  return { manifestUrl, base: dataBase };
+}
 
 /**
  * Routing state, rebuilt only when its inputs change.
@@ -70,6 +91,8 @@ export function reset(): void {
   groups = [];
   groupsVersion++;
   ttCache.clear();
+  manifestUrl = './data/manifest.json';
+  dataBase = './data/';
 }
 
 function timetableFor(g: Graph, date: string): Timetable {
@@ -109,8 +132,20 @@ function buildGraph(container: Container): Graph {
 
 async function loadGraph(): Promise<LoadResult> {
   const t0 = performance.now();
-  const manifest = await loadManifest();
-  const loaded = await loadDataset('graph.bin', ContainerKind.Graph, { manifest });
+  const manifest = await loadManifest(manifestUrl);
+  let loaded;
+  try {
+    loaded = await loadDataset('graph.bin', ContainerKind.Graph, { base: dataBase, manifest });
+  } catch (err) {
+    // A parse failure here almost always means the fetch returned something other than the
+    // dataset — typically the host's HTML fallback page served with HTTP 200 for a
+    // worker-relative URL that does not exist. Naming the URL turns a cryptic container
+    // error into an actionable one.
+    if (err instanceof ContainerError || err instanceof Error) {
+      throw new Error(`${err.message} [while loading ${dataBase}graph.bin]`);
+    }
+    throw err;
+  }
   const g = buildGraph(loaded.container);
   graph = g;
   stationCount = stationCountOf(loaded.container);
@@ -143,6 +178,10 @@ async function graphOrLoad(): Promise<Graph> {
 }
 
 export async function handle(req: WorkerRequest): Promise<WorkerResponse> {
+  // Every request may carry the dataset location; the latest one wins, and it is recorded
+  // before anything that might load the graph, so even a first-ever `journeys` call that
+  // skips `graph:load` fetches from the right URL.
+  noteDataLocation(req.data);
   try {
     switch (req.type) {
       case 'graph:load': {

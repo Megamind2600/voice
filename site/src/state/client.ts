@@ -9,7 +9,7 @@
  */
 
 import type {
-  JourneysRequest, ResponseMap, WorkerRequest, WorkerResponse, WORKER_READY,
+  DataLocation, JourneysRequest, ResponseMap, WorkerRequest, WorkerResponse, WORKER_READY,
 } from '../lib/protocol';
 import type { ResolvedGroup } from '../router/terminals';
 
@@ -29,9 +29,20 @@ export class RouterClient {
 
   private worker: Worker | null = null;
   private inline: typeof import('../worker/inline') | null = null;
+  /**
+   * Absolute dataset URLs, attached to every request. Set once at startup from
+   * `dataLocation()` — without this the worker resolves `./data/` against its own script
+   * URL and fetches HTML instead of graph.bin. See `DataLocation` in lib/protocol.ts.
+   */
+  private data: DataLocation | null = null;
 
   constructor(private readonly timeoutMs = DEFAULT_TIMEOUT_MS) {
     this.readySignal = new Promise<void>((r) => { this.readyResolve = r; });
+  }
+
+  /** Supply the absolute dataset location the worker must fetch from. */
+  setDataLocation(data: DataLocation): void {
+    this.data = data;
   }
 
   /** Start the worker. Safe to call once; later calls are no-ops. */
@@ -122,7 +133,9 @@ export class RouterClient {
         timer,
       });
 
-      const message = { ...req, id } as WorkerRequest;
+      // Built conditionally rather than with an `undefined` value: the project compiles
+      // with exactOptionalPropertyTypes, where \"absent\" and \"present but undefined\" differ.
+      const message = (this.data ? { ...req, id, data: this.data } : { ...req, id }) as WorkerRequest;
       if (this.worker) this.worker.postMessage(message);
       else if (this.inline) void this.inline.dispatch(message).then((r) => this.onMessage(r));
       else reject(new Error('router client was never started'));

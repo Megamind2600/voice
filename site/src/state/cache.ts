@@ -54,6 +54,46 @@ export interface DatasetManifest {
 
 export type LoadSource = 'cache' | 'network';
 
+/**
+ * Absolute URL of the directory holding manifest.json and the .bin files.
+ *
+ * ---------------------------------------------------------------------------
+ * WHY ABSOLUTE, AND WHY RESOLVED AGAINST THE PAGE
+ * ---------------------------------------------------------------------------
+ * The routing worker fetches graph.bin itself, and inside a Web Worker a relative URL
+ * resolves against the WORKER SCRIPT's URL, not the page: `/src/worker/data/graph.bin`
+ * under `vite dev`, `/assets/data/graph.bin` in a production build. Both 404 (or, worse,
+ * return the SPA fallback HTML with HTTP 200), so every search failed with a container
+ * error while autocomplete — loaded on the main thread, where the base is the page —
+ * kept working. That asymmetry is exactly the \"search gives a graph error\" failure mode.
+ *
+ * Resolving once, here, against `document.baseURI` (the page) plus Vite's BASE_URL (the
+ * `/<repo>/` mount point on GitHub Pages) produces an absolute URL that fetches the same
+ * bytes from either thread. The main thread passes it to the worker with every request
+ * (see `RouterClient.setDataLocation`), so the worker never resolves a relative URL at
+ * all. Callers without a document (the worker itself, node tools) fall back to the
+ * relative path, which preserves the old behaviour wherever no page exists to resolve
+ * against.
+ */
+export function dataBaseUrl(): string {
+  const configured = import.meta.env.BASE_URL ?? './';
+  const dir = configured.endsWith('/') ? `${configured}data/` : `${configured}/data/`;
+  try {
+    if (typeof document !== 'undefined' && document.baseURI) {
+      return new URL(dir, document.baseURI).href;
+    }
+  } catch {
+    // A document with an unparseable baseURI: fall through to the relative path.
+  }
+  return dir;
+}
+
+/** Absolute manifest + dataset-directory URLs, ready to hand to the worker. */
+export function dataLocation(): { manifestUrl: string; base: string } {
+  const base = dataBaseUrl();
+  return { manifestUrl: `${base}manifest.json`, base };
+}
+
 export interface LoadedContainer {
   container: Container;
   source: LoadSource;
