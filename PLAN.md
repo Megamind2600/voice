@@ -572,7 +572,7 @@ route.
 
 ### Phase 1 delivered
 
-Also built, tested and passing CI — 305 tests, 0 lint warnings, typecheck clean, app bundle
+Also built, tested and passing CI — 340 tests, 0 lint warnings, typecheck clean, app bundle
 88 KB (32 KB gzip) with the routing worker at 29 KB.
 
 | Acceptance criterion | Result |

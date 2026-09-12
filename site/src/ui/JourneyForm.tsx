@@ -61,6 +61,7 @@ export function JourneyForm(props: JourneyFormProps) {
           <StationAutocomplete
             index={stations}
             label="Where are you starting from? (required)"
+            required
             value={plan.origin}
             onSelect={(s) => set('origin', s)}
             disabled={props.busy}

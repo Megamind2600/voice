@@ -5,7 +5,7 @@ knows **where they are** and **when they're free** but has **no destination in m
 
 > **Status: Phases 0 and 1 shipped.** Data pipeline, packed dataset, worker, autocomplete and
 > timetable lookup (Phase 0), plus multi-leg journey search, fares, transfers between city
-> terminals, the results UI and share/copy/download (Phase 1). 305 tests, passing CI.
+> terminals, the results UI and share/copy/download (Phase 1). 340 tests, passing CI.
 > **Seat availability is Phase 2 and is not connected yet** — every rail leg says so rather
 > than guessing. Plan of record: [`PLAN.md`](PLAN.md). Research verified 2026-09-12.
 >
@@ -35,8 +35,8 @@ site/        Vite + Preact + TypeScript
   state/cache.ts   IndexedDB, validated by sha256 — a warm visit makes zero requests
   state/           search hook with progressive widening; planner helpers
   ui/              combobox, planner form, itinerary cards, leg detail, route diagram, export
-  tests/           305 tests, including a golden corpus and an exhaustive-enumeration
-                   cross-check of the router
+  tests/           340 tests: a golden corpus of real itineraries, an exhaustive-enumeration
+                   cross-check of the router, and DOM tests for the promises the UI makes
 ```
 
 ### How the search works

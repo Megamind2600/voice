@@ -26,13 +26,24 @@ export interface StationAutocompleteProps {
   disabled?: boolean;
   /** Announced when the dataset is not ready, instead of an empty listbox. */
   notReadyMessage?: string;
+  /**
+   * Announces the field as required, without setting the HTML `required` attribute.
+   *
+   * The distinction is deliberate. `required` hands validation to the browser, which would block
+   * submit with a native tooltip pointing at a text box whose contents are a *query*, not a
+   * value: someone can type "Hyderabad" correctly, have a station selected, and still be told
+   * the field is empty because the typed text is not itself the submission. The planner enforces
+   * the obligation by disabling submit and saying why, which is both more accurate and more
+   * useful. `aria-required` keeps a screen reader informed of the same fact.
+   */
+  required?: boolean;
 }
 
 const LIMIT = 8;
 
 export function StationAutocomplete({
   index, label, value, onSelect, placeholder = 'e.g. Hyderabad, Secunderabad, KCG',
-  disabled = false, notReadyMessage = 'Loading station list…',
+  disabled = false, notReadyMessage = 'Loading station list…', required = false,
 }: StationAutocompleteProps) {
   const baseId = useId().replace(/[^a-zA-Z0-9]/g, '');
   const listboxId = `${baseId}-listbox`;
@@ -147,6 +158,7 @@ export function StationAutocomplete({
           aria-autocomplete="list"
           aria-activedescendant={open && active >= 0 ? `${baseId}-opt-${active}` : undefined}
           aria-describedby={liveId}
+          aria-required={required ? 'true' : undefined}
           placeholder={placeholder}
           disabled={disabled || !index}
           value={query}
