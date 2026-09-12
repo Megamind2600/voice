@@ -74,9 +74,15 @@ export interface ModelFeatures {
   klass: string;
   quota: string;
   trainType: string;
-  /** 'Mon'..'Sun', matching DAY_NAMES. */
+  /** 'Mon'..'Sun', from rules.DAY_NAMES. The BOARDING day, which is not always the origin day. */
   dow: string;
   festival?: string | null | undefined;
+  /**
+   * Daily, weekly, or in between — from the running-days bitmask. Null when the bitmask was
+   * assumed rather than read, because a weekly train on a migrant corridor waitlists instantly and
+   * guessing "daily" would predict the opposite of the truth.
+   */
+  serviceFrequency?: 'daily' | 'weekly' | 'irregular' | null | undefined;
 }
 
 export interface Prediction {
@@ -252,8 +258,11 @@ export function linearPredictor(model: ModelCoefficients, f: ModelFeatures): num
     z += termAt(term, x);
   }
 
-  const groups: Record<string, string> = {
+  const groups: Record<string, string | undefined> = {
     class: f.klass, quota: f.quota, trainType: f.trainType, dow: f.dow,
+    // docs/01 lists daily/weekly under the Train feature group. Absent means absent: a null
+    // frequency contributes nothing rather than being rounded to 'daily'.
+    service: f.serviceFrequency ?? undefined,
   };
   for (const [group, levels] of Object.entries(model.categorical)) {
     const level = groups[group];

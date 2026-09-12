@@ -115,6 +115,17 @@ export const QUOTAS: readonly Quota[] = [
  * rather than at each call site is what stops one module treating bit 0 as Sunday while another
  * treats it as Monday — a bug that would only ever show up as a train appearing on the wrong day.
  */
+/**
+ * Monday-first weekday abbreviations, indexed exactly as `weekdayBit()` returns.
+ *
+ * Duplicated from `lib/graph.ts` on purpose rather than imported: `DAY_NAMES` there sits in a
+ * module that drags the whole binary graph reader into whatever bundle imports it, and everything
+ * in this directory runs on the main thread where the graph lives in the worker. A seven-string
+ * array is a cheaper thing to duplicate than a 40 KB dependency.
+ */
+export const DAY_NAMES: readonly ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] =
+  ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
 export function weekdayBit(iso: string): number {
   const sunday0 = new Date(`${iso}T12:00:00Z`).getUTCDay();
   return (sunday0 + 6) % 7;

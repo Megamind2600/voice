@@ -26,6 +26,7 @@ import { h } from 'preact';
 import { Container, ContainerKind } from '../src/lib/binary';
 import { Graph, stationCountOf } from '../src/lib/graph';
 import { StationIndex } from '../src/lib/stations';
+import { dayOffsetOf } from '../src/availability/features';
 import { buildTimetable } from '../src/router/timetable';
 import { TransferModel } from '../src/router/transfers';
 import { roadMinutes } from '../src/router/transfers';
@@ -182,6 +183,21 @@ describe('stopsFromRaw — parity with the graph', () => {
     for (let t = 0; t < graph.trainCount; t++) {
       const raw = graph.rawStopsOfTrain(t);
       expect(stopsFromRaw(raw, stations), `train ${t}`).toEqual(graph.stopsOfTrain(t, stations));
+    }
+  });
+
+  it('agrees with features.dayOffsetOf — the same formula, written twice', () => {
+    // features.ts needs a day offset without a StationIndex, so it recomputes the one
+    // stopsFromRaw already computes. Two copies of a formula is a standing risk, so they are
+    // compared across every stop of every train in the fixture rather than sampled. If either
+    // drifts, an overnight boarding lands on the wrong weekday and Tier 1 predicts from a calendar
+    // signal that is silently wrong — a plausible number, not a crash.
+    for (let t = 0; t < graph.trainCount; t++) {
+      const raw = graph.rawStopsOfTrain(t);
+      const stops = stopsFromRaw(raw, stations);
+      stops.forEach((s, i) => {
+        expect(dayOffsetOf(raw[i]), `train ${t} stop ${i}`).toBe(s.dayOff);
+      });
     }
   });
 

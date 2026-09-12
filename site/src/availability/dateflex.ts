@@ -31,7 +31,7 @@
  * Railways demand, not a prediction about this train. The wording keeps that distinction.
  */
 import {
-  addDays, bookingFacts, daysBetween, istNow, originDateOf, runsOnDate, weekdayBit,
+  DAY_NAMES, addDays, bookingFacts, daysBetween, istNow, originDateOf, runsOnDate, weekdayBit,
 } from './rules';
 
 /** The four states a day can be in. All four are facts; none of them is a guess about seats. */
@@ -82,7 +82,6 @@ export interface DateFlexOptions {
   nowMinute?: number;
 }
 
-const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 
 /** Friday, Sunday and Monday: the documented peak of the Indian booking week. */
 const PEAK_BITS = new Set([0, 4, 6]);
@@ -116,24 +115,24 @@ export function dateFlexStrip(opts: DateFlexOptions): DateFlexCell[] {
     let label: string;
     if (inPast) {
       state = 'past';
-      label = `${WEEKDAYS[bit]} ${dateIso.slice(8)} — already gone`;
+      label = `${DAY_NAMES[bit]} ${dateIso.slice(8)} — already gone`;
     } else if (!runs) {
       state = 'no-run';
-      label = `${WEEKDAYS[bit]} ${dateIso.slice(8)} — this train does not run`;
+      label = `${DAY_NAMES[bit]} ${dateIso.slice(8)} — this train does not run`;
     } else if (!facts.withinArp) {
       state = 'window-closed';
-      label = `${WEEKDAYS[bit]} ${dateIso.slice(8)} — booking opens in `
+      label = `${DAY_NAMES[bit]} ${dateIso.slice(8)} — booking opens in `
         + `${facts.daysUntilAdvanceOpens} day${facts.daysUntilAdvanceOpens === 1 ? '' : 's'}`;
     } else {
       state = 'open';
-      label = `${WEEKDAYS[bit]} ${dateIso.slice(8)} — runs and is bookable now`
+      label = `${DAY_NAMES[bit]} ${dateIso.slice(8)} — runs and is bookable now`
         + (runsAssumed ? ' (running days were assumed daily)' : '');
     }
 
     cells.push({
       dateIso,
       originDateIso,
-      weekday: WEEKDAYS[bit],
+      weekday: DAY_NAMES[bit],
       dayNum: Number(dateIso.slice(8)),
       offsetDays: offset,
       isQueryDate: offset === 0,
