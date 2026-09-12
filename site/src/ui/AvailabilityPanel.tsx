@@ -26,6 +26,8 @@ import { useState } from 'preact/hooks';
 import type { RailSegment } from '../router/journey';
 import type { StationResolver } from '../router/journey';
 import { bookingFacts, istNow } from '../availability/rules';
+import { PREDICTED_BADGE, predictionText } from '../availability/model';
+import type { AvailabilityReading } from '../availability/tier';
 import { handoff } from '../availability/links';
 import { capacityFor, staticallyImpossible } from '../availability/rake';
 import type { TrainFacts } from '../availability/rake';
@@ -37,11 +39,27 @@ export interface AvailabilityPanelProps {
   dateIso: string;
   /** Quota to check. General is the default and the one nearly everyone books under. */
   quota?: string;
+  /**
+   * A reading from the availability cascade, when anything produced one.
+   *
+   * Optional and, in this build, never passed: no source is wired up, so there is nothing to hand
+   * over. The prop exists so that the day a coefficient table ships, rendering a prediction is a
+   * matter of passing one in rather than a change to this component — and so that the badge
+   * discipline is already in place and already tested instead of being added in a hurry alongside
+   * the model.
+   *
+   * Only a PREDICTED reading with a `prediction` attached renders anything here. A LIVE or SNAPSHOT
+   * reading would need its own treatment — an age, a source name, a "verified at" line — and
+   * inventing that now, for a tier that does not exist, is how a panel ends up claiming freshness
+   * it cannot prove.
+   */
+  reading?: AvailabilityReading | null | undefined;
 }
 
 export function AvailabilityPanel(props: AvailabilityPanelProps) {
   const { segment: s, nameOf, dateIso } = props;
   const quota = props.quota ?? 'GN';
+  const prediction = props.reading?.prediction ?? null;
   const [copied, setCopied] = useState(false);
 
   const from = nameOf(s.from);
@@ -108,10 +126,28 @@ export function AvailabilityPanel(props: AvailabilityPanelProps) {
   return (
     <div class="avail">
       <p class="avail__headline">
-        <strong>Seat availability: not connected in this build.</strong> Nothing here says whether
-        a berth exists, and no number on this page should be read as one that does. What follows
-        is what can be stated without guessing.
+        <strong>Seat availability: not connected in this build.</strong>{' '}
+        {prediction === null
+          ? 'Nothing here says whether a berth exists, and no number on this page should be read as one that does. What follows is what can be stated without guessing.'
+          // The headline has to change when a forecast appears, or it contradicts the block below
+          // it: "nothing here says whether a berth exists" is no longer the whole truth, and the
+          // whole truth is that something here estimates the odds.
+          : 'What follows is what can be stated without guessing, plus one model estimate — which is a probability about a berth, not a berth.'}
       </p>
+
+      {prediction !== null && (
+        <div class="avail__predicted">
+          <p class="avail__predicted-line">
+            <span class="avail__badge avail__badge--predicted">{PREDICTED_BADGE}</span>
+            {predictionText(prediction)}
+          </p>
+          <p class="avail__note">
+            Estimates are how every confirmation-probability feature works, including the commercial
+            ones: nobody can see IRCTC's remaining berths from outside. Treat this as a hint about
+            which dates and routes to prefer, then confirm on IRCTC before paying for anything.
+          </p>
+        </div>
+      )}
 
       {ruledOut && (
         <p class="avail__ruledout">

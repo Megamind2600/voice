@@ -18,6 +18,7 @@ import {
   parseModel,
   predict,
   predictionLabel,
+  predictionText,
   sigmoid,
   termAt,
   tier1Source,
@@ -356,6 +357,14 @@ describe('Tier 1 in the cascade', () => {
     expect(predictionLabel(reading.prediction!)).toMatch(/not a live seat count/);
   });
 
+  it('offers the same words without the badge, for UIs that render the badge separately', () => {
+    const p = predict(model(), FEATURES)!;
+    expect(predictionText(p).startsWith(PREDICTED_BADGE)).toBe(false);
+    expect(predictionLabel(p)).toBe(`${PREDICTED_BADGE}: ${predictionText(p)}`);
+    // Whichever form is used, the estimate must still say what it is not.
+    expect(predictionText(p)).toMatch(/not a live seat count/);
+  });
+
   it('says so plainly when no interval shipped, rather than leaving a bare number', () => {
     const m = parseModel(TABLE);
     delete (m as { ciHalfWidth?: number }).ciHalfWidth;
@@ -379,7 +388,7 @@ describe('the badge invariant, policed against the source rather than against a 
     for (const entry of readdirSync(uiDir)) {
       if (!entry.endsWith('.tsx') && !entry.endsWith('.ts')) continue;
       const src = readFileSync(join(uiDir, entry), 'utf8');
-      const talksAboutPrediction = /pConfirm|predictionLabel|\bprediction\b/.test(src);
+      const talksAboutPrediction = /pConfirm|predictionLabel|predictionText|\bprediction\b/.test(src);
       const carriesTheBadge = src.includes('PREDICTED_BADGE');
       if (talksAboutPrediction && !carriesTheBadge) offenders.push(entry);
     }

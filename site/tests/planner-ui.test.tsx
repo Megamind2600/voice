@@ -37,6 +37,10 @@ import { reconstructAll, type Journey, type RailSegment, type RoadSegment, type 
 import type { ResolvedGroup } from '../src/router/terminals';
 import { buildGraphContainer, buildStationsContainer, type Spec, type TrainSpec } from './helpers';
 import { LegDetail } from '../src/ui/LegDetail';
+import { AvailabilityPanel } from '../src/ui/AvailabilityPanel';
+import { PREDICTED_BADGE, parseModel, predict } from '../src/availability/model';
+import type { Prediction } from '../src/availability/model';
+import { noReading, type AvailabilityReading } from '../src/availability/tier';
 import { ItineraryCard } from '../src/ui/ItineraryCard';
 import { ExportMenu } from '../src/ui/ExportMenu';
 import { JourneyForm } from '../src/ui/JourneyForm';
@@ -574,5 +578,126 @@ describe('JourneyForm', () => {
       expect(el.getAttribute('aria-expanded'), 'a combobox must report whether its list is open').not.toBeNull();
       expect(el.getAttribute('aria-controls'), 'a combobox must name the listbox it controls').not.toBeNull();
     }
+  });
+});
+// --------------------------------------------------------------------------- predictions
+
+/**
+ * A table small enough to read, and real enough that the UI is rendering what the runtime produces
+ * rather than a hand-written object that happens to have the right fields.
+ */
+const PRED_TABLE = parseModel({
+  version: 'ui-test-v1',
+  trainedOn: 'fixture',
+  intercept: 0.4,
+  numeric: { segmentDistPct: { kind: 'linear', coef: 1.2 }, logCapacity: { kind: 'linear', coef: 0.1 } },
+  categorical: { class: { SL: 0.3 }, quota: { GN: 0 }, trainType: { MEX: 0 }, dow: { Mon: 0 } },
+  calibration: { method: 'isotonic', bins: [[0, 0.05], [0.5, 0.55], [1, 0.95]] },
+  ciHalfWidth: 0.09,
+});
+
+const PRED_FEATURES = {
+  daysToJourney: 12, segmentDistPct: 0.8, logCapacity: Math.log(600), isFullRun: false,
+  klass: 'SL', quota: 'GN', trainType: 'MEX', dow: 'Mon', festival: null,
+  serviceFrequency: 'daily' as const,
+};
+
+const prediction = (over: Partial<Prediction> = {}): Prediction => ({
+  ...predict(PRED_TABLE, PRED_FEATURES)!, ...over,
+});
+
+function predictedReading(p: Prediction): AvailabilityReading {
+  return {
+    status: { verdict: 'UNKNOWN', raw: '', parsed: false },
+    tier: 'T1', source: 'PREDICTED', asOf: null, ageSeconds: null,
+    explanation: 'estimate', prediction: p,
+  };
+}
+
+describe('AvailabilityPanel, when a prediction exists', () => {
+  const seg = rail(overnight)[0];
+
+  it('shows the badge, and the badge is the shared constant rather than a retyped word', () => {
+    const { container } = render(
+      <AvailabilityPanel segment={seg} nameOf={nameOf} dateIso={DATE} reading={predictedReading(prediction())} />,
+    );
+    const badge = container.querySelector('.avail__badge--predicted');
+    expect(badge, 'a prediction without a badge is the failure this whole design exists to prevent').toBeTruthy();
+    expect(badge!.textContent).toBe(PREDICTED_BADGE);
+    // Exactly once: a badge printed twice is a badge that has stopped being a marker.
+    expect(container.querySelectorAll('.avail__badge--predicted')).toHaveLength(1);
+  });
+
+  it('says the number is an estimate, and never that a berth exists', () => {
+    const { container } = render(
+      <AvailabilityPanel segment={seg} nameOf={nameOf} dateIso={DATE} reading={predictedReading(prediction())} />,
+    );
+    const text = container.querySelector('.avail__predicted')!.textContent ?? '';
+    expect(text).toMatch(/likely to confirm/);
+    expect(text).toMatch(/not a live seat count/);
+    expect(text).toMatch(/confirm on IRCTC/i);
+    expect(text).not.toMatch(/seats? available|berths? free|confirmed berth/i);
+  });
+
+  it('shows the interval when one shipped, and says so plainly when none did', () => {
+    const withCi = render(
+      <AvailabilityPanel segment={seg} nameOf={nameOf} dateIso={DATE} reading={predictedReading(prediction())} />,
+    );
+    expect(withCi.container.querySelector('.avail__predicted')!.textContent).toMatch(/\d+–\d+%/);
+
+    const without = render(
+      <AvailabilityPanel segment={seg} nameOf={nameOf} dateIso={DATE}
+        reading={predictedReading(prediction({ pConfirmCI: null }))} />,
+    );
+    expect(without.container.querySelector('.avail__predicted')!.textContent).toMatch(/no interval shipped/i);
+  });
+
+  it('changes the headline, because "nothing here says whether a berth exists" stops being the whole truth', () => {
+    const { container } = render(
+      <AvailabilityPanel segment={seg} nameOf={nameOf} dateIso={DATE} reading={predictedReading(prediction())} />,
+    );
+    const headline = container.querySelector('.avail__headline')!.textContent ?? '';
+    expect(headline).toMatch(/not connected in this build/);
+    expect(headline).toMatch(/one model estimate/);
+    expect(headline).toMatch(/probability about a berth, not a berth/);
+  });
+
+  it('still offers the IRCTC handoff beside the estimate, so ground truth stays one click away', () => {
+    const { container } = render(
+      <AvailabilityPanel segment={seg} nameOf={nameOf} dateIso={DATE} reading={predictedReading(prediction())} />,
+    );
+    const links = [...container.querySelectorAll('a.btn')].map((a) => a.getAttribute('href') ?? '');
+    expect(links.some((h) => h.includes('irctc'))).toBe(true);
+    expect(container.querySelector('.avail__handoff'), 'the booking values must still be listed').toBeTruthy();
+  });
+
+  it('renders nothing at all for a reading that is merely unknown', () => {
+    // A declined lookup is not a forecast. Turning "nobody knows" into a probability block is the
+    // exact confusion the badge exists to prevent, so an UNKNOWN reading with no prediction must
+    // leave the panel as it was.
+    const { container } = render(
+      <AvailabilityPanel segment={seg} nameOf={nameOf} dateIso={DATE} reading={noReading()} />,
+    );
+    expect(container.querySelector('.avail__predicted')).toBeNull();
+    expect(container.textContent ?? '').not.toContain(PREDICTED_BADGE);
+    expect(container.querySelector('.avail__headline')!.textContent).not.toMatch(/model estimate/);
+  });
+
+  it('renders nothing when no reading is passed, which is the state this build ships in', () => {
+    const { container } = render(<AvailabilityPanel segment={seg} nameOf={nameOf} dateIso={DATE} />);
+    expect(container.querySelector('.avail__predicted')).toBeNull();
+    expect(container.textContent ?? '').not.toContain(PREDICTED_BADGE);
+    expect(container.textContent).toMatch(/not connected in this build/);
+  });
+
+  it('does not turn a prediction into a seat count anywhere on the panel', () => {
+    const { container } = render(
+      <AvailabilityPanel segment={seg} nameOf={nameOf} dateIso={DATE} reading={predictedReading(prediction())} />,
+    );
+    // The Tier 0 capacity estimate is allowed to name berths, because it is a denominator with its
+    // own "estimate" badge and its own caveat. What must not exist is a bare number presented as
+    // seats free.
+    expect(container.querySelector('.avail__capacity .avail__badge')!.textContent).toBe('estimate');
+    expect(container.textContent ?? '').not.toMatch(/\bseats? (available|free)\b/i);
   });
 });

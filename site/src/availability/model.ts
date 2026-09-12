@@ -356,14 +356,25 @@ export function predict(model: ModelCoefficients, f: ModelFeatures): Prediction 
  */
 export const PREDICTED_BADGE = 'PREDICTED';
 
-/** Plain-language rendering of a prediction, badge first. */
-export function predictionLabel(p: Prediction): string {
+/**
+ * The prediction in words, without the badge.
+ *
+ * Split from `predictionLabel` so a UI can render the badge as its own element — a chip with its
+ * own colour and its own `aria-label` — instead of printing the word twice. The badge is not
+ * optional in either form; only its placement differs.
+ */
+export function predictionText(p: Prediction): string {
   const pct = Math.round(p.pConfirm * 100);
   const interval = p.pConfirmCI
     ? `, ${Math.round(p.pConfirmCI[0] * 100)}–${Math.round(p.pConfirmCI[1] * 100)}%`
     : ' (no interval shipped with this model)';
-  return `${PREDICTED_BADGE}: about ${pct}% likely to confirm${interval} — a model estimate from `
-    + `${p.modelVersion}, not a live seat count.`;
+  return `about ${pct}% likely to confirm${interval} — a model estimate from ${p.modelVersion}, `
+    + 'not a live seat count.';
+}
+
+/** Plain-language rendering of a prediction, badge first. For text-only contexts. */
+export function predictionLabel(p: Prediction): string {
+  return `${PREDICTED_BADGE}: ${predictionText(p)}`;
 }
 
 /** Supplies the features for a query, from whatever the caller has: the graph, Tier 0, the date. */

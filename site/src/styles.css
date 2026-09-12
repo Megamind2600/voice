@@ -633,3 +633,26 @@ code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-si
 .dateflex__key--no-run { border-style: dashed; opacity: 0.55; }
 .dateflex__key--past { opacity: 0.4; }
 .dateflex__legendnote { flex-basis: 100%; font-size: 0.76rem; }
+
+/* A prediction is the one number on this panel that is not a published fact, so it is set apart
+   rather than styled like the rest: tinted, badged, and never green. Green would read as
+   "available" to anyone arriving from another planner. */
+.avail__predicted {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.6rem;
+  border-left: 3px solid var(--warn, #b45309);
+  background: color-mix(in srgb, var(--warn, #b45309) 8%, transparent);
+  border-radius: 3px;
+}
+
+.avail__predicted-line {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.avail__badge--predicted {
+  background: var(--warn, #b45309);
+  color: #fff;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
