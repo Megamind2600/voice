@@ -16,6 +16,8 @@ import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import { router } from './state/client';
 import { useDataset } from './state/useDataset';
 import { useJourneys, useWorkerConfigure, type PlanInput } from './state/useJourneys';
+import { resolveTerminalGroups } from './router/terminals';
+import { PlannerDepsContext, type PlannerDeps } from './ui/deps';
 import type { Station } from './lib/stations';
 import type { GraphStats, RawStop, TrainSummary } from './lib/protocol';
 import { StationAutocomplete } from './ui/StationAutocomplete';
@@ -122,7 +124,28 @@ export function App() {
 
   const exploring = plan.destination === null;
 
+  // Worked out outside the JSX: TypeScript's narrowing of `inbound !== null` does not survive into
+  // the map callback, and a non-null assertion would be a claim the compiler cannot check.
+  const returnAlternatives = (state.phase === 'done' || state.phase === 'empty')
+    ? Math.max(0, (state.outcome.inbound?.length ?? 1) - 1)
+    : 0;
+
+  // Resolved here rather than returned from useWorkerConfigure: that hook's job is to push the
+  // groups to the worker, while the leg panels need the same list to work out road times between
+  // terminals in one city. Resolving twice costs microseconds over an authored table of a dozen
+  // cities, and it keeps the hook's contract — and every test that relies on it — unchanged.
+  const deps = useMemo<PlannerDeps>(() => ({
+    stations,
+    groups: stations
+      ? resolveTerminalGroups(stations.count, (code) => {
+        const i = stations.indexOfCode(code);
+        return i < 0 ? null : i;
+      }).groups
+      : [],
+  }), [stations]);
+
   return (
+    <PlannerDepsContext.Provider value={deps}>
     <div class="shell">
       <header class="masthead">
         <div class="masthead__inner">
@@ -227,6 +250,7 @@ export function App() {
                         date={plan.date}
                         coordsFor={coordsFor}
                         expandedByDefault={false}
+                        alternativeItineraries={g.journeys.length - 1}
                       />
                     ))}
                   </div>
@@ -245,6 +269,7 @@ export function App() {
                     date={plan.date}
                     coordsFor={coordsFor}
                     expandedByDefault={i === 0}
+                    alternativeItineraries={state.outcome.outbound.length - 1}
                   />
                 ))}
               </div>
@@ -265,6 +290,7 @@ export function App() {
                     nameOf={nameOf}
                     date={plan.returnDate ?? plan.date}
                     coordsFor={coordsFor}
+                    alternativeItineraries={returnAlternatives}
                   />
                 ))}
               </div>
@@ -348,12 +374,17 @@ export function App() {
             <li>Journeys split across trains, with a real minimum transfer time per station rather than an optimistic zero.</li>
             <li>Road transfers between terminals in the same city — a train into Nizamuddin can connect to one out of New Delhi.</li>
             <li>Every leg priced, with the estimate labelled as an estimate.</li>
+            <li>Seven remedies for a waitlisted leg — split the ticket, shift the date, change
+                quota or class, find another route, use a different terminal in the same city, or
+                go by road — each with what it costs and the exact question it would put to IRCTC.</li>
             <li>Nothing leaves your browser. No account, no API key, no tracking.</li>
           </ul>
           <p class="panel__note">
-            <strong>Not here yet:</strong> seat availability, and the leg-splitting that responds
-            to a waitlisted berth. Those are Phase 2, and until then every fare is a
-            published-tariff estimate — only IRCTC can confirm a seat.
+            <strong>Not here yet:</strong> live seat availability. The booking-window rules, the
+            capacity denominator and the remedies a waitlisted berth calls for are all here, but no
+            availability source is connected — so nothing on this page knows whether a berth is
+            free, and every fare is still a published-tariff estimate. Only IRCTC can confirm a
+            seat.
           </p>
         </section>
       </main>
@@ -379,6 +410,7 @@ export function App() {
         </div>
       </footer>
     </div>
+    </PlannerDepsContext.Provider>
   );
 }
 

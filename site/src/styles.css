@@ -512,3 +512,61 @@ code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-si
   font-size: 0.86rem;
   line-height: 1.5;
 }
+
+/* --- Phase 2: the seven remedies ------------------------------------------
+   The split disclosures are the one block that must not be skimmable, so they
+   get the heaviest treatment on the page. Everything else is a list. */
+.remedies { margin-top: 0.7rem; border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent); padding-top: 0.5rem; }
+.remedies__summary { cursor: pointer; font-size: 0.88rem; font-weight: 600; }
+.remedies__busy, .remedies__error { margin: 0.5rem 0 0; font-size: 0.85rem; }
+.remedies__error { color: var(--bad, #b3261e); }
+.remedies__lead {
+  margin: 0.6rem 0 0.8rem;
+  padding: 0.5rem 0.65rem;
+  border-left: 3px solid color-mix(in srgb, var(--ink) 30%, transparent);
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+.remedy { margin-bottom: 0.9rem; }
+.remedy__title { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: baseline; margin: 0 0 0.25rem; font-size: 0.92rem; }
+.remedy__tag {
+  padding: 0.05rem 0.35rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 3px;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.remedy__tag--now { border-color: color-mix(in srgb, var(--good, #1b7f37) 55%, transparent); color: var(--good, #1b7f37); }
+.remedy__why { margin: 0 0 0.3rem; font-size: 0.83rem; line-height: 1.55; color: color-mix(in srgb, var(--ink) 78%, transparent); }
+.remedy__note { margin: 0 0 0.4rem; font-size: 0.82rem; line-height: 1.5; font-style: italic; }
+.remedy__none { margin: 0; font-size: 0.83rem; color: color-mix(in srgb, var(--ink) 62%, transparent); }
+.remedy__options { margin: 0.3rem 0 0; padding-left: 1.05rem; font-size: 0.83rem; line-height: 1.5; }
+.remedy__opt { margin-bottom: 0.45rem; }
+.remedy__opt--out { color: color-mix(in srgb, var(--ink) 55%, transparent); }
+.remedy__optlabel { font-weight: 600; }
+.remedy__change, .remedy__cost, .remedy__pool, .remedy__ruledout, .remedy__ask { display: block; }
+.remedy__ruledout { color: var(--bad, #b3261e); }
+.remedy__ask {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 0.76rem;
+  color: color-mix(in srgb, var(--ink) 70%, transparent);
+}
+.remedy__blocked { margin-top: 0.5rem; font-size: 0.8rem; line-height: 1.5; }
+.remedy__blockedlead { margin: 0 0 0.2rem; font-weight: 600; }
+.remedy__blocked ul { margin: 0; padding-left: 1.05rem; }
+.remedy__split {
+  margin-top: 0.55rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--bad, #b3261e) 35%, transparent);
+  border-left: 3px solid var(--bad, #b3261e);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--bad, #b3261e) 5%, transparent);
+}
+.remedy__splithead { margin: 0 0 0.3rem; font-size: 0.85rem; line-height: 1.5; }
+.remedy__warn { margin: 0 0 0.3rem; font-size: 0.83rem; font-weight: 600; }
+.remedy__disclosures { margin: 0; padding-left: 1.05rem; font-size: 0.8rem; line-height: 1.55; }
+.remedy__disclosures li { margin-bottom: 0.2rem; }

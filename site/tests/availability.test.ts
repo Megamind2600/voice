@@ -74,7 +74,7 @@ function railSeg(over: Partial<RailSegment> = {}): RailSegment {
     trainIx: 0, trainNumber: '12927', trainName: 'Test Express', trainType: 'SUF', klass: 'SL',
     classFellBack: false, fareEstimate: true, flexiFare: false, runsDaysAssumed: false,
     classesInferred: false, serviceDayOffset: 0, nightArrival: false,
-    trainClasses: ['SL', '3A', '2A'], ...over,
+    trainClasses: ['SL', '3A', '2A'], runsDays: 127, ...over,
   };
 }
 

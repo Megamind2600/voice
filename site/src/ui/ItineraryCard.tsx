@@ -24,6 +24,8 @@ export interface ItineraryCardProps {
   coordsFor?: (station: number) => { lat: number; lon: number } | null;
   /** True when this itinerary came from a search that hit its limit. */
   expandedByDefault?: boolean;
+  /** Other itineraries found for the same destination, so remedy ⑤ can say how many. */
+  alternativeItineraries?: number;
 }
 
 /** The through trains only, for the one-line summary. Road hops are shown separately. */
@@ -115,6 +117,8 @@ export function ItineraryCard(props: ItineraryCardProps) {
                   total={j.segments.length}
                   nameOf={nameOf}
                   dateLabel={props.date}
+                  alternativeItineraries={props.alternativeItineraries ?? 0}
+                  roadHopPresent={j.segments.some((x) => x.kind === 'road')}
                 />
               </li>
             ))}

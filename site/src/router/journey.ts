@@ -73,6 +73,11 @@ export interface RailSegment {
   fareEstimate: boolean;
   /** True when this train's fare genuinely moves with occupancy (Rajdhani and friends). */
   flexiFare: boolean;
+  /**
+   * Running-days bitmask, bit 0 = Monday. Carried so remedy ② can say which nearby dates this
+   * train actually runs on without a round trip to the worker's graph.
+   */
+  runsDays: number;
   /** Provenance, so the UI can flag a schedule that was assumed rather than sourced. */
   runsDaysAssumed: boolean;
   classesInferred: boolean;
@@ -236,6 +241,7 @@ export function reconstructJourney(
         trainName: tr.name,
         trainType: tr.type,
         trainClasses: tr.classes,
+        runsDays: tr.runsDays,
         klass: fare.klass,
         classFellBack: fellBack,
         fareEstimate: true,

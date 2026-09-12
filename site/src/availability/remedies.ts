@@ -71,6 +71,14 @@ export interface Remedy {
   note: string | null;
   /** Split candidates, for remedy ① only. */
   splits?: readonly SplitCandidate[];
+  /**
+   * Split candidates that were considered and rejected, with the reason on each.
+   *
+   * Kept rather than dropped because "you cannot change coaches there, the halt is four minutes"
+   * is information a traveller can act on — it tells them the idea was examined and why it
+   * failed, which is different from the idea never occurring to anyone.
+   */
+  splitsBlocked?: readonly SplitCandidate[];
 }
 
 /**
@@ -172,9 +180,11 @@ export function remediesForLeg(leg: LegRef, ctx: RemedyContext): Remedy[] {
   const pools = quotaOptions(seg.klass);
 
   // ① Same-train split -------------------------------------------------------
-  const splits = offerable(splitCandidates({
+  const allSplits = splitCandidates({
     stops: ctx.stops, boardStation: seg.from, alightStation: seg.to,
-  }));
+  });
+  const splits = offerable(allSplits);
+  const splitsBlocked = allSplits.filter((c) => c.blocked !== null);
   const split: Remedy = {
     id: 'split',
     title: '① Two tickets on the same train',
@@ -184,6 +194,7 @@ export function remediesForLeg(leg: LegRef, ctx: RemedyContext): Remedy[] {
     needsAvailability: true,
     note: SPLIT_FRAMING + (splits.length > 0 ? ` ${RANKING_UNAVAILABLE}` : ''),
     splits,
+    splitsBlocked,
     options: splits.flatMap((c) => [
       {
         label: `${boardCode} → ${c.code}`,

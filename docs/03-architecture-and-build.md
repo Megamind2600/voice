@@ -179,6 +179,22 @@ on-demand  NTES live status            only when asked / journey <48 h     [Phas
 Total first visit: **890 KB gzip** for everything, enforced by `site/budget.json` and
 `npm run budget` in CI. A size regression fails the build.
 
+**Ceilings are raised by hand, never by `npm run budget --update`.** Fitting the ceiling to the
+measurement would make the gate pass by definition and lose the only signal it carries. Each raise
+is a reviewed diff with a reason. So far:
+
+| Commit | Change | Why |
+| --- | --- | --- |
+| Phase 1 UI | `app.js` 22 000 → 40 000 | The planner interface itself: form, itinerary cards, export, map |
+| Remedies UI | `app.js` 40 000 → 48 000, `app.css` 5 000 → 5 200, `total.js` 58 000 → 62 000 | The seven remedies and the split disclosures are mostly prose, and the prose *is* the feature — a split warning trimmed to fit a byte budget is a worse warning. Measured 41.4 KB against a 46.9 KB ceiling, so ~13% headroom rather than a fitted number |
+
+The gate counts **every** JS chunk except the router and inline fallbacks, so code-splitting a
+panel into a lazy chunk does not hide it from the budget. That is deliberate: splitting changes
+when bytes arrive, not how many.
+
+`app.js` now sits at 88% and `total.js` at 89%. The Phase 2b model must therefore go in the
+**worker**, and at ~40 KB brotli it fits inside `total.gzip` (76 KB spare) with little room after.
+
 
 | Layer | Holds | TTL |
 |---|---|---|

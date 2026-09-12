@@ -246,6 +246,8 @@ Built and tested in this increment, all of it pure functions with no network dep
 | `ui/AvailabilityPanel.tsx` | Replaces the static "not connected" paragraph on every rail leg with the booking-window facts, the handoff values, a copy button, and a link to IRCTC's charts-and-vacancy page. |
 | `availability/rake.ts` | **Tier 0 — the denominator.** Berths per coach by class and generation as verified *ranges* (sources disagree: LHB sleeper 78 or 80, LHB 2A 52 or 54), composition templates per train type intersected with the classes the train actually offers, and confidence that drops to `low` whenever the class list was inferred. Answers only what is certain — a class the train does not run, Tatkal in `1A`, a berth-position quota in a chair car — and returns `null` otherwise. |
 
+| `ui/RemediesPanel.tsx` + `state/remedyContext.ts` | **Renders the seven remedies per leg**, lazily: nothing is computed or fetched until a traveller opens the panel, because a search can return two hundred itineraries of three legs each. Shows the exact IRCTC question each option would pose (train, from, to, DD/MM/YYYY date, class, quota) rather than an answer, the split disclosures with no dismiss control, and splits that were considered and **ruled out with their reason**. |
+
 Acceptance criteria from the list above that are now covered by tests: the 12927
 Dadar 23:50 → Borivali 00:06 Tatkal case; no split under a 10-minute halt with a warning below
 20; every split carrying halt time, berth-change, two-ticket and grey-area disclosures;
@@ -266,6 +268,15 @@ templates keyed by train type, every figure carrying a range, a confidence and a
 It is a denominator and a set of ruled-out options, never a seat count, and the "whole rake, not
 your segment" caveat travels inside the returned value so it cannot be rendered without it. See
 docs/01 §8 for the full account.
+
+**Remedies live in the UI layer, not the worker.** They need station codes, city groups and road
+times; the worker deliberately holds no `StationIndex`, and loading `stations.bin` there too would
+download the same 76 KB twice on a mobile connection. So the worker keeps answering `train:stops`
+in indices and `state/remedyContext.ts` enriches them — with a parity test asserting the result
+equals `Graph.stopsOfTrain` field for field, since remedy ① decides feasibility from one list and
+the router built the leg from the other. Road times reuse `roadMinutes(haversineKm(...))`, the same
+function the router priced the transfer with, so two numbers for one pair of terminals can never
+disagree on screen.
 
 **Still to do in Phase 2:** Tier 1 training on the Apache-2.0 corpus; Tier 3 relay (only after Pages
 bandwidth telemetry proves it is needed); Tier 4 bring-your-own-key; wiring remedies into the

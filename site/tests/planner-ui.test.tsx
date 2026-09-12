@@ -61,7 +61,8 @@ const TRAINS: TrainSpec[] = [
   { number: '10001', name: 'Alpha Delta Express', type: 9, classes: 16, runsDays: 127,
     originDepMin: 600, durationMin: 300, distanceKm: 400, stops: [0, 2, 3],
     legs: [[0, 120, 150], [140, 300, 400]] },
-  // Alpha Road -> Echo. Chair car only, so a sleeper-preferring traveller gets a substitution.
+  // Alpha Road -> Echo. 3A only (CLASS_BIT: 3A is 4, not 16), so a sleeper-preferring traveller
+  // gets a substitution. The type code 5 is SVD. Named for what it exercises, not what it is.
   { number: '10002', name: 'Alpha Echo Intercity', type: 5, classes: 4, runsDays: 127,
     originDepMin: 780, durationMin: 240, distanceKm: 320, stops: [1, 4],
     legs: [[0, 240, 320]] },
@@ -84,7 +85,7 @@ let overnight: Journey;
 let withRoad: Journey;
 /** The rail and road segments of the above, pulled out for direct assertions. */
 let roadLeg: RoadSegment;
-let chairCarLeg: RailSegment;
+let substitutedLeg: RailSegment;
 
 function build(): void {
   const sc = Container.parse(buildStationsContainer(SPECS), ContainerKind.Stations);
@@ -120,7 +121,7 @@ function build(): void {
   expect(found, 'fixture: the Echo itinerary must include a road hop between Alpha terminals').toBeTruthy();
   roadLeg = found as RoadSegment;
   const echoJourney = toEcho.find((j) => j.segments.some((s) => s.kind === 'road')) as Journey;
-  chairCarLeg = echoJourney.segments.find((s): s is RailSegment => s.kind === 'rail') as RailSegment;
+  substitutedLeg = echoJourney.segments.find((s): s is RailSegment => s.kind === 'rail') as RailSegment;
   withRoad = echoJourney;
 }
 
@@ -180,8 +181,8 @@ describe('LegDetail, rail leg', () => {
   });
 
   it('flags a class substitution, and says what was asked for', () => {
-    expect(chairCarLeg.classFellBack, 'fixture: the chair-car train does not offer sleeper').toBe(true);
-    render(<LegDetail segment={chairCarLeg} index={2} total={2} nameOf={nameOf} dateLabel={DATE} />);
+    expect(substitutedLeg.classFellBack, 'fixture: the chair-car train does not offer sleeper').toBe(true);
+    render(<LegDetail segment={substitutedLeg} index={2} total={2} nameOf={nameOf} dateLabel={DATE} />);
     expect(document.body.textContent ?? '').toMatch(/preferred class not offered|not offered/i);
   });
 
@@ -345,7 +346,9 @@ describe('ItineraryCard', () => {
 
   it('carries the plain text as well, for anyone who cannot use the menu', () => {
     const { container } = render(<ItineraryCard journey={overnight} nameOf={nameOf} date={DATE} expandedByDefault />);
-    const details = container.querySelector('details') as HTMLDetailsElement;
+    // Selected by class, not by "the first details in the card": each rail leg now carries a
+    // remedies <details> of its own, and those come first in document order.
+    const details = container.querySelector('details.itin__raw') as HTMLDetailsElement;
     expect(details, 'the expanded card must offer a plain-text version').toBeTruthy();
     expect(details.querySelector('summary')?.textContent ?? '').toMatch(/plain[- ]text/i);
     expect(details.textContent ?? '').toContain(rail(overnight)[0].trainNumber);

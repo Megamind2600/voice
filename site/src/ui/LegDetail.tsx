@@ -20,6 +20,7 @@ import { classLabel, roadModeLabel, wallClock, dayOf } from '../router/journey';
 import { durationLabel, rupees } from '../state/plan';
 import type { StationResolver } from '../router/journey';
 import { AvailabilityPanel } from './AvailabilityPanel';
+import { RemediesPanel } from './RemediesPanel';
 
 export interface LegDetailProps {
   segment: Segment;
@@ -29,6 +30,10 @@ export interface LegDetailProps {
   nameOf: StationResolver;
   /** The query date, so a service-day offset can be turned into a real calendar day. */
   dateLabel: string;
+  /** How many other itineraries the router found for this destination, for remedy ⑤. */
+  alternativeItineraries?: number;
+  /** True when the enclosing itinerary already includes a road hop, for remedy ⑦. */
+  roadHopPresent?: boolean;
 }
 
 /** A labelled fact. Small enough that inlining it eleven times would be noise. */
@@ -162,6 +167,15 @@ export function LegDetail(props: LegDetailProps) {
       )}
 
       <AvailabilityPanel segment={s} nameOf={nameOf} dateIso={props.dateLabel} />
+
+      <RemediesPanel
+        segment={s}
+        boardCode={nameOf(s.from).code}
+        alightCode={nameOf(s.to).code}
+        dateIso={props.dateLabel}
+        alternativeItineraries={props.alternativeItineraries ?? 0}
+        roadHopPresent={props.roadHopPresent ?? false}
+      />
     </div>
   );
 }
