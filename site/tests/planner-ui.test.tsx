@@ -579,6 +579,31 @@ describe('JourneyForm', () => {
       expect(el.getAttribute('aria-controls'), 'a combobox must name the listbox it controls').not.toBeNull();
     }
   });
+
+  it('swaps origin and destination, keeping every other choice', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const origin = stations.at(0);
+    const destination = stations.at(2);
+    render(<JourneyForm stations={stations} plan={plan({ origin, destination })} onChange={onChange}
+      onSubmit={() => {}} busy={false} canSearch notReadyMessage="" />);
+    await user.click(screen.getByRole('button', { name: /swap origin and destination/i }));
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const next = onChange.mock.calls[0][0] as PlanInput;
+    expect(next.origin?.code).toBe(destination.code);
+    expect(next.destination?.code).toBe(origin.code);
+    expect(next).toMatchObject({ date: DATE, timeMin: 540, maxTransfers: 2, preferredClass: 'SL' });
+  });
+
+  it('disables the swap when there is no destination to swap with', () => {
+    // Swapping an origin with a blank destination would move the origin into the destination
+    // field and leave no origin — turning a targeted search into an unsearchable one.
+    render(<JourneyForm stations={stations} plan={plan({ destination: null })} onChange={() => {}}
+      onSubmit={() => {}} busy={false} canSearch notReadyMessage="" />);
+    expect((screen.getByRole('button', { name: /swap origin and destination/i }) as HTMLButtonElement).disabled)
+      .toBe(true);
+  });
 });
 // --------------------------------------------------------------------------- predictions
 

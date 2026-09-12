@@ -265,7 +265,7 @@ def pack(canonical: Path, out: Path) -> dict:
         "layout": {
             "header": 32, "directory": 20,
             "STATION": "<5sIBH (12)", "GEO": "<ff (8)",
-            "TRAIN": "<IIIHHHHHHBBBB (28)", "CONN": "<HHHHH (10)",
+            "TRAIN": "<IIIHHHHHHHHBBBB (32)", "CONN": "<HHHHH (10)",
         },
         "limits": {
             "maxLegsPerTrain": max_conn,

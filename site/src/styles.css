@@ -315,6 +315,8 @@ code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-si
   background: var(--card); border: 1px solid var(--line); border-radius: 8px;
   min-width: 0;
 }
+.plan__swap-row { grid-column: 1 / -1; display: flex; justify-content: flex-end; margin: -0.35rem 0; }
+.plan__swap { padding: 0.3rem 0.7rem; font-size: 0.85rem; font-weight: 600; }
 .plan__hint { margin: 0; font-size: 0.83rem; color: var(--ink-soft); }
 .plan__hint--warn { color: var(--err); }
 .plan__actions {

@@ -15,7 +15,7 @@
     "directory": 20,
     "STATION": "<5sIBH (12)",
     "GEO": "<ff (8)",
-    "TRAIN": "<IIIHHHHHHBBBB (28)",
+    "TRAIN": "<IIIHHHHHHHHBBBB (32)",
     "CONN": "<HHHHH (10)"
   },
   "limits": {
