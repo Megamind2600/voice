@@ -1,0 +1,164 @@
+# harvest.yml — rebuild the dataset from source.
+#
+# MANUAL DISPATCH ONLY. There is no schedule. This is the single largest Actions saving in
+# the repo: the previous design ran a six-hourly refresh cron that cost ~1,200 min/month,
+# nearly five times the entire current budget of 252. Live data now comes from the client
+# at request time (Phase 5), which costs zero Actions minutes, and the static timetable is
+# rebuilt by a human when there is actually a reason to.
+#
+# It also does NOT run on push, because the dataset is committed as a build artefact rather
+# than regenerated per commit: 95 MB of raw source would have to be cloned on every CI run
+# for a file that changes a few times a year.
+#
+# Running it costs roughly:
+#   clone ~95 MB sparse        ~1 min
+#   normalise 417k stop rows   ~10 s
+#   pack + verify              ~5 s
+#   npm ci + test + build      ~2 min
+#   -------------------------------
+#   total                      ~4 min, and only when someone presses the button.
+
+name: Harvest
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Dataset source to harvest'
+        required: true
+        default: 'cc0-datameet'
+        type: choice
+        options:
+          - cc0-datameet      # the CC0 bootstrap; always available, 2016 vintage
+          - ntes-crawl        # requires NTES_ARTIFACT_URL below
+      ntes_artifact_url:
+        description: 'URL of a pre-crawled NTES release asset (only for ntes-crawl)'
+        required: false
+        default: ''
+      open_pr:
+        description: 'Open a pull request instead of committing straight to main'
+        required: false
+        default: 'true'
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: harvest
+  cancel-in-progress: false
+
+jobs:
+  harvest:
+    name: Rebuild and verify dataset
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Needed so the push step has somewhere to go.
+          persist-credentials: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      # NTES crawling is deliberately NOT done here. A polite crawl of ~12k train numbers
+      # takes hours and must be rate-limited, which is a poor fit for a 20 minute job and a
+      # worse fit for a shared runner IP. The crawl happens elsewhere and its output is
+      # attached to a release; this job only consumes that artefact. See docs/04 for the
+      # redistribution caveats.
+      - name: Fetch source
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.source }}" = "ntes-crawl" ]; then
+            URL="${{ inputs.ntes_artifact_url }}"
+            if [ -z "$URL" ]; then
+              echo "::error::ntes-crawl requires ntes_artifact_url"
+              exit 1
+            fi
+            echo "Downloading NTES artefact from $URL"
+            curl -fsSL "$URL" -o /tmp/ntes.tar.zst
+            mkdir -p data/raw
+            tar --zstd -xf /tmp/ntes.tar.zst -C data/raw
+          else
+            python3 harvester/fetch_seed.py --out data/raw
+          fi
+          du -sh data/raw
+
+      - name: Normalise
+        run: |
+          python3 harvester/normalise.py \
+            --raw data/raw \
+            --out data/canonical \
+            --source "${{ inputs.source }}"
+
+      - name: Integrity gate (canonical vs packed inputs)
+        run: python3 harvester/validate/integrity.py --canonical data/canonical
+
+      - name: Pack binaries
+        run: python3 harvester/pack_binary.py --canonical data/canonical --out site/public/data
+
+      - name: Verify packed binaries
+        # Both verifiers run: check_packed.py needs no canonical input and is what CI runs
+        # on every PR, so running it here proves the committed artefacts will pass CI.
+        run: |
+          python3 harvester/validate/check_packed.py --bin site/public/data
+          python3 harvester/validate/integrity.py --canonical data/canonical --bin site/public/data
+
+      - name: Commit the audit reports
+        # data/canonical/*.jsonl stays gitignored (18 MB, regenerable). The two small JSON
+        # reports are whitelisted because they record the exact data-quality numbers behind
+        # the binaries, which is what makes a harvest reviewable.
+        run: |
+          git add -f data/canonical/integrity.json data/canonical/meta.json
+          git status --short
+
+      - name: Rebuild site and re-check budgets
+        working-directory: site
+        run: |
+          npm ci --no-audit --no-fund
+          npm test
+          npm run build
+          npm run budget
+
+      - name: Report size delta
+        run: |
+          echo "### Harvest result" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat data/canonical/integrity.json >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open a pull request
+        if: inputs.open_pr == true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="harvest/$(date -u +%Y%m%d-%H%M%S)"
+          git checkout -b "$BRANCH"
+          git add site/public/data data/canonical/integrity.json data/canonical/meta.json
+          git -c user.name="github-actions[bot]" \
+              -c user.email="github-actions[bot]@users.noreply.github.com" \
+              commit -m "harvest: rebuild dataset from ${{ inputs.source }}" || {
+                echo "No changes to commit."; exit 0; }
+          git push -u origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" \
+            --title "Harvest: rebuild dataset from ${{ inputs.source }}" \
+            --body "Automated dataset rebuild. Review the integrity report and the bundle budget delta before merging."
+
+      - name: Commit straight to main
+        if: inputs.open_pr != true
+        run: |
+          git add site/public/data data/canonical/integrity.json data/canonical/meta.json
+          git -c user.name="github-actions[bot]" \
+              -c user.email="github-actions[bot]@users.noreply.github.com" \
+              commit -m "harvest: rebuild dataset from ${{ inputs.source }}" || {
+                echo "No changes to commit."; exit 0; }
+          git push

@@ -1,0 +1,55 @@
+{
+  "containerVersion": 1,
+  "source": "datameet/railways (CC0, 2016)",
+  "sourceLicence": "CC0",
+  "schemaVersion": "1.0.0",
+  "bootstrap": true,
+  "bootstrapLabel": "BOOTSTRAP \u00b7 2016",
+  "counts": {
+    "stations": 7219,
+    "trains": 5174,
+    "connections": 98055
+  },
+  "layout": {
+    "header": 32,
+    "directory": 20,
+    "STATION": "<5sIBH (12)",
+    "GEO": "<ff (8)",
+    "TRAIN": "<IIIHHHHHHBBBB (28)",
+    "CONN": "<HHHHH (10)"
+  },
+  "limits": {
+    "maxLegsPerTrain": 109,
+    "maxDurationMin": 7045,
+    "maxDistanceKm": 4174,
+    "stationIndexWidth": "u16"
+  },
+  "files": {
+    "stations.bin": {
+      "bytes": 161576,
+      "gzipBytes": 77437,
+      "sha256": "ff4419709758263d7efcc21fe26e10c732dcba0f45cfb3635950d2ca238fac39",
+      "sections": {
+        "STRINGS": 74874,
+        "STATIONS": 86628
+      },
+      "recordBytes": 12
+    },
+    "graph.bin": {
+      "bytes": 1348104,
+      "gzipBytes": 801060,
+      "sha256": "6b056edc71b7ae81ae47d1c1504e4a122ad1a80ca334afbcc32ff55427b7e275",
+      "sections": {
+        "STRINGS": 144120,
+        "STATION_GEO": 57752,
+        "TRAINS": 165568,
+        "CONNECTIONS": 980550
+      },
+      "recordBytes": {
+        "STATION_GEO": 8,
+        "TRAINS": 32,
+        "CONNECTIONS": 10
+      }
+    }
+  }
+}

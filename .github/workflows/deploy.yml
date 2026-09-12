@@ -1,0 +1,96 @@
+# deploy.yml — verify, then publish to GitHub Pages.
+#
+# Target: push to site live in under 5 minutes (Phase 0 acceptance criterion). The whole
+# job is ~3 min, of which the publish step is a few seconds, so the budget is dominated by
+# npm ci and is met with room to spare.
+#
+# This workflow runs the full verification suite before publishing, which is why ci.yml can
+# stay pull-request-only: a commit reaching main is checked exactly once, and if it fails
+# the previous version simply stays live. Nothing broken can be published by a race.
+#
+# `base: './'` in vite.config.ts makes every asset URL relative, so this deploys correctly
+# to https://<user>.github.io/<repo>/ without the workflow needing to know the repo name.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time, but do NOT cancel an in-flight deploy: cancelling mid-publish
+# can leave Pages serving a half-updated site.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Verify and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # `environment` is a JOB-level key. At the top level it is not part of the workflow schema,
+    # and GitHub rejects the file: every push then produced a failed run with zero jobs, which
+    # looked like a Pages problem and was not one. Keep it here.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    defaults:
+      run:
+        working-directory: site
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Cheapest gate first: stdlib Python, no install, under a second.
+      - name: Verify packed dataset
+        working-directory: .
+        run: python3 harvester/validate/check_packed.py --bin site/public/data
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Bundle budget
+        run: npm run budget
+
+      # The dataset lives in site/public/data, which Vite copies into dist verbatim. If it
+      # is missing the site would deploy as a shell that can never load a timetable, so
+      # assert it landed rather than discovering that from a blank page.
+      - name: Confirm the dataset shipped
+        run: |
+          test -f dist/data/stations.bin || { echo "::error::dist/data/stations.bin missing"; exit 1; }
+          test -f dist/data/graph.bin    || { echo "::error::dist/data/graph.bin missing"; exit 1; }
+          test -f dist/data/manifest.json || { echo "::error::dist/data/manifest.json missing"; exit 1; }
+          ls -l dist/data
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/dist
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
