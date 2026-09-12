@@ -1,81 +1,81 @@
-# RailRoam — an "I have holidays, where should I go?" planner for Indian Railways
+# RailRoam — "I have holidays. Where could I go?"
 
-> **Status: planning complete, implementation not started.**
-> This repository currently contains the **plan only**. Read [`PLAN.md`](PLAN.md) first.
+A free, static, zero-setup journey planner for Indian Railways, built for the person who
+knows **where they are** and **when they're free** but has **no destination in mind**.
 
-## What this project is
+> **Status: plan only, nothing implemented.** Read [`PLAN.md`](PLAN.md).
+> Research verified 2026-09-12.
 
-A free, static, zero-setup web app (GitHub Pages) that answers a question no Indian
-railway app answers today:
-
-> *"I have N days of holiday, I'm starting from **here**, and I have **no idea where
-> I want to go**. Show me everywhere I could realistically reach, whether I'd actually
-> get a seat, and what the journey would look like if it has to be broken into legs."*
-
-Existing tools (IRCTC, ConfirmTkt, ixigo, RailYatri, Where Is My Train) all require you
-to **already know your destination**. They are booking tools. This is a **discovery**
-tool that happens to know about trains.
-
-### The two hard problems
-
-1. **Seat availability, free, with no API key.** There is no such thing as a free public
-   IRCTC availability API — every provider requires a key and/or payment, and GitHub Pages
-   cannot run server-side code to scrape one. [`docs/03-availability.md`](docs/03-availability.md)
-   is an honest treatment of this and the five-tier strategy that works around it.
-2. **Multi-leg decomposition.** IRCTC availability is *segment-specific*: the same train
-   can be `AVAILABLE-0042` end-to-end and `REGRET` on a short intermediate hop — or the
-   reverse. Exploiting that asymmetry (plus date shifts, quota shifts, terminal
-   substitution and road/air bridges) is where the real value lives.
-   [`docs/04-routing-engine.md`](docs/04-routing-engine.md).
-
-## Mandatory vs optional inputs
-
-Only **two** inputs are mandatory, by design:
-
-| Input | Required? |
-|---|---|
-| Starting location | **Mandatory** |
-| Date of departure | **Mandatory** |
-| Return date | Optional — one-way is a complete, valid answer |
-| Destination | Optional — omitting it *is* the headline feature |
-| Number of days at destination | Optional |
-| Round trip / one-way | Optional |
-| Preferred direction or region | Optional |
-| Budget, class, max transfers, max travel hours | Optional |
-| Traveller type (solo/family, senior, female-only quota) | Optional |
-
-Everything optional has a sensible default and every default is overridable.
-
-## Documents
-
-| Doc | What's in it |
-|---|---|
-| [`PLAN.md`](PLAN.md) | **Master plan.** Read this. Self-contained overview + links out. |
-| [`docs/01-architecture.md`](docs/01-architecture.md) | System architecture, stack choices, module breakdown, performance budget |
-| [`docs/02-data-sources.md`](docs/02-data-sources.md) | Every data source, **verified live today**: endpoint, auth, CORS, rate limit, licence |
-| [`docs/03-availability.md`](docs/03-availability.md) | The seat-availability problem and the 5-tier cascade |
-| [`docs/04-routing-engine.md`](docs/04-routing-engine.md) | CSA graph, Pareto search, leg-splitting, inter-modal bridging |
-| [`docs/05-data-pipeline.md`](docs/05-data-pipeline.md) | Keyless ETL on GitHub Actions, dataset schema, size budget |
-| [`docs/06-discovery.md`](docs/06-discovery.md) | "Explore India" mode: reverse reachability + destination scoring |
-| [`docs/07-ui-ux.md`](docs/07-ui-ux.md) | Screens, flows, component inventory, the itinerary card |
-| [`docs/08-roadmap.md`](docs/08-roadmap.md) | 9 phases with acceptance criteria and effort estimates |
-| [`docs/09-risks-legal.md`](docs/09-risks-legal.md) | ToS, data redistribution, scraping ethics, disclaimers |
+Existing tools (IRCTC, ConfirmTkt, ixigo, RailYatri) all require you to already know your
+destination — they are booking tools. This is a **discovery** tool that happens to know
+about trains, and none of them do leg-splitting intelligence at all.
 
 ## Cost
 
-**₹0.** GitHub Pages (free), GitHub Actions (free for public repos), and a set of data
-sources that were individually verified to need **no account and no API key**:
-NTES (official government enquiry service), Open-Meteo, Wikipedia/Wikimedia REST,
-Wikidata SPARQL, OpenStreetMap Overpass. See [`docs/02-data-sources.md`](docs/02-data-sources.md).
+**₹0 · no API keys · no accounts · no setup.**
 
-The user of this app supplies **no keys, no account, no configuration**. Optional
-live-availability upgrades exist and are documented as strictly optional.
+GitHub Pages and GitHub Actions (free for public repos), plus data sources each verified to
+need no key: NTES (official government enquiry service), Open-Meteo, Wikipedia/Wikimedia,
+Wikidata SPARQL, OSM Overpass, and a CC0 railways dataset.
+
+**GitHub Actions usage: ~252 minutes/month** against the 2,000 free allowance — worst month
+~465 (23%). A previous draft used 1,735; the rework cut it 85% by moving live data off a
+cron and onto a runtime on-demand path, which is *also* fresher. Details in
+[`PLAN.md` §8](PLAN.md#8-github-actions-budget-252-minmonth).
+
+## Inputs
+
+Only two are mandatory, by design:
+
+| Input | Required |
+|---|---|
+| Starting location | **Mandatory** |
+| Departure date | **Mandatory** |
+| Return date / round trip | Optional — one-way is a complete answer |
+| Destination | Optional — **omitting it is the headline feature** |
+| Days at destination, direction, budget, class, max transfers, interests | Optional |
+
+Every optional field has a visible default and is independently overridable.
+
+## The hard problem, stated honestly
+
+**There is no free keyless IRCTC seat-availability API.** Availability lives in IRCTC's PRS;
+NTES is the separate enquiry system with timetables but no availability. eRail's API is
+suspended, everything else needs a key and/or payment, and GitHub Pages cannot run
+server-side code to scrape one.
+
+So the plan uses a **5-tier cascade** — static rake/quota reference → an in-browser
+prediction model → opt-in live probe → optional bring-your-own-key — with an **IRCTC deep
+link on every leg** for ground truth, and a provenance badge on every figure so a prediction
+can never masquerade as a reservation. Full treatment in
+[`docs/01-data-and-availability.md`](docs/01-data-and-availability.md).
+
+The other half of the value is **segment-awareness**: IRCTC availability is per
+*(train, boarding station, alighting station, date, class, quota)*, not per train. One train
+can be `AVAILABLE-0042` end-to-end and `REGRET` on a short hop. Exploiting that asymmetry —
+plus date shifts, quota shifts, terminal substitution and road/air bridges — is what turns
+"waitlisted, sorry" into a bookable multi-leg itinerary.
+
+## Documents
+
+| Doc | Contents |
+|---|---|
+| [`PLAN.md`](PLAN.md) | **Master plan.** Self-contained: the five verified facts, product, contract, architecture, availability, routing, discovery, **Actions budget**, size budget, scope cuts, roadmap |
+| [`docs/01-data-and-availability.md`](docs/01-data-and-availability.md) | Verified source matrix · NTES field notes · booking rules (ARP is now **60 days**) · IRCTC data model · the 5-tier cascade · model spec · status parsing · quota arithmetic |
+| [`docs/02-routing-and-discovery.md`](docs/02-routing-and-discovery.md) | CSA + Pareto pseudocode · data structures · terminal expansion · the 7 remedies · inter-modal · stopovers · round trip · discovery scoring · performance · testing |
+| [`docs/03-architecture-and-build.md`](docs/03-architecture-and-build.md) | Modules · worker protocol · binary container · repo layout · **Actions budget arithmetic + zero-Actions bootstrap** · harvest discipline · schema · integrity gates |
+| [`docs/04-roadmap-and-risks.md`](docs/04-roadmap-and-risks.md) | 6 phases with acceptance criteria · 20-item risk register · NTES redistribution · two-ticket splitting · licence matrix · privacy · disclaimers · incident responses |
+
+## Roadmap in one line
+
+**Phases 0→2 (~37–49 days) is the MVP** — multi-leg planning, predicted availability, all
+seven remedies, IRCTC handoff. Phase 3 (discovery mode) is the differentiator. Crons stay
+disabled until Phase 5, so early work consumes almost no Actions minutes.
 
 ## Repository history
 
-This repo previously contained an unrelated Flask + gTTS text-to-speech API (with Replit,
-Render and Heroku deployment scaffolding that contradicted each other). It was removed to
-give this project a clean slate. It is fully recoverable:
+This repo previously held an unrelated Flask + gTTS text-to-speech API with contradictory
+Replit/Render/Heroku scaffolding. Removed for a clean slate; fully recoverable:
 
 ```bash
 git checkout 0f0f32b0985c5ddbcb76feba9d5e66845fcab9c7 -- .   # restore legacy TTS app
@@ -84,7 +84,7 @@ git show 0f0f32b0985c5ddbcb76feba9d5e66845fcab9c7 --stat      # inspect what was
 
 ## Disclaimer
 
-Unofficial project. Not affiliated with, endorsed by, or sponsored by Indian Railways,
-IRCTC, CRIS, or the Ministry of Railways. This app **plans** journeys; it never books
-them or handles payments. Booking always happens on IRCTC. See
-[`docs/09-risks-legal.md`](docs/09-risks-legal.md).
+Unofficial. Not affiliated with, endorsed by, or sponsored by Indian Railways, IRCTC, CRIS,
+or the Ministry of Railways. This app **plans** journeys; it never books them or handles
+payments — booking always happens on IRCTC. See
+[`docs/04-roadmap-and-risks.md`](docs/04-roadmap-and-risks.md).
