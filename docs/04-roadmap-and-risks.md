@@ -248,10 +248,21 @@ Built and tested in this increment, all of it pure functions with no network dep
 
 | `ui/RemediesPanel.tsx` + `state/remedyContext.ts` | **Renders the seven remedies per leg**, lazily: nothing is computed or fetched until a traveller opens the panel, because a search can return two hundred itineraries of three legs each. Shows the exact IRCTC question each option would pose (train, from, to, DD/MM/YYYY date, class, quota) rather than an answer, the split disclosures with no dismiss control, and splits that were considered and **ruled out with their reason**. |
 
+| `availability/dateflex.ts` + `ui/DateFlexStrip.tsx` | **Remedy ② drawn as days.** Each cell is one of four *facts* — `past`, `no-run`, `window-closed`, `open` — built by running the same `bookingFacts()` the leg panel uses, so the 60-day window cannot drift between two places on one screen. Running days are counted from the train's **origin** date, and the assumed-daily case is flagged on the cell rather than in a footnote. |
+
 Acceptance criteria from the list above that are now covered by tests: the 12927
 Dadar 23:50 → Borivali 00:06 Tatkal case; no split under a 10-minute halt with a warning below
 20; every split carrying halt time, berth-change, two-ticket and grey-area disclosures;
 Ladies/Senior quotas never suggested to ineligible travellers.
+
+**Date-flex deviation.** docs/01 §12 asks that the heatmap distinguish `no run` from *sold out*.
+It distinguishes `no run` from *unknown*, because "sold out" is not a thing this build can know.
+There is deliberately no green-to-red demand gradient: on every other planner those colours mean
+availability, so a traveller would read a filled cell as a free berth. The legend says in terms
+that no colour on the strip means "seats available", and a test asserts no cell label ever
+mentions a seat, a berth, a confirmation or a waitlist. Friday, Sunday and Monday are marked as
+typically busiest — a documented feature of Indian demand, labelled as a pattern rather than a
+prediction about that train.
 
 **Two deliberate deviations.** First, *every leg and remedy has a working IRCTC deep link* is
 **not** met and will not be: IRCTC publishes no parameter contract for its booking form, so a

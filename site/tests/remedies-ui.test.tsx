@@ -373,6 +373,39 @@ describe('RemediesPanel', () => {
     expect(mock.calls).toBe(0);
   });
 
+  it('draws remedy 2 as days, with the legend that says what the colours do not mean', async () => {
+    const { container } = panel(sleeperLeg);
+    await open(container);
+    expect(container.querySelectorAll('.dateflex__cell')).toHaveLength(12);
+    expect(container.querySelector('.dateflex__legend'), 'the legend is not optional').toBeTruthy();
+    // A traveller arriving from any other planner will read a filled cell as "seats free".
+    expect(container.textContent ?? '').toMatch(/No colour here means "seats available"/);
+    expect(container.querySelectorAll('.dateflex__cell--query')).toHaveLength(1);
+  });
+
+  it('shows days the train does not run as their own state, never as unavailable', async () => {
+    // A Monday-only train searched on a Monday: most of the strip cannot be an option at all, and
+    // the reason is the timetable rather than demand.
+    const { container } = panel({ ...sleeperLeg, runsDays: 0b0000001, runsDaysAssumed: false });
+    await open(container);
+    expect(container.querySelectorAll('.dateflex__cell--no-run').length).toBeGreaterThan(0);
+    // Scoped to the strip: remedy 7's own rationale talks about replacing "the leg that has no
+    // seats", which is legitimate prose about a different thing. What must not happen is the
+    // strip itself describing a non-running day as though it were a demand problem.
+    const strip = container.querySelector('.dateflex');
+    expect(strip, 'the strip must be rendered').toBeTruthy();
+    const text = strip?.textContent ?? '';
+    expect(text).toMatch(/does not run/);
+    expect(text).not.toMatch(/sold out|no seats|fully booked|waitlisted/i);
+  });
+
+  it('flags assumed running days on the strip, where a weekly train otherwise looks daily', async () => {
+    const { container } = panel({ ...sleeperLeg, runsDaysAssumed: true });
+    await open(container);
+    expect(container.querySelectorAll('.dateflex__assumed').length).toBeGreaterThan(0);
+    expect(container.textContent ?? '').toMatch(/assumed daily/i);
+  });
+
   it('asks once, and does not re-fetch when the panel is closed and reopened', async () => {
     const { container } = panel(sleeperLeg);
     const details = container.querySelector('details') as HTMLDetailsElement;

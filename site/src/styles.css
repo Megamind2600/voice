@@ -570,3 +570,66 @@ code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-si
 .remedy__warn { margin: 0 0 0.3rem; font-size: 0.83rem; font-weight: 600; }
 .remedy__disclosures { margin: 0; padding-left: 1.05rem; font-size: 0.8rem; line-height: 1.55; }
 .remedy__disclosures li { margin-bottom: 0.2rem; }
+
+/* --- Phase 2: the date-flex strip ------------------------------------------
+   Four states, all of them facts. The legend carries the disclaimer because a
+   traveller arriving from any other planner will read a filled cell as "seats". */
+.dateflex { margin: 0.5rem 0 0.2rem; }
+.dateflex__summary { margin: 0 0 0.45rem; font-size: 0.82rem; line-height: 1.5; }
+.dateflex__strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+.dateflex__cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.05rem;
+  min-width: 2.5rem;
+  padding: 0.25rem 0.3rem 0.3rem;
+  border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  border-radius: var(--radius);
+  font-size: 0.72rem;
+  line-height: 1.25;
+  text-align: center;
+}
+.dateflex__dow { letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.7; }
+.dateflex__day { font-size: 0.95rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.dateflex__mark { font-size: 0.7rem; }
+.dateflex__cell--open { border-color: color-mix(in srgb, var(--good, #1b7f37) 55%, transparent); background: color-mix(in srgb, var(--good, #1b7f37) 9%, transparent); }
+.dateflex__cell--window-closed { border-color: color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.dateflex__cell--no-run { opacity: 0.55; border-style: dashed; }
+.dateflex__cell--past { opacity: 0.4; }
+.dateflex__cell--query { outline: 2px solid var(--ink); outline-offset: 1px; }
+.dateflex__cell--peak .dateflex__dow::after { content: ' ▲'; font-size: 0.6rem; }
+.dateflex__assumed {
+  position: absolute;
+  top: 0.1rem;
+  right: 0.18rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  opacity: 0.75;
+}
+.dateflex__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--ink) 74%, transparent);
+}
+.dateflex__legend li { display: flex; gap: 0.3rem; align-items: center; }
+.dateflex__key { display: inline-block; width: 0.7rem; height: 0.7rem; border: 1px solid color-mix(in srgb, var(--ink) 25%, transparent); border-radius: 2px; }
+.dateflex__key--open { border-color: color-mix(in srgb, var(--good, #1b7f37) 55%, transparent); background: color-mix(in srgb, var(--good, #1b7f37) 25%, transparent); }
+.dateflex__key--window-closed { border-color: color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--accent) 20%, transparent); }
+.dateflex__key--no-run { border-style: dashed; opacity: 0.55; }
+.dateflex__key--past { opacity: 0.4; }
+.dateflex__legendnote { flex-basis: 100%; font-size: 0.76rem; }

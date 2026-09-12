@@ -188,6 +188,8 @@ is a reviewed diff with a reason. So far:
 | Phase 1 UI | `app.js` 22 000 → 40 000 | The planner interface itself: form, itinerary cards, export, map |
 | Remedies UI | `app.js` 40 000 → 48 000, `app.css` 5 000 → 5 200, `total.js` 58 000 → 62 000 | The seven remedies and the split disclosures are mostly prose, and the prose *is* the feature — a split warning trimmed to fit a byte budget is a worse warning. Measured 41.4 KB against a 46.9 KB ceiling, so ~13% headroom rather than a fitted number |
 
+| Date-flex strip | `app.css` 5 200 → 6 000 | Twelve cells, a legend and four states; measured 4.8 KB against a 5.1 KB ceiling, i.e. 0.3 KB of margin, which is not a margin. Raised to 6 000 for ~24% headroom |
+
 The gate counts **every** JS chunk except the router and inline fallbacks, so code-splitting a
 panel into a lazy chunk does not hide it from the budget. That is deliberate: splitting changes
 when bytes arrive, not how many.

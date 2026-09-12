@@ -33,6 +33,7 @@ import { handoff } from '../availability/links';
 import { buildRemedyContext, stopsFromRaw } from '../state/remedyContext';
 import { router } from '../state/client';
 import { PlannerDepsContext } from './deps';
+import { DateFlexStrip } from './DateFlexStrip';
 
 export interface RemediesPanelProps {
   segment: RailSegment;
@@ -146,6 +147,18 @@ export function RemediesPanel(props: RemediesPanelProps) {
                     </li>
                   ))}
                 </ul>
+              )}
+
+              {r.id === 'date' && (
+                // The date remedy is the one whose options are a calendar, and a list of "+1 day"
+                // labels does not show the shape of the week. Same data, drawn as days.
+                <DateFlexStrip
+                  runsDays={s.runsDays}
+                  runsDaysAssumed={s.runsDaysAssumed}
+                  serviceDayOffset={s.serviceDayOffset}
+                  queryDateIso={dateIso}
+                  klass={s.klass}
+                />
               )}
 
               {r.splitsBlocked && r.splitsBlocked.length > 0 && (
