@@ -69,6 +69,19 @@ export function JourneyForm(props: JourneyFormProps) {
           />
         </div>
 
+        <div class="plan__swap-row">
+          <button
+            type="button"
+            class="btn plan__swap"
+            onClick={() => onChange({ ...plan, origin: plan.destination, destination: plan.origin })}
+            disabled={props.busy || plan.origin === null || plan.destination === null}
+            aria-label="Swap origin and destination"
+            title="Swap origin and destination"
+          >
+            ⇅ Swap stations
+          </button>
+        </div>
+
         <div class="plan__field plan__field--wide">
           <StationAutocomplete
             index={stations}

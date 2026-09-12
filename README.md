@@ -5,7 +5,7 @@ knows **where they are** and **when they're free** but has **no destination in m
 
 > **Status: Phases 0 and 1 shipped.** Data pipeline, packed dataset, worker, autocomplete and
 > timetable lookup (Phase 0), plus multi-leg journey search, fares, transfers between city
-> terminals, the results UI and share/copy/download (Phase 1). 340 tests, passing CI.
+> terminals, the results UI and share/copy/download (Phase 1). 648 tests, passing CI.
 > **Seat availability is Phase 2 and is not connected yet** — every rail leg says so rather
 > than guessing. Plan of record: [`PLAN.md`](PLAN.md). Research verified 2026-09-12.
 >
@@ -65,6 +65,24 @@ factor **calibrates to 1.037** rather than the ~1.25 assumed.
 Existing tools (IRCTC, ConfirmTkt, ixigo, RailYatri) all require you to already know your
 destination — they are booking tools. This is a **discovery** tool that happens to know
 about trains, and none of them do leg-splitting intelligence at all.
+
+## Run it locally
+
+```bash
+cd site
+npm install
+npm run dev        # → http://localhost:5173, hot reload
+```
+
+| Command | What it does |
+|---|---|
+| `npm test` | full suite (648 tests, incl. the real-dataset golden corpus) |
+| `npm run build && npm run budget` | production build + bundle-size gate (fails on regression) |
+| `npm run lint` / `npm run typecheck` | zero-warning lint, strict typecheck incl. tests |
+
+No API keys, no accounts, no setup beyond `npm install`. The packed timetable
+(`site/public/data/`) is committed, so search works offline on first load — the only
+network use is fetching those static files, cached in IndexedDB afterwards.
 
 ## Cost
 

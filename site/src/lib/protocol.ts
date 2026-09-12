@@ -14,11 +14,26 @@
 import type { Journey } from '../router/journey';
 import type { ResolvedGroup } from '../router/terminals';
 
+/**
+ * Where the packed dataset lives, as ABSOLUTE URLs resolved against the page.
+ *
+ * Every worker request may carry this. The worker remembers the latest one and loads
+ * graph.bin/manifest.json from it. Without it the worker would resolve the relative
+ * `./data/` path against its own script URL (`/src/worker/` in dev, `/assets/` in a
+ * build) and fetch HTML or a 404 instead of the dataset — the failure behind every
+ * search reporting a graph error. See `dataBaseUrl()` in state/cache.ts.
+ */
+export interface DataLocation {
+  manifestUrl: string;
+  /** Directory holding the .bin files, with a trailing slash. */
+  base: string;
+}
+
 export type WorkerRequest =
-  | { id: number; type: 'graph:load' }
-  | { id: number; type: 'graph:stats' }
-  | { id: number; type: 'train:stops'; train: number }
-  | { id: number; type: 'station:trains'; station: number; limit?: number }
+  | { id: number; type: 'graph:load'; data?: DataLocation }
+  | { id: number; type: 'graph:stats'; data?: DataLocation }
+  | { id: number; type: 'train:stops'; train: number; data?: DataLocation }
+  | { id: number; type: 'station:trains'; station: number; limit?: number; data?: DataLocation }
   | ConfigureRequest
   | JourneysRequest;
 
@@ -36,6 +51,7 @@ export interface ConfigureRequest {
   id: number;
   type: 'router:configure';
   groups: ResolvedGroup[];
+  data?: DataLocation;
 }
 
 export interface JourneysRequest {
@@ -72,6 +88,7 @@ export interface JourneysRequest {
   maxWaitMin?: number;
   maxFareRupees?: number | null;
   noFootpaths?: boolean;
+  data?: DataLocation;
 }
 
 export interface RawStop {

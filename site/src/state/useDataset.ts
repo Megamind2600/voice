@@ -12,7 +12,9 @@
 import { useEffect, useState } from 'preact/hooks';
 import { ContainerKind } from '../lib/binary';
 import { StationIndex } from '../lib/stations';
-import { loadDataset, loadManifest, type DatasetManifest, type LoadSource } from './cache';
+import {
+  dataBaseUrl, loadDataset, loadManifest, type DatasetManifest, type LoadSource,
+} from './cache';
 
 export type Phase = 'idle' | 'loading' | 'stations-ready' | 'ready' | 'error';
 
@@ -32,7 +34,12 @@ const INITIAL: DatasetState = {
   stationsMs: 0, graphSource: null, graphMs: 0, error: null,
 };
 
-export function useDataset(base = './data/'): DatasetState {
+/**
+ * @param base dataset directory URL. Defaults to the absolute, page-resolved URL rather
+ *   than a relative path so the main thread and the worker cache under identical
+ *   IndexedDB keys: the worker's download becomes a cache hit instead of a second copy.
+ */
+export function useDataset(base = dataBaseUrl()): DatasetState {
   const [state, setState] = useState<DatasetState>(INITIAL);
 
   useEffect(() => {

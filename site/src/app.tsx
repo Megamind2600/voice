@@ -14,6 +14,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import { router } from './state/client';
+import { dataLocation } from './state/cache';
 import { useDataset } from './state/useDataset';
 import { useJourneys, useWorkerConfigure, type PlanInput } from './state/useJourneys';
 import { resolveTerminalGroups } from './router/terminals';
@@ -57,7 +58,10 @@ export function App() {
   const [stops, setStops] = useState<RawStop[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => { void router.start(); }, []);
+  // The worker must be told where the dataset lives in absolute, page-resolved terms
+  // before it fetches anything: left to itself it resolves `./data/` against its own
+  // script URL and every search fails with a graph error. See `dataBaseUrl()`.
+  useEffect(() => { router.setDataLocation(dataLocation()); void router.start(); }, []);
 
   // Warm the graph as soon as the page settles, so the first search does not pay the download.
   useEffect(() => {
