@@ -136,6 +136,14 @@ describe('refusing to build a dishonest one', () => {
     expect(segmentFeatures(query({ board: 'KOTA', alight: 'KOTA' }), TRAIN, opts)).toBeNull();
   });
 
+  it('declines a journey beyond the advance-booking window, where the basis would extrapolate', () => {
+    // 2026-12-01 is 80 days out: IRCTC sells nothing that far ahead, and the fitted curve ends at
+    // its last knot (60), so a prediction there would be a slope nobody measured.
+    expect(segmentFeatures(query({ dateIso: '2026-12-01' }), TRAIN, opts)).toBeNull();
+    // Day 60 exactly is still inside it.
+    expect(segmentFeatures(query({ dateIso: '2026-11-11' }), TRAIN, opts)).not.toBeNull();
+  });
+
   it('declines a journey date that has already passed', () => {
     expect(segmentFeatures(query({ dateIso: '2026-09-01' }), TRAIN, opts)).toBeNull();
     // Today itself is still bookable, so it must not be swept up with the past.

@@ -366,8 +366,50 @@ cached, Tier 1 declines rather than inventing a segment share.
 | docs/01 §8 | Cascade order is **[T0, T1]**, not freshness-ordered | The published order is about *observations* — which answer about seats is likelier to be true now. Tier 0's answer is not an observation: "sleeper on a Rajdhani does not exist" is a structural fact that never goes stale. Predicting first would produce a probability for a ticket nobody can buy, wearing the same badge as a real prediction. The cost is nil, because T0 declines everything it cannot rule out |
 | docs/01 §9 | Tier 1 is **not bundled yet** | Wiring it into the UI ships `model.ts`, `features.ts` and `festivals.ts` in app.js — about 3 KB gzipped against 4.3 KB of headroom — to activate a path that cannot answer anything until a trained table exists. Paying that when the table lands is a one-line change; paying now buys nothing a traveller can see |
 
-**Still to do in Phase 2:** Tier 1 *training* on the Apache-2.0 corpus (the inference runtime, the
-feature extractor and the cascade assembly are built and tested; they need a table to run); Tier 3
+**Progress — the trainer (Phase 2b pipeline, shipped; still nothing to train on)**
+
+`site/tools/train/` fits a coefficient table: corpus validation, a hinge-basis logistic regression
+by gradient descent, PAV isotonic calibration, Wilson intervals, gates, and a CLI (`npm run train`,
+run through `vite-node` because `src/` uses extensionless imports that plain Node type-stripping
+cannot resolve — vite-node is already present as a vitest dependency, so nothing new is installed).
+
+It imports `segmentFeatures()` from `src/` rather than re-deriving features, which is the property
+that matters most: a trainer that re-implemented feature extraction would produce coefficients
+meaning something subtly different from what the runtime computes, and every prediction would be
+wrong in a way no test of either half could see.
+
+The gates are the point of the exercise, because a trainer that always produces a model produces one
+from whatever it is given — 40 rows, a corpus where every ticket confirmed, or labels that are pure
+noise. All three yield a table that loads, validates and emits confident probabilities. So: ≥ 2 000
+usable rows, a confirmation rate inside 2–98%, held-out AUC ≥ 0.60, held-out log-loss better than
+the base-rate model, ≥ 5 calibration bins, transcription and round-trip error under their ceilings,
+and the emitted table must survive the runtime's own `parseModel()`. Any failure means `table: null`
+plus a report naming the measurement that fell short.
+
+Three tests carry more weight than the rest. A **recovery test** generates 3 000 observations from a
+known logistic function, runs the whole pipeline, and checks that the emitted table separates
+held-out tickets above AUC 0.78, recovers the signs that were put in, and round-trips through
+`model.ts` to the same numbers — without it, a trainer that refused everything would pass every
+other test. A **noise test** fits the same pipeline to labels independent of the features and
+asserts the AUC gate refuses it. A **real-dataset test** points the trainer's reader at the shipped
+`graph.bin`/`stations.bin` and derives a feature vector for a real train's end-to-end segment.
+
+One honest limit is recorded in the tests rather than engineered away: in the fixture corpus, 1A
+appears only on a Rajdhani, always in a single coach of about twenty berths, so its class effect is
+not separately identifiable from its capacity effect. The fit gets the *prediction* right while the
+individual coefficient is meaningless, and asserting a sign there would test a property of the
+fixture and call it a property of the trainer. Real data has 1A across many trains and rake sizes.
+
+**Nothing has been trained, and nothing can be yet.** No corpus ships with this repository and none
+may be synthesised: fabricated outcomes would produce a model predicting the fabricator's
+assumptions, badged as a forecast about Indian Railways, which is worse than no model because it
+would be believed. Two guards keep that true — a test asserts no `model.json` exists in the served
+data directory, and the CLI refuses to write there without `--ship`, because the moment such a file
+exists the deployed app fetches it and probabilities reach travellers.
+
+**Still to do in Phase 2:** obtaining a *licensed corpus* to train on — the inference runtime, the
+feature extractor, the cascade assembly and the whole training pipeline are built and tested, and
+all of them are waiting on data that may be lawfully used; Tier 3
 relay (only after Pages bandwidth telemetry
 proves it is needed); Tier 4 bring-your-own-key; wiring remedies into the worker so they drive a
 re-search; rendering predictions in the UI behind the badge; and golden corpus v2 with

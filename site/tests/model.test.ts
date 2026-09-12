@@ -170,20 +170,25 @@ describe('the loader refuses a table it cannot run', () => {
 });
 
 describe('the arithmetic', () => {
-  it('is exact at a knot and interpolates between them', () => {
+  it('adds each hinge at its own knot, which is what makes the shipped table exact', () => {
+    // knots [0,30,60], coef [0.02, 0.01, 0]: slope 0.02 to day 30, then 0.03, then 0.03.
     const term = model().numeric.daysToJourney;
     expect(termAt(term, 0)).toBe(0);
-    // At x=30 the interpolated coefficient is the second one: 0.01 * 30.
-    expect(termAt(term, 30)).toBeCloseTo(0.3, 12);
-    // Halfway to 30 the coefficient is halfway between 0.02 and 0.01.
-    expect(termAt(term, 15)).toBeCloseTo((0.015) * 15, 12);
+    expect(termAt(term, 15)).toBeCloseTo(0.02 * 15, 12);
+    expect(termAt(term, 30)).toBeCloseTo(0.02 * 30, 12);
+    // Past day 30 the second coefficient switches on and applies only to the excess.
+    expect(termAt(term, 45)).toBeCloseTo(0.02 * 45 + 0.01 * 15, 12);
+    // The third coefficient is zero, so the slope stops changing at day 60.
+    expect(termAt(term, 60)).toBeCloseTo(0.02 * 60 + 0.01 * 30, 12);
   });
 
-  it('clamps outside the knot range instead of extrapolating a slope nobody measured', () => {
+  it('is continuous at every knot, so no term can jump', () => {
     const term = model().numeric.daysToJourney;
-    // Beyond the last knot the coefficient is 0, so the term stays 0 rather than going negative.
-    expect(termAt(term, 400)).toBe(0);
-    expect(termAt(term, -5)).toBeCloseTo(0.02 * -5, 12);
+    for (const k of [0, 30, 60]) {
+      const below = termAt(term, k - 1e-9);
+      const above = termAt(term, k + 1e-9);
+      expect(Math.abs(above - below)).toBeLessThan(1e-7);
+    }
   });
 
   it('handles a linear term', () => {

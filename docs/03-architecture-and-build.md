@@ -231,7 +231,7 @@ voice/
 │   ├── ntes/                 [Phase 5] crawl.py · poll_delays.py · client.py
 │   ├── osm/                  [Phase 3] overpass_stations.py · geocode_stations.mjs
 │   ├── wikidata/             [Phase 3] pois_sparql.py
-│   └── model/                [Phase 2] train.py · calibrate.py · distil.py
+│   └── model/                ✗ NOT BUILT HERE — the trainer lives in site/tools/train/, see below
 ├── data/
 │   ├── raw/                  ✗ gitignored — 95 MB cloned source, re-fetch locally
 │   └── canonical/            ✗ gitignored except integrity.json + meta.json (committed)
@@ -239,15 +239,41 @@ voice/
 │   ├── public/data/          ✓ stations.bin · graph.bin · manifest.json — COMMITTED (1.5 MB)
 │   ├── src/
 │   │   ├── lib/              ✓ binary.ts · stations.ts · graph.ts · protocol.ts
-│   │   ├── state/            ✓ cache.ts (IndexedDB) · client.ts · useDataset.ts
+│   │   ├── state/            ✓ cache.ts (IndexedDB) · client.ts · useDataset.ts · plan.ts
+│   │   │                       · remedyContext.ts
+│   │   ├── router/           ✓ csa.ts · timetable.ts · journey.ts · transfers.ts · terminals.ts
+│   │   │                       · fares.ts
+│   │   ├── availability/     ✓ status.ts · rules.ts · links.ts · split.ts · remedies.ts
+│   │   │                       · rake.ts (Tier 0) · tier.ts (cascade) · dateflex.ts
+│   │   │                       · model.ts · features.ts · festivals.ts · stack.ts
 │   │   ├── worker/           ✓ router.ts · handlers.ts · inline.ts (fallback)
 │   │   └── ui/               ✓ StationAutocomplete · StopTable · TrainCard · StatusBar
-│   │                           · Disclaimer
-│   ├── tests/                ✓ 116 tests: binary · stations · graph · cache · dataset · ui
+│   │                           · Disclaimer · ItineraryCard · LegDetail · AvailabilityPanel
+│   │                           · RemediesPanel · DateFlexStrip · ExportMenu
+│   ├── tools/train/          ✓ corpus.ts · fit.ts · train.ts · dataset.ts · cli.ts — `npm run
+│   │                           train`, offline, not bundled, no runtime dependency
+│   ├── tests/                ✓ 630 tests over 23 files
 │   ├── scripts/check-budget.mjs ✓
 │   └── budget.json           ✓ committed ceilings, so a raise is a reviewable diff
 └── docs/  PLAN.md  README.md
 ```
+
+**Why the trainer is TypeScript under `site/tools/`, not Python under `harvester/model/`.** The
+plan put `train.py · calibrate.py · distil.py` beside the harvester. Three reasons moved it:
+
+1. **It must import the serving code.** The trainer derives features with `segmentFeatures()` from
+   `src/availability/features.ts` and validates its output with `parseModel()` from
+   `src/availability/model.ts`. A Python trainer would have to re-implement both, and a
+   re-implementation is a second opinion about what a feature means — the drift it would introduce
+   is invisible to tests of either half and wrong in every prediction.
+2. **It costs no Actions minutes.** Its 37 tests run inside the existing `npm test` invocation,
+   rather than adding a Python job, a matrix entry, or a dependency install to CI.
+3. **No new toolchain.** `npm run train` is `vite-node tools/train/cli.ts`; vite-node is already in
+   `node_modules` as a vitest dependency. It is needed rather than plain `node` because `src/` uses
+   extensionless imports, which Node's type stripping does not resolve.
+
+`tools/` is outside `src/`, so nothing in it can reach a bundle, and the budget gate confirms it:
+the trainer added 55 KB of source and 0 KB to every served file.
 
 **Three data tiers, treated differently on purpose:**
 

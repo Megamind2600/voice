@@ -10,9 +10,10 @@
     "preview": "vite preview --host 0.0.0.0 --port 4173",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint src tests --max-warnings 0",
+    "lint": "eslint src tests tools --max-warnings 0",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
-    "budget": "node scripts/check-budget.mjs"
+    "budget": "node scripts/check-budget.mjs",
+    "train": "vite-node tools/train/cli.ts"
   },
   "dependencies": {
     "preact": "10.24.3"

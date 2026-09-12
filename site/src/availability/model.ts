@@ -208,27 +208,35 @@ export function parseModel(json: unknown): ModelCoefficients {
 }
 
 /**
- * Evaluate a piecewise-linear term at `x`, interpolating between knots and clamping outside them.
+ * Evaluate a piecewise-linear term at `x`.
  *
- * Clamping rather than extrapolating is the safe direction: the curve was fitted on the knot
- * range, and extending its slope to, say, 400 days would produce a coefficient nobody measured.
+ * `coef[0]` is the slope from the first knot, and each later `coef[j]` is an ADDITIONAL slope that
+ * switches on at `knots[j]`:
+ *
+ *     term(x) = coef[0]·x + Σ_{j≥1} coef[j]·max(0, x − knots[j])
+ *
+ * That is the linear-spline (hinge) basis, and choosing it is what makes the shipped table exact
+ * rather than approximate. A logistic regression fitted on hinge columns can be transcribed into
+ * this shape coefficient for coefficient, with no distillation error and nothing to re-fit — where
+ * an interpolated-coefficient reading of the same JSON would be a different function class
+ * (piecewise-quadratic in x), and representing a fitted spline in it would cost a least-squares
+ * approximation and a gate to bound the damage.
+ *
+ * The function is continuous by construction: every hinge is zero at its own knot, so no term can
+ * jump. Beyond the last knot it continues at the final total slope rather than flattening. That
+ * extrapolation cannot be reached in practice — `segmentFeatures()` refuses a journey further out
+ * than the 60-day advance window, and a segment share cannot exceed 1 — so both features are
+ * bounded by construction at the last knot.
  */
 export function termAt(term: NumericTerm, x: number): number {
   if (term.kind === 'linear') return term.coef * x;
   const { knots, coef } = term;
-  if (x <= knots[0]) return coef[0] * x;
-  const last = knots.length - 1;
-  if (x >= knots[last]) return coef[last] * x;
-  for (let i = 1; i <= last; i++) {
-    if (x <= knots[i]) {
-      const span = knots[i] - knots[i - 1];
-      const t = span === 0 ? 0 : (x - knots[i - 1]) / span;
-      // Interpolate the COEFFICIENT, then apply it to x, so the function stays continuous in x
-      // rather than jumping at every knot.
-      return (coef[i - 1] + (coef[i] - coef[i - 1]) * t) * x;
-    }
+  let total = coef[0] * x;
+  for (let j = 1; j < knots.length; j++) {
+    const d = x - knots[j];
+    if (d > 0) total += coef[j] * d;
   }
-  return coef[last] * x;
+  return total;
 }
 
 export function sigmoid(z: number): number {

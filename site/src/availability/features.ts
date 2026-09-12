@@ -34,7 +34,7 @@
  */
 import type { AvailabilityQuery } from './tier';
 import type { FeatureExtractor, ModelFeatures } from './model';
-import { DAY_NAMES, addDays, daysBetween, istNow, weekdayBit } from './rules';
+import { ARP_DAYS, DAY_NAMES, addDays, daysBetween, istNow, weekdayBit } from './rules';
 import { capacityFor, type TrainFacts } from './rake';
 import { festivalOf, type FestivalEntry } from './festivals';
 
@@ -126,6 +126,11 @@ export function segmentFeatures(
   // A date already gone cannot be booked, and the model's knot range starts at zero. Predicting
   // for the past would produce a number nobody can act on.
   if (!Number.isFinite(daysToJourney) || daysToJourney < 0) return null;
+  // Beyond the advance window there is nothing to predict and nothing to buy: IRCTC does not sell
+  // the ticket, and the fitted hinge basis would be extrapolated past its last knot into a slope
+  // nobody measured. Refusing here is what makes the extrapolation unreachable rather than merely
+  // unlikely.
+  if (daysToJourney > ARP_DAYS) return null;
 
   const boardIdx = opts.resolveStation(q.board);
   const alightIdx = opts.resolveStation(q.alight);

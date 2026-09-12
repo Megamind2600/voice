@@ -432,6 +432,51 @@ Four refusals are built into it, because each one is a way of producing a confid
   string, and a test scans every file in `src/ui/` and fails the build if any of them mentions
   `pConfirm` without importing the badge.
 
+**How `knots`/`coef` are read.** `coef[0]` is the slope from the first knot and each later
+`coef[j]` is an *additional* slope switching on at `knots[j]`:
+
+```
+term(x) = coef[0]·x + Σ_{j≥1} coef[j]·max(0, x − knots[j])
+```
+
+That is the linear-spline (hinge) basis, and the choice is what makes the shipped table exact rather
+than approximate. A logistic regression fitted on hinge columns transcribes into this shape
+coefficient for coefficient, with nothing to re-fit and no distillation error to bound. Reading the
+same JSON as an *interpolated coefficient* — `coef(x)·x` — would be a different function class
+(piecewise-quadratic in `x`), and representing a fitted spline in it would need a least-squares
+approximation plus a gate to bound the damage. The function is continuous by construction, since
+every hinge is zero at its own knot.
+
+**The trainer.** `site/tools/train/` fits the table: `corpus.ts` validates observations, `fit.ts`
+holds the numerics (hinge basis, L2 logistic regression by gradient descent, PAV isotonic
+calibration, Wilson intervals), `train.ts` runs the pipeline and applies the gates, `dataset.ts`
+reads the packed timetable in Node, and `cli.ts` is the entry point (`npm run train -- --corpus
+rows.jsonl --out model.json`). It reuses `segmentFeatures()` from `src/`, so training and serving
+derive features from the same code and cannot drift.
+
+Each row needs a **`bookedOn`** date. Without it `daysToJourney` would be measured against the
+training run's date, every historical journey would look already departed, and the model would lose
+the one feature that explains why waitlists clear. Rows booked further out than the 60-day advance
+window are rejected: IRCTC does not sell them, so such a row is a data error.
+
+Splits are 64/16/20 by a hash of the tuple identity — fit, early-stopping validation, and a holdout
+the fit never sees. Hashing identity rather than row position means a corpus that arrives sorted by
+train or by date cannot leak across the split, which is the failure that inflates held-out AUC just
+enough to ship a bad model. Nothing in the pipeline is random, so a corpus trains to the same table
+byte for byte on every run and every machine.
+
+Gates, any one of which means no table is emitted: ≥ 2 000 usable rows; a confirmation rate between
+2% and 98%; held-out **AUC ≥ 0.60**; held-out log-loss better than a model that only knows the base
+rate; ≥ 5 calibration bins; transcription error and end-to-end round-trip error both under their
+ceilings; and the emitted table must survive `parseModel()`, the loader the runtime actually uses.
+The round-trip check is the important one — it feeds the emitted JSON back through the real runtime
+and compares its linear predictor against the fit on every holdout row, so a table cannot ship
+predicting something other than what was measured.
+
+A 90% interval is claimed only when every populated calibration bin has ≥ 200 holdout rows, and it
+is then the widest two-sided Wilson half-width across those bins. Otherwise `ciHalfWidth` is absent
+and the UI says "no interval shipped".
+
 Deviations from the shape specified above, all of them omissions rather than substitutions:
 
 | Specified | Runtime does | Why |
