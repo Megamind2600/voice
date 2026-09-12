@@ -409,7 +409,7 @@ Best-effort, designed to fail invisibly:
 feels wrong, ship without it**: T0/T1/T5 are a complete product.
 
 Also used for the **runtime NTES live-status path** that replaced the deleted cron
-([`PLAN.md` §8](../PLAN.md#8-github-actions-budget-252-minmonth)) — same relay mechanism,
+([`PLAN.md` §8](../PLAN.md#8-github-actions-budget)) — same relay mechanism,
 same silent degradation, but for delays/cancellations rather than availability, which is
 both more defensible and more useful.
 

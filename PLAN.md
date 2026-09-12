@@ -10,7 +10,7 @@ wouldn't?"*
 > **Status: plan only. Nothing implemented.** · Research verified 2026-09-12.
 
 **Budget:** ~**252 GitHub Actions minutes/month** amortized (worst month ~465, i.e. 23% of
-the 2,000 free allowance). See [§8](#8-github-actions-budget-252-minmonth).
+the 2,000 free allowance). See [§8](#8-github-actions-budget).
 
 ---
 
@@ -19,7 +19,7 @@ the 2,000 free allowance). See [§8](#8-github-actions-budget-252-minmonth).
 1. [The five facts that shape everything](#1-the-five-facts) · 2. [Product](#2-product) ·
 3. [Input/output contract](#3-contract) · 4. [Architecture](#4-architecture) ·
 5. [Availability: 5-tier cascade](#5-availability) · 6. [Routing and the 7 remedies](#6-routing) ·
-7. [Discovery mode](#7-discovery) · **8. [Actions budget](#8-github-actions-budget-252-minmonth)** ·
+7. [Discovery mode](#7-discovery) · **8. [Actions budget](#8-github-actions-budget)** ·
 9. [Size budget](#9-size-budget) · 10. [Scope: in / cut](#10-scope) · 11. [Roadmap](#11-roadmap)
 
 ---
@@ -204,7 +204,7 @@ transfer is **reframed as a stopover with things to do**; a rail failure spawns 
      └─ IRCTC           deep links: verify + book
 ```
 
-★ The live-data path is the big change from the previous draft — see [§8](#8-github-actions-budget-252-minmonth).
+★ The live-data path is the big change from the previous draft — see [§8](#8-github-actions-budget).
 
 ### Stack
 
@@ -342,7 +342,7 @@ Detail: [`docs/02-routing-and-discovery.md`](docs/02-routing-and-discovery.md).
 
 ---
 
-## 8. GitHub Actions budget (252 min/month)
+## 8. GitHub Actions budget
 
 Free tier is **2,000 min/month** for public repos. Two easy-to-miss facts: **matrix shards
 bill separately** (5 parallel 60-min shards = 300 min, not 60), and minutes round up per job.
@@ -375,18 +375,37 @@ The new runtime path:
    monsoon, strikes) — costs minutes only when deliberately used.
 5. Prominent dataset-age banner + staleness warning >30 days.
 
-### The budget
+### The budget — what runs today
+
+No crons exist yet, so the recurring cost is CI alone:
+
+| Workflow | Trigger | Per run | Runs/mo | **min/mo** |
+|---|---|---|---|---|
+| `ci` | **PR only** | ~2.5 | ~20 | **50** |
+| `deploy` | **`main` only** — verifies *then* publishes | ~3 | ~30 | **90** |
+| `harvest` | `workflow_dispatch` only | ~4 | 0 unless invoked | **0** |
+| | | | **Total today** | **~140** |
+
+`ci` is PR-only on purpose. Running it on `main` *and* having `deploy` verify would check
+every main commit twice and, worse, the two would race — a bad commit could publish before
+CI reported the failure. One verifier per commit; a failed verification leaves the previous
+version live.
+
+### The budget — full product (crons switch on at Phase 5)
 
 | Workflow | Trigger | Per run | /yr | **min/mo** |
 |---|---|---|---|---|
 | `harvest` — **full** | quarterly cron (`month%3==1`) | 300 (5 shards × 60) | 4 | **100** |
 | `harvest` — **delta** | monthly cron (other 8 months) | 45 | 8 | **30** |
 | geo + pois + model | **chained** into full runs | 65 | 4 | **22** |
-| `build-dataset` | chained into every harvest | 10 | 12 | **10** |
-| `ci` | **PR + `main` only** (not every push) | 5 | ~132 | **55** |
-| `deploy` | `main` only | 3 | ~108 | **27** |
+| `ci` | PR only | 2.5 | ~240 | **50** |
+| `deploy` | `main` only | 3 | ~360 | **90** |
 | `refresh-live` | **`workflow_dispatch` only** | 8 | ~12 | **8** |
-| | | | **Total** | **~252** |
+| | | | **Total** | **~300** |
+
+**1,735 → 252 planned → ~140 today.** The full-product figure sits slightly above the
+original 252 estimate because `deploy` now verifies rather than only publishing; that buys
+the no-race guarantee and costs ~48 min/month.
 
 **Was 1,735 → now 252 min/month = 85% reduction.** Your target was ≤867; this is **3.4×
 under** it.
@@ -439,24 +458,47 @@ Development runs on `npm run dev` locally throughout — no Actions involved.
 
 Binding constraint is bytes shipped to the browser, not compute.
 
-| Asset | Records | Raw | Served | When |
+**Measured, Phase 0 (CC0 bootstrap — 5,174 trains, 7,219 stations, 98,055 legs):**
+
+| Asset | Records | Raw | Served (gzip) | When |
 |---|---|---|---|---|
-| `stations.bin` | ~8,000 | 500 KB | **120 KB** | immediately — autocomplete works |
-| `connections.bin` | ~290,000 | 5.5 MB | **1.8 MB** | first search (real progress, cancellable) |
-| `trains.bin` | ~10,000 | 900 KB | **300 KB** | with connections |
-| `model.json` | coefficients | 150 KB | **40 KB** | with connections |
-| `fares/festivals/holidays.json` | — | 130 KB | **35 KB** | immediately |
-| `pois.bin` | ~10,000 | 1.5 MB | **350 KB** | discovery mode only |
-| `airports/bus-corridors.json` | ~630 | 250 KB | **60 KB** | only if inter-modal allowed |
+| `app.js` + `worker.js` + CSS | — | 65 KB | **22 KB** | immediately |
+| `stations.bin` | 7,219 | 158 KB | **76 KB** | immediately — autocomplete works |
+| `graph.bin` | 5,174 trains + 98,055 legs + geo | 1.32 MB | **782 KB** | into the worker, real progress |
+| **Total first visit** | | **1.54 MB** | **890 KB** | |
+
+Ceilings are committed in `site/budget.json` and enforced by `npm run budget` in CI: a size
+regression **fails the build**. Current headroom — first paint 76 KB against a 120 KB
+budget, total 890 KB against 1 MB.
+
+**Projected, full product (NTES-era, ~12,000 trains):**
+
+| Asset | Records | Served | When |
+|---|---|---|---|
+| `stations.bin` | ~8,500 | **~120 KB** | immediately |
+| `graph.bin` | ~12,000 trains, ~290,000 legs | **~2.0 MB** | first search |
+| `model.json` | availability coefficients | **40 KB** | with the graph |
+| `fares/festivals/holidays.json` | — | **35 KB** | immediately |
+| `pois.bin` | ~10,000 | **350 KB** | discovery mode only |
+| `airports/bus-corridors.json` | ~630 | **60 KB** | only if inter-modal allowed |
 
 **First paint <200 KB · full targeted search ~2.3 MB · full discovery ~2.7 MB.**
 
-100 GB/month ÷ 2.7 MB ≈ **37,000 full sessions**; service worker + IndexedDB make repeat
-visits near-free and the timetable works **fully offline**. A CI gate **fails the build** on
-bundle or dataset size regression.
+100 GB/month ÷ 2.7 MB ≈ **37,000 full sessions**; IndexedDB makes repeat visits near-free
+(measured: no network at all once cached) and the timetable works **fully offline**.
 
-Connection math: 290,000 × 19 bytes (SoA: `depTs`/`arrTs` Int32, `trainIx`/`fromStn`/
-`toStn`/`distKm`/`classMask` Uint16, `dayOff` Uint8) = 5.5 MB.
+Connection math, as built: 98,055 × **10 bytes** (`depMin`/`arrMin`/`fromStn`/`toStn`/
+`distKm` as Uint16) = 958 KB. The original estimate was 290,000 × 19 bytes = 5.5 MB. Two
+changes account for the gap:
+
+1. **Times are relative to each train's origin departure, not absolute**, so they fit in a
+   Uint16 (max observed 7,045 min) instead of an Int32. The wall clock is recovered as
+   `originDepMin + relMin`; absolute time depends on the service date anyway, so it had to
+   be resolved at query time regardless.
+2. **No `trainIx` per connection.** Connections are grouped by train, so ownership is
+   implicit and recoverable by binary search over `connStart`.
+
+At NTES scale (~290,000 legs) the same layout gives ~2.9 MB raw rather than 5.5 MB.
 
 ---
 
@@ -494,16 +536,45 @@ No hammering government servers — politeness is a design requirement.
 
 | # | Phase | Delivers | Actions | Est. | Risk |
 |---|---|---|---|---|---|
-| 0 | **Foundations + bootstrap data** | Vite/Preact/TS scaffold, Pages deploy, design system, a11y baseline, CC0 dataset live, autocomplete, train lookup | **~0** | 5–7 d | Low |
+| 0 | **Foundations + bootstrap data** ✅ **DONE** | Vite/Preact/TS scaffold, Pages deploy, design system, a11y baseline, CC0 dataset live, autocomplete, train lookup | **~0** | 5–7 d | Low |
 | 1 | **Routing engine** | CSA + Pareto + profile, transfers, terminal groups, fare engine, results screen, Leaflet map, golden corpus v1 | ~0 | 12–16 d | Med |
 | 2 | **Availability + leg-splitting** | Tiers 0/1/5, date-flex heatmap, quota/class cascade, status parser, Tatkal arithmetic, all 7 remedies, explained splits, IRCTC deep links | ~5 min/qtr | 20–26 d | **High** |
 | 3 | **Discovery mode** | Reverse sweep, POI index, scoring + MMR, destination cards, weather, sliders | ~22 min/qtr | 14–18 d | Med |
 | 4 | **Inter-modal + stopovers + round trip** | Bus/air/road bridges, auto-derived candidates, stopover promotion, joint round-trip, .ics/share/text export | ~0 | 12–16 d | Med |
 | 5 | **Live-at-runtime + PWA + polish** | NTES runtime path, verify interstitial, offline, perf pass, enable crons | **~252/mo** | 8–12 d | Low |
 
-**MVP = Phases 0→2, ~37–49 days.** That already beats IRCTC for *planning*: multi-leg
-decomposition, seven remedies, explained splits, and a working availability story. No free
-tool does the leg-splitting at all. **Full product ≈ 71–95 days.**
+### Phase 0 delivered
+
+Everything below is built, tested and passing CI — not planned.
+
+| Acceptance criterion | Result |
+|---|---|
+| Push → site live ≤ 5 min | `deploy.yml` verifies then publishes in ~3 min |
+| CI fails on lint / type / test / bundle-size regression | all five are separate failing steps |
+| Lighthouse a11y ≥ 95 | 19 DOM tests pin the ARIA combobox contract directly (Lighthouse cannot exercise a combobox); skip link, labels, live region, visible focus, `prefers-reduced-motion` all in place |
+| Autocomplete works from ~120 KB before the graph loads | `stations.bin` = **76 KB gzip**; coordinates were moved into `graph.bin` specifically to hit this |
+| Repeat visit < 300 ms from IndexedDB | cache validated by manifest sha256; a warm load makes **zero** network requests |
+| Dataset labelled `BOOTSTRAP · 2016` | flag lives in the container header, so it cannot be forgotten in one view |
+| Disclaimer on every page | non-dismissible `role="note"`, carrying both required facts |
+| Total Actions minutes this phase < 30 | **0 spent** — the dataset was harvested locally and committed |
+
+**Dataset:** 417,080 raw stop rows → **103,229 genuine stops** across 5,174 trains and 7,219
+stations, packed into **1.5 MB raw / 890 KB gzip**. 116 tests, 0 lint warnings, typecheck
+clean.
+
+Three findings changed the design, all recorded in
+[`docs/03-architecture-and-build.md`](docs/03-architecture-and-build.md#3-binary-container):
+**75% of the source's "stops" are pass-throughs** the train never halts at (filtering them
+is a correctness fix before it is a size win); **file order is already route order**, so
+sorting by `(day, time)` destroys it; and the rail detour factor **calibrates to 1.037**,
+not the ~1.25 assumed, because summing haversines over consecutive stops already traces the
+route.
+
+### Remaining phases
+
+**MVP = Phases 1→2 on top of this, ~32–42 days.** That already beats IRCTC for *planning*:
+multi-leg decomposition, seven remedies, explained splits, and a working availability story.
+No free tool does the leg-splitting at all. **Full product ≈ 66–88 days from here.**
 
 **Phase 3 is the differentiator** and should start the moment Phase 2 lands.
 

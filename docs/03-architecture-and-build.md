@@ -80,26 +80,67 @@ answer, never an error the user has to act on.
 container mapped directly to typed arrays. **Zero parse time** — the buffers *are* the
 structures.
 
+Built and verified by `harvester/pack_binary.py`, read by `site/src/lib/binary.ts`, and
+round-tripped record-by-record in CI by `harvester/validate/integrity.py`.
+
 ```
 ┌──────────── 32-byte header ────────────┐
-│ magic "RRLM" 4 · version u16 2 · flags u16 2 · sections u32 4
-│ generatedAt u64 8  ← drives freshness badges
-│ sourceHash  u64 8  ← drives cache invalidation
-├──────────── section directory ─────────┤
-│ per section: id u16 · offset u32 · length u32 · count u32
-├──────────── section bodies ────────────┤
-│ STATIONS   SoA: codes as fixed 5-byte ASCII; names as offset+len into a shared
-│            string blob; lat/lon Int32 (×1e6); state/zone u8
-│ TRAINS     number u32 · nameOff · typeCode u8 · runsDays bitmask u8 ·
-│            origin/dest station u16 · distance u32 · classes mask
-│ CONNECTIONS the hot array, SoA, sorted ascending by depTs — see 02-routing §2
+│ magic "RRLM" 4 · version u16 2 · kind u8 1 · flags u8 1
+│ sectionCount u16 2 · payloadLength u32 4 · contentHash 16
+├──────────── section directory (20 B each) ────────────┤
+│ id u16 · pad u16 · offset u32 · byteLength u32 · count u32 · itemSize u16 · pad u16
+├──────────── section bodies, each 4-byte aligned ──────┤
+│ STRINGS      shared NUL-terminated UTF-8 blob; records hold a byte offset
+│ STATIONS     12 B AoS: code[5] ascii · nameOff u32 · rank u8 · calls u16
+│ STATION_GEO   8 B: lat f32 · lon f32   (same index order as STATIONS)
+│ TRAINS       32 B: see word layout below
+│ CONNECTIONS  10 B: depMin u16 · arrMin u16 · fromStn u16 · toStn u16 · distKm u16
 └────────────────────────────────────────┘
+
+TRAIN word layout as a Uint32Array view (8 words):
+  w0 nameOff    w1 numberOff   w2 connStart
+  w3 connCount | durationMin<<16        w4 distanceKm | originStn<<16
+  w5 destStn   | classes<<16            w6 originDepMin | reserved<<16
+  w7 type | runsDays<<8 | flags<<16 | pad<<24
 ```
 
-**String interning:** names go into one shared blob with offset+length refs. Station names
-repeat across thousands of stop records; interning cuts name storage ~90%.
+**Two files, not one.** `stations.bin` (158 KB → **76 KB gzip**) and `graph.bin`
+(1.3 MB → **782 KB gzip**). Splitting them is what makes the first-paint budget reachable:
+autocomplete needs names, codes and rank, and nothing else. Coordinates are only needed by
+maps, direction preference and discovery — all of which come *after* the graph — so
+`STATION_GEO` ships in `graph.bin`. Moving 8 bytes per station across that boundary took
+first paint from 130 KB to 76 KB gzip.
 
-**Connection math:** 290,000 × 19 bytes = 5.5 MB raw → ~1.8 MB brotli.
+**No timestamp in the header.** The original design carried `generatedAt u64`. It was
+dropped: a build timestamp makes every rebuild differ by 8 bytes, which destroys
+byte-identical output and turns every CI size diff into noise. Freshness lives in
+`manifest.json` (content hash + source label) and in the `flags` byte, so the binaries
+themselves are a pure function of their inputs.
+
+**Connection times are relative, not absolute.** `depMin`/`arrMin` are minutes after that
+train's own origin departure, which is what lets them fit in a u16 (max observed 7,045).
+The absolute wall-clock time is recovered as `originDepMin + relMin`. Storing absolute
+timestamps as i32 — the original 19-byte plan — would have cost ~400 KB for no benefit,
+because the absolute time depends on the service date anyway and must be resolved at query
+time from `runsDays`.
+
+**Connections are NOT globally sorted by `depTs`.** The plan called for a globally sorted
+array because CSA scans in departure order. The implementation instead stores them grouped
+by train (which needs no per-connection train id, saving 4 bytes each) and transposes them
+into per-station adjacency lists at load. Global sorting is then a Phase 1 concern that
+happens *after* service-date expansion, because sorting relative times across different
+trains is meaningless.
+
+**String interning:** names go into one shared blob with offset refs. Station names repeat
+across thousands of stop records; interning cuts name storage ~90%.
+
+**Connection math, as built:** 98,055 × 10 bytes = 958 KB raw → 782 KB gzip for the whole
+graph container. The original 290,000 × 19 bytes estimate assumed every station on a route
+is a stop. It is not: **75% of the source's stop rows are pass-throughs** the train never
+halts at (the Howrah Rajdhani lists 218 "stops" and actually makes 8). Filtering those out
+is a correctness fix first — boarding at a pass-through is physically impossible — and a
+3× size win second.
+
 
 ---
 
@@ -120,17 +161,24 @@ repeat across thousands of stop records; interning cuts name storage ~90%.
 ## 5. Loading and caching
 
 ```
-t=0     HTML + CSS + JS + stations.bin (~120 KB)  → autocomplete works IMMEDIATELY
-t≈0.3s  form fully usable; "Plan" shows remaining download
-        connections.bin + trains.bin + model (~2.2 MB) streams in background
-        → real byte-count progress, cancellable
-t≈1.5s  full targeted search available
-on-demand  pois.bin (~350 KB)          only when discovery mode opens
-on-demand  airports/bus-corridors      only if allowIntermodal is on
-on-demand  Wikipedia text/photos       only on destination-card expand
-on-demand  Open-Meteo                  one batched call for shown destinations
-on-demand  NTES live status            only when user asks / journey is <48 h away
+t=0     HTML + CSS + JS (~22 KB gz) + manifest.json (~1 KB)
+t≈0.1s  stations.bin (76 KB gz) → autocomplete works IMMEDIATELY
+        measured: StationIndex build over 7,219 stations < 20 ms
+t≈0.3s  form fully usable; status bar shows the graph still downloading
+        graph.bin (782 KB gz) streams into the WORKER, off the main thread
+t≈1.5s  train lookups available; real byte-count progress, cancellable
+repeat  both containers served from IndexedDB, validated by manifest sha256
+        → no network at all, which is how a repeat visit stays under 300 ms
+on-demand  pois.bin (~350 KB)          only when discovery mode opens      [Phase 3]
+on-demand  airports/bus-corridors      only if allowIntermodal is on       [Phase 4]
+on-demand  Wikipedia text/photos       only on destination-card expand     [Phase 3]
+on-demand  Open-Meteo                  one batched call for shown dests    [Phase 3]
+on-demand  NTES live status            only when asked / journey <48 h     [Phase 5]
 ```
+
+Total first visit: **890 KB gzip** for everything, enforced by `site/budget.json` and
+`npm run budget` in CI. A size regression fails the build.
+
 
 | Layer | Holds | TTL |
 |---|---|---|
@@ -147,33 +195,54 @@ live signals hit the network, and each fails silently to its cached or predicted
 
 ## 6. Repository layout
 
+Current tree after Phase 0 (`✓` = built and passing CI), with later phases marked:
+
 ```
-railroam/
-├── .github/workflows/        # the entire "setup"
-│   ├── harvest.yml           # quarterly full / monthly delta + chained geo/pois/model
-│   ├── build-dataset.yml     # normalise · pack · validate
-│   ├── refresh-live.yml      # workflow_dispatch ONLY — no cron
-│   ├── ci.yml                # PR + main only
-│   └── deploy.yml
-├── harvester/                # Python, CI-only
-│   ├── ntes/     crawl.py · poll_delays.py · major_stations.json · client.py
-│   ├── osm/      overpass_stations.py · overpass_airports.py · geocode_stations.mjs
-│   ├── wikidata/ pois_sparql.py
-│   ├── transform/ normalise.py · build_connections.py · fares.py · terminals.py · pack_binary.py
-│   ├── model/    train.py · calibrate.py · distil.py
-│   └── validate/ integrity.py
+voice/
+├── .github/workflows/
+│   ├── ci.yml                ✓ PR-only: dataset · lint · types · tests · build · budget
+│   ├── deploy.yml            ✓ push-to-main: same checks, then publish to Pages
+│   └── harvest.yml           ✓ workflow_dispatch ONLY — no cron, zero recurring minutes
+├── harvester/                ✓ Python, stdlib only (no requirements.txt needed)
+│   ├── fetch_seed.py         ✓ zero-Actions bootstrap: sparse `git clone` of the CC0 repo
+│   ├── normalise.py          ✓ raw CC0 → canonical JSONL, with a data-quality report
+│   ├── pack_binary.py        ✓ canonical → stations.bin + graph.bin + manifest.json
+│   └── validate/
+│       ├── integrity.py      ✓ full gate: canonical ⇄ binary round-trip, needs no node
+│       └── check_packed.py   ✓ binary-only gate, <1 s, runs FIRST in CI
+│   ├── ntes/                 [Phase 5] crawl.py · poll_delays.py · client.py
+│   ├── osm/                  [Phase 3] overpass_stations.py · geocode_stations.mjs
+│   ├── wikidata/             [Phase 3] pois_sparql.py
+│   └── model/                [Phase 2] train.py · calibrate.py · distil.py
+├── data/
+│   ├── raw/                  ✗ gitignored — 95 MB cloned source, re-fetch locally
+│   └── canonical/            ✗ gitignored except integrity.json + meta.json (committed)
 ├── site/
-│   ├── src/                  # see §2
-│   ├── data/
-│   │   ├── seed/             # CC0 datameet — COMMITTED to main, licence-clean
-│   │   └── generated/        # gitignored — CI output or release asset
-│   └── public/
-├── docs/  PLAN.md  README.md
+│   ├── public/data/          ✓ stations.bin · graph.bin · manifest.json — COMMITTED (1.5 MB)
+│   ├── src/
+│   │   ├── lib/              ✓ binary.ts · stations.ts · graph.ts · protocol.ts
+│   │   ├── state/            ✓ cache.ts (IndexedDB) · client.ts · useDataset.ts
+│   │   ├── worker/           ✓ router.ts · handlers.ts · inline.ts (fallback)
+│   │   └── ui/               ✓ StationAutocomplete · StopTable · TrainCard · StatusBar
+│   │                           · Disclaimer
+│   ├── tests/                ✓ 116 tests: binary · stations · graph · cache · dataset · ui
+│   ├── scripts/check-budget.mjs ✓
+│   └── budget.json           ✓ committed ceilings, so a raise is a reviewable diff
+└── docs/  PLAN.md  README.md
 ```
+
+**Three data tiers, treated differently on purpose:**
+
+| Tier | Size | Committed? | Why |
+|---|---|---|---|
+| `data/raw/` | ~95 MB | **No** | GitHub warns at 50 MB/file and rejects at 100 MB; `schedules.json` alone is 82 MB. Re-fetch with `harvester/fetch_seed.py`, which costs zero Actions minutes |
+| `data/canonical/` | ~18 MB | **No** (2 small JSON reports yes) | A pure function of raw, so committing it creates a second thing to keep in sync |
+| `site/public/data/` | 1.5 MB | **Yes** | This is what ships. Committing it means Pages can deploy without running the harvester at all |
 
 **The seed/generated split is deliberate** and is the core redistribution mitigation — see
 [`04-roadmap-and-risks.md`](04-roadmap-and-risks.md). CC0 data lives in `main`; NTES-derived
 data is produced by CI or published as a release asset, never committed to the source tree.
+
 
 ---
 
@@ -218,23 +287,41 @@ it was aspirational, and it consumed minutes for data we could not actually obta
 
 ### 7.2 The budget
 
+**What actually runs today (Phase 0)** — no crons exist, so the recurring cost is only CI:
+
+| Workflow | Trigger | Per run | Runs/mo | **min/mo** |
+|---|---|---|---|---|
+| `ci` | **PR only** | ~2.5 | ~20 | **50** |
+| `deploy` | **`main` only** — verifies *then* publishes | ~3 | ~30 | **90** |
+| `harvest` | `workflow_dispatch` only | ~4 | 0 unless invoked | **0** |
+| | | | **Total today** | **~140** |
+
+`ci` is deliberately PR-only. Running it on `main` *as well as* having `deploy` verify would
+check every main commit twice (~120 min/mo instead of 90) and, worse, the two workflows
+would race — a bad commit could publish before CI reported the failure. One verifier per
+commit, and a failed verification simply leaves the previous version live.
+
+**Budgeted for the full product** (crons switch on at Phase 5, not before):
+
 | Workflow | Trigger | Per run | /yr | **min/mo** |
 |---|---|---|---|---|
 | `harvest` — **full** | quarterly cron (`month%3==1`) | 300 (5 shards × 60) | 4 | **100** |
 | `harvest` — **delta** | monthly cron (other 8 months) | 45 | 8 | **30** |
 | geo + pois + model | **chained** into full runs | 65 | 4 | **22** |
-| `build-dataset` | chained into every harvest | 10 | 12 | **10** |
-| `ci` | **PR + `main` only** | 5 | ~132 | **55** |
-| `deploy` | `main` only | 3 | ~108 | **27** |
+| `ci` | PR only | 2.5 | ~240 | **50** |
+| `deploy` | `main` only | 3 | ~360 | **90** |
 | `refresh-live` | **`workflow_dispatch` only** | 8 | ~12 | **8** |
-| | | | **Total** | **~252** |
+| | | | **Total** | **~300** |
 
-**Was 1,735 → now 252 min/month = 85% reduction** (15% of the original).
+**Was 1,735 → 252 planned → ~140 today.** The full-product figure drifts slightly above the
+original 252 estimate because `deploy` now verifies rather than only publishing; that trade
+buys the no-race guarantee above and is worth ~48 min/month.
 
-| Month type | Minutes | % of 2,000 |
+| Month type | Minutes | % of 2,000 free |
 |---|---|---|
-| **Worst** (contains a quarterly full crawl) | ~465 | 23% |
-| **Typical** (delta only) | ~145 | 7% |
+| **Today** (Phase 0–4, no crons) | ~140 | 7% |
+| **Worst** (contains a quarterly full crawl) | ~513 | 26% |
+| **Typical** (delta only) | ~193 | 10% |
 
 ### 7.3 One workflow, two modes
 

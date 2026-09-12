@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "datameet/railways (CC0, 2016)",
+  "sourceLicence": "CC0",
+  "railDetourFactor": 1.036465,
+  "stationRankThresholds": {
+    "metro": 120,
+    "junction": 40,
+    "intermediate": 8
+  },
+  "generatedBy": "harvester/normalise.py",
+  "stats": {
+    "stations:total": 8990,
+    "stations:kept": 8697,
+    "stations:drop_placeholder": 15,
+    "stations:drop_bad_code": 9,
+    "stations:drop_no_geom": 269,
+    "stops:total": 417080,
+    "stops:drop_no_timing": 21764,
+    "stops:drop_unknown_station": 2660,
+    "stops:drop_duplicate": 262,
+    "daycheck:agree": 368507,
+    "daycheck:disagree": 23874,
+    "stops:pass_through": 289092,
+    "stops:midnight_wrap": 2673,
+    "stops:clamped_arr": 46,
+    "trains:drop_too_few_stops": 13,
+    "distance:calibration_trains": 5045,
+    "distance:factor_least_squares_x1000": 1036,
+    "distance:factor_median_x1000": 1030,
+    "distance:factor_p25_x1000": 1012,
+    "distance:factor_p75_x1000": 1051,
+    "stops:routing_kept": 103289,
+    "stops:routing_dropped_pass_through": 289092,
+    "classes:inferred": 2797,
+    "type:corrected_from_name": 261,
+    "trains:drop_absurd_speed": 2,
+    "trains:drop_absurd_duration": 2,
+    "stations:drop_never_stopped": 1478,
+    "stations:rank3_metro": 84,
+    "stations:rank2_junction": 464,
+    "stations:rank1_intermediate": 2984,
+    "stations:rank0_halt": 3687
+  },
+  "counts": {
+    "stations": 7219,
+    "trains": 5174,
+    "stops": 103229,
+    "classesInferred": 2797
+  },
+  "knownLimitations": [
+    "2016 snapshot: no Vande Bharat, some pre-rename station names, stale schedules",
+    "runsDays assumed daily (127) for EVERY train -- known to be wrong",
+    "per-stop distances derived from coordinates x calibrated detour factor, not official",
+    "classes inferred from train type for 2797 trains that carry no class data",
+    "train type taken from the NAME for 261 trains, because the source's type column only ever holds PAX/MEX/SUF",
+    "no platform, quota, rake/composition, or fare data",
+    "no multilingual station names"
+  ]
+}

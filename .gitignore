@@ -32,16 +32,47 @@ out/
 *.local
 .eslintcache
 .stylelintcache
+# Vite writes a timestamped copy of the config while resolving it; it is a temp file that
+# must never be committed.
+*.timestamp-*.mjs
+*.timestamp-*.js
 
-# --- Generated railway datasets (rebuilt by CI, never hand-edited) ---
-# Raw NTES crawl corpus is deliberately NOT committed: see docs/09-risks-legal.md
+# --- Generated railway datasets ---
+# Three tiers, deliberately treated differently:
+#
+#   data/raw/        ~95 MB of cloned CC0 source. NEVER committed: GitHub warns at 50 MB
+#                    per file and rejects at 100 MB, and schedules.json alone is 82 MB.
+#                    Re-fetch locally with harvester/fetch_seed.py (zero Actions minutes).
+#   data/canonical/  ~18 MB of intermediate JSONL. Not committed either — it is a pure
+#                    function of data/raw/, so committing it would only create a second
+#                    thing to keep in sync.
+#   site/public/data/ ~1.5 MB of packed .bin + manifest. COMMITTED. This is what actually
+#                    ships to GitHub Pages, it is small, and committing it means the site
+#                    can deploy without running the harvester at all.
 data/raw/
 data/out/
 data/tmp/
+# Note: `data/canonical/*` not `data/canonical/`. Git cannot re-include a file whose
+# PARENT DIRECTORY is excluded, so excluding the directory would make the negation below
+# silently do nothing.
+data/canonical/*
 site/data/generated/
-*.bin
 *.pmtiles
 tracks.geojson
+
+# Ignore packed binaries everywhere by default...
+*.bin
+# ...then explicitly ship the ones the site serves. Order matters: a negation cannot
+# re-include a file whose parent directory is excluded, so these come after data/canonical/.
+!site/public/data/*.bin
+!site/public/data/manifest.json
+
+# The integrity report IS worth committing: it is ~1 KB and records the exact data-quality
+# numbers (drop rates, calibration factor, rank thresholds) behind the shipped binaries, so
+# a reviewer can audit them without running the 82 MB pipeline.
+!data/canonical/integrity.json
+!data/canonical/meta.json
+
 # ...but DO commit small curated seed data
 !site/data/seed/*.json
 

@@ -1,0 +1,9 @@
+{
+  "app.js.gzip": 22000,
+  "app.css.gzip": 5000,
+  "worker.js.gzip": 16000,
+  "total.js.gzip": 45000,
+  "data/stations.bin.gzip": 122880,
+  "data/graph.bin.gzip": 921600,
+  "total.gzip": 1024000
+}

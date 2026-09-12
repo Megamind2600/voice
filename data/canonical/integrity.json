@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "counts": {
+    "trains": 5174,
+    "stations": 7219,
+    "stops": 103229,
+    "medianStopsPerTrain": 17,
+    "medianDurationH": 6.08,
+    "medianAvgKmh": 39.9,
+    "p95AvgKmh": 62.6,
+    "transferStations": 6944,
+    "networkComponents": 3,
+    "giantComponentStations": 7204,
+    "stationsNeverCalled": 0
+  },
+  "hardFailures": [],
+  "warnings": [
+    "train:excessive_halt",
+    "distance:off_35pct"
+  ],
+  "meta": {
+    "schemaVersion": "1.0.0",
+    "source": "datameet/railways (CC0, 2016)",
+    "railDetourFactor": 1.036465
+  }
+}

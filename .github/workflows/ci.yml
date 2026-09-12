@@ -1,0 +1,107 @@
+# ci.yml — the quality gate.
+#
+# Runs on PULL REQUESTS only. Pushes to main are verified by deploy.yml, which runs these
+# exact same checks before it publishes. Splitting it that way means a commit is never
+# checked twice:
+#
+#   ci.yml on main AND deploy.yml verifying  ->  main pushes cost ~4 min each, and the two
+#                                                workflows race, so a bad commit can publish
+#                                                before CI reports the failure
+#   ci.yml on PRs, deploy.yml verifies main  ->  no duplication, no race, and a failed
+#                                                verification simply leaves the previous
+#                                                version live
+#
+# The same reasoning rules out firing on every branch push or every fork: a PR already runs
+# these checks on the same commit.
+#
+# Budget arithmetic (PLAN.md §8, docs/03 §7):
+#   ci.yml      ~20 PRs/month   * ~2.5 min  ~=  50 min
+#   deploy.yml  ~30 main pushes * ~3.0 min  ~=  90 min   (verify + build + publish)
+#   harvest.yml manual dispatch only        =   0 min unless someone runs it
+#   ----------------------------------------------------------------------
+#   total                                  ~= 140 min/month, against a 252 min ceiling
+# The ~110 min of headroom is what pays for re-runs, an occasional flaky runner, and a
+# harvest or two.
+#
+# Two things this workflow deliberately does NOT do, because each would cost more than it
+# returns:
+#   - no OS matrix and no second Node version: the site is static and the runtime is the
+#     browser, so a second OS tests the runner, not the product
+#   - no type-aware ESLint: `tsc --noEmit` already runs in the same job and covers
+#     everything type-aware linting would, at a fraction of the time
+#
+# Step order is cheapest-check-first. The dataset verification is pure stdlib Python and
+# takes under a second, so a corrupt or hand-edited binary fails before npm install has
+# even started.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref: a force-pushed branch should not keep burning
+# minutes on commits nobody will look at. This workflow only runs on pull requests, so the
+# cancel is unconditional.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Dataset · lint · types · tests · build · budget
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: site
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---- cheapest gate first: stdlib Python, no install, under a second ----
+      - name: Verify packed dataset
+        working-directory: .
+        run: python3 harvester/validate/check_packed.py --bin site/public/data
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          # Keyed on the lockfile alone, so only a dependency change invalidates it.
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck (src + tests)
+        run: npm run typecheck
+
+      - name: Tests
+        # Includes tests/dataset.test.ts, which parses the real committed .bin files and
+        # asserts them against known facts about the Indian network (the Howrah Rajdhani
+        # runs HWH -> NDLS in 17 h over 8 stops). That is the check that catches a packing
+        # change silently scrambling the graph.
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Bundle budget
+        # Fails on a size regression. budget.json is committed, so raising a ceiling is a
+        # reviewable one-line diff rather than a silent number in a log.
+        run: npm run budget
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-dist
+          path: site/dist
+          retention-days: 1
+          if-no-files-found: error

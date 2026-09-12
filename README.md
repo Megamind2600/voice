@@ -3,8 +3,36 @@
 A free, static, zero-setup journey planner for Indian Railways, built for the person who
 knows **where they are** and **when they're free** but has **no destination in mind**.
 
-> **Status: plan only, nothing implemented.** Read [`PLAN.md`](PLAN.md).
-> Research verified 2026-09-12.
+> **Status: Phase 0 shipped.** The data pipeline, packed dataset, worker, autocomplete and
+> timetable lookup are built, tested (116 tests) and passing CI. Journey search with seat
+> availability is Phase 1–2. Plan of record: [`PLAN.md`](PLAN.md). Research verified
+> 2026-09-12.
+
+## What is built
+
+The whole thing runs in the browser from a **890 KB gzip** download, with no server, no
+account and no API key.
+
+```
+harvester/   Python, stdlib only
+  fetch_seed.py    sparse git clone of the CC0 dataset — zero Actions minutes
+  normalise.py     417,080 raw stop rows -> 103,229 genuine stops, with a quality report
+  pack_binary.py   -> stations.bin (76 KB gz) + graph.bin (782 KB gz) + manifest
+  validate/        two gates; every record round-tripped binary <-> canonical
+
+site/        Vite + Preact + TypeScript
+  lib/binary.ts    zero-copy RRLM container reader
+  lib/stations.ts  prefix-search index over 7,219 stations
+  lib/graph.ts     5,174 trains, 98,055 legs, per-station adjacency
+  worker/          routing worker + a main-thread fallback if it fails to start
+  state/cache.ts   IndexedDB, validated by sha256 — a warm visit makes zero requests
+  ui/              ARIA combobox, timetable, provenance badges, disclaimer
+```
+
+Three findings from the real data shaped the design, each written up where it belongs:
+**75% of the source's "stops" are pass-throughs** the train never halts at; **file order is
+already route order**, so the obvious `(day, time)` sort destroys it; and the rail detour
+factor **calibrates to 1.037** rather than the ~1.25 assumed.
 
 Existing tools (IRCTC, ConfirmTkt, ixigo, RailYatri) all require you to already know your
 destination — they are booking tools. This is a **discovery** tool that happens to know
@@ -18,10 +46,12 @@ GitHub Pages and GitHub Actions (free for public repos), plus data sources each 
 need no key: NTES (official government enquiry service), Open-Meteo, Wikipedia/Wikimedia,
 Wikidata SPARQL, OSM Overpass, and a CC0 railways dataset.
 
-**GitHub Actions usage: ~252 minutes/month** against the 2,000 free allowance — worst month
-~465 (23%). A previous draft used 1,735; the rework cut it 85% by moving live data off a
-cron and onto a runtime on-demand path, which is *also* fresher. Details in
-[`PLAN.md` §8](PLAN.md#8-github-actions-budget-252-minmonth).
+**GitHub Actions usage: ~140 minutes/month today** against the 2,000 free allowance, rising
+to ~300 once the harvest crons switch on at Phase 5 (worst month ~513, 26%). A previous
+draft used 1,735; the rework cut it by moving live data off a cron and onto a runtime
+on-demand path, which is *also* fresher. Phase 0 itself consumed **zero** minutes — the
+dataset was harvested locally and only the 1.5 MB packed derivative was committed.
+Details in [`PLAN.md` §8](PLAN.md#8-github-actions-budget).
 
 ## Inputs
 
