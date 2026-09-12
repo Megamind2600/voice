@@ -32,6 +32,26 @@ export const TRAIN_TYPES = [
 
 export const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 
+/**
+ * Halfword offsets within a connection record (`<HHHHH`: depMin, arrMin, fromStn, toStn,
+ * distKm). Exported so the CSA hot loop can read fields straight out of the backing array
+ * instead of calling `leg()`, which allocates an object per connection — at 135,949
+ * connections per sweep that allocation, not the search, would be the bottleneck.
+ */
+export const CONN_DEP = 0;
+export const CONN_ARR = 1;
+export const CONN_FROM = 2;
+export const CONN_TO = 3;
+/**
+ * CUMULATIVE distance from the train's origin to this connection's `to` station — NOT the
+ * length of the leg itself. That is how the packer writes it, because a stop list wants
+ * cumulative distances and storing them avoids a running sum on every render.
+ *
+ * Reading this as a leg length is an easy and expensive mistake: it prices a hop 1,294 km
+ * from a train's origin as a 1,294 km journey. Use `Graph.connKm` for the leg's own length.
+ */
+export const CONN_DIST = 4;
+
 export interface Train {
   readonly i: number;
   readonly number: string;
@@ -145,6 +165,10 @@ export class Graph {
   private readonly conns: Uint16Array;
   private readonly numbers: string[];
   private readonly names: string[];
+  /** lat/lon interleaved, one pair per station, in station-index order. Null if absent. */
+  private readonly geo: Float32Array | null;
+  /** Per-connection OWN length in km, derived from the cumulative packed field. */
+  private readonly ownKm: Uint16Array;
 
   /** station index -> connection ids departing it */
   private readonly depAdj: Int32Array[];
@@ -170,6 +194,10 @@ export class Graph {
     this.conns = container.u16(SectionId.Connections);
     this.trainCount = tMeta.count;
     this.connCount = cMeta.count;
+    // Coordinates ship in graph.bin rather than stations.bin. That split is what lets the
+    // worker price cross-terminal road transfers from real geometry without the main thread
+    // sending any, while keeping stations.bin small enough for first paint.
+    this.geo = container.has(SectionId.StationGeo) ? container.f32(SectionId.StationGeo) : null;
 
     // Materialise the two strings per train once. Doing this lazily would mean a
     // TextDecoder pass on every render of a result list.
@@ -179,6 +207,27 @@ export class Graph {
       const base = t * TRAIN_WORDS;
       this.names[t] = container.str(this.words[base]);
       this.numbers[t] = container.str(this.words[base + 1]);
+    }
+
+    // ---- per-leg distance, from the cumulative packed field ----
+    // Connections are contiguous per train, so differencing consecutive cumulative values
+    // gives each leg's own length in one pass. The first leg of a train is its own distance,
+    // because the origin sits at km 0.
+    this.ownKm = new Uint16Array(this.connCount);
+    for (let t = 0; t < this.trainCount; t++) {
+      const b = t * TRAIN_WORDS;
+      const start = this.words[b + 2];
+      const count = this.words[b + 3] & 0xffff;
+      let prev = 0;
+      for (let k = 0; k < count; k++) {
+        const cum = this.conns[(start + k) * CONN_HALFWORDS + CONN_DIST];
+        const own = cum - prev;
+        // A non-monotonic cumulative distance is a data defect. Clamping to zero keeps fares
+        // finite; propagating a negative would produce a negative price and silently win
+        // every Pareto comparison it appeared in.
+        this.ownKm[start + k] = own > 0 ? own : 0;
+        prev = cum;
+      }
     }
 
     // ---- transpose: connections grouped by train -> adjacency by station ----
@@ -247,6 +296,44 @@ export class Graph {
       connStart: w[b + 2],
       originDepMin: w[b + 6] & 0xffff,
     };
+  }
+
+  /**
+   * The raw connection backing array. Exposed for the CSA hot loop only — everything else
+   * should use `leg()`, which bounds-checks and returns a readable object.
+   */
+  get connWords(): Uint16Array {
+    return this.conns;
+  }
+
+  /**
+   * Per-connection OWN length in km, parallel to `connWords` but indexed by connection
+   * rather than by halfword. This is what fare and distance arithmetic must use.
+   */
+  get connKm(): Uint16Array {
+    return this.ownKm;
+  }
+
+  /** The leg's own length in km, bounds-checked. */
+  legOwnKm(c: number): number {
+    if (c < 0 || c >= this.connCount) throw new RangeError(`connection ${c} out of range`);
+    return this.ownKm[c];
+  }
+
+  /**
+   * Station a connection departs from, as a scalar read.
+   *
+   * `leg()` is the readable form but allocates an object, which matters when a caller walks
+   * all 98,055 connections — the reachability pass in csa.ts does exactly that per destination
+   * set, and allocating there would cost more than the pruning saves.
+   */
+  connFrom(c: number): number {
+    return this.conns[c * CONN_HALFWORDS + 2];
+  }
+
+  /** Station a connection arrives at, as a scalar read. See connFrom. */
+  connTo(c: number): number {
+    return this.conns[c * CONN_HALFWORDS + 3];
   }
 
   leg(c: number): Leg {
@@ -337,6 +424,51 @@ export class Graph {
   /** Connections leaving a station — the primitive CSA scans. */
   departuresFrom(station: number): Int32Array {
     return this.depAdj[station] ?? EMPTY;
+  }
+
+  /** Total legs touching a station. A proxy for its size that needs no shipped metadata. */
+  degree(station: number): number {
+    return (this.depAdj[station]?.length ?? 0) + (this.arrAdj[station]?.length ?? 0);
+  }
+
+  get hasGeo(): boolean {
+    return this.geo !== null;
+  }
+
+  /** lat/lon for a station, or null when the container has no geometry. */
+  coordsOf(station: number): { lat: number; lon: number } | null {
+    if (!this.geo) return null;
+    const lat = this.geo[station * 2];
+    const lon = this.geo[station * 2 + 1];
+    // The packer writes (0,0) for stations the source had no coordinates for, and (0,0) is
+    // a real place in the Gulf of Guinea. Returning null for it stops a missing coordinate
+    // from becoming a 6,000 km road transfer.
+    if (lat === 0 && lon === 0) return null;
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+    return { lat, lon };
+  }
+
+  /**
+   * Latitude/longitude as scalar reads, for callers that loop over every station.
+   *
+   * `coordsOf` returns an object, which is right for one-off lookups and wrong for a 7,219
+   * iteration loop. Returns NaN when the container carries no geometry, so callers can test
+   * with a single comparison instead of a null check per station.
+   */
+  latOf(station: number): number {
+    if (!this.geo) return NaN;
+    const v = this.geo[station * 2];
+    // The packer writes (0,0) where the source had no coordinates, and (0,0) is a real place
+    // in the Gulf of Guinea. NaN stops a missing coordinate becoming a 6,000 km detour.
+    if (v === 0 && this.geo[station * 2 + 1] === 0) return NaN;
+    return v;
+  }
+
+  lonOf(station: number): number {
+    if (!this.geo) return NaN;
+    const v = this.geo[station * 2 + 1];
+    if (v === 0 && this.geo[station * 2] === 0) return NaN;
+    return v;
   }
 
   /** Connections arriving at a station. */

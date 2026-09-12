@@ -72,7 +72,17 @@ export interface TrainSpec {
   originDepMin?: number;
   /** station indices in route order; legs are derived from consecutive pairs */
   stops: number[];
-  /** per-leg [depMin, arrMin, distKm]; must be stops.length - 1 entries */
+  /**
+   * One entry per leg as [depMin, arrMin, distKm], with times RELATIVE to the train's own
+   * origin departure. Must be `stops.length - 1` entries.
+   *
+   * `distKm` is CUMULATIVE from the origin, exactly as the packer writes it — NOT the
+   * length of that leg. So a three-leg, 300 km train is `[100, 200, 300]`, not
+   * `[100, 100, 100]`. Writing per-leg distances here is the easy mistake, and it is
+   * silently expensive downstream: the router differencing a non-monotonic column yields
+   * zero-length legs, so fares and distances come out far too small. `buildGraphContainer`
+   * now throws on a decreasing value and on a final value that disagrees with `distanceKm`.
+   */
   legs: Array<[number, number, number]>;
 }
 
@@ -102,6 +112,25 @@ export function buildGraphContainer(
   const conns: number[] = [];
   let connStart = 0;
   trains.forEach((t, i) => {
+    // Guard the cumulative-distance contract before writing anything.
+    let prevKm = 0;
+    for (let k = 0; k < t.legs.length; k++) {
+      const km = t.legs[k][2];
+      if (km < prevKm) {
+        throw new Error(
+          `train ${t.number} leg ${k}: distKm ${km} < previous ${prevKm}. The packed field `
+          + 'is CUMULATIVE from the origin, so it must never decrease. If you meant the '
+          + "leg's own length, add it to the previous cumulative value.",
+        );
+      }
+      prevKm = km;
+    }
+    if (t.legs.length > 0 && t.distanceKm !== undefined && t.legs[t.legs.length - 1][2] !== t.distanceKm) {
+      throw new Error(
+        `train ${t.number}: last leg's cumulative distKm ${t.legs[t.legs.length - 1][2]} `
+        + `!= distanceKm ${t.distanceKm}`,
+      );
+    }
     const nameOff = intern(t.name);
     const numberOff = intern(t.number);
     const b = i * TRAIN_WORDS;
