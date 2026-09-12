@@ -29,15 +29,17 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
-environment:
-  name: github-pages
-  url: ${{ steps.deployment.outputs.page_url }}
-
 jobs:
   deploy:
     name: Verify and publish
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # `environment` is a JOB-level key. At the top level it is not part of the workflow schema,
+    # and GitHub rejects the file: every push then produced a failed run with zero jobs, which
+    # looked like a Pages problem and was not one. Keep it here.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     defaults:
       run:
         working-directory: site
