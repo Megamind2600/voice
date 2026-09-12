@@ -101,6 +101,27 @@ const MAX_PLAUSIBLE_KMH = 110;
 /** How many per-row bound arrays to keep per timetable, each ~540 KB on the real dataset. */
 const ROW_BOUNDS_CACHE_MAX = 4;
 
+/**
+ * Default ceiling on time in transit, in minutes: 48 hours.
+ *
+ * Generous on purpose. The longest scheduled journeys in India run to 40 hours and more, and
+ * this app is for people with holidays rather than deadlines, so cutting the budget to make
+ * the search faster would remove exactly the itineraries they came for. Measured, the budget is
+ * also the single largest driver of coverage: dropping it to 24 hours made a quarter of
+ * reachable station pairs unreachable, which cost more than raising the transfer limit gained.
+ */
+export const DEFAULT_MAX_JOURNEY_MIN = 2880;
+
+/**
+ * Default ceiling on the wait at home before the first departure: 8 hours.
+ *
+ * Bounded separately from journey length because they are different things — waiting at home
+ * costs nothing but patience, while time in transit costs sleep. Conflating them into one
+ * horizon measured from the query time would reject a short ride leaving three hours from now
+ * for "taking too long".
+ */
+export const DEFAULT_MAX_WAIT_MIN = 480;
+
 export const FRONTIER_CAP = 12;
 const DEFAULT_POOL = 65_536;
 const MAX_POOL = DEFAULT_POOL * 4;
@@ -134,7 +155,7 @@ export interface QueryOptions {
   preferredClass?: string | null;
   /**
    * Reject journeys whose time IN TRANSIT exceeds this many minutes, measured from boarding
-   * the first train to arriving at the destination. Default 48 h.
+   * the first train to arriving at the destination. Defaults to DEFAULT_MAX_JOURNEY_MIN.
    *
    * Deliberately not a horizon measured from the query time: that would also bound the wait
    * at home, so a short ride leaving three hours from now would be discarded for "taking too
@@ -143,7 +164,8 @@ export interface QueryOptions {
   maxJourneyMin?: number;
   /**
    * How long the traveller will wait at the origin before the first departure, in minutes.
-   * Default 8 h; anything longer is better answered by searching the next day.
+   * Defaults to DEFAULT_MAX_WAIT_MIN; anything longer is better answered by searching the
+   * next day.
    *
    * This gives the scan a sound stopping point. `maxJourneyMin` alone cannot bound absolute
    * arrival, because a journey's first departure is not known until it is found.
@@ -423,8 +445,8 @@ export class CsaEngine {
     const kmOf = this.graph.connKm;
     const pricing = this.pricing(opts.preferredClass ?? null);
 
-    const maxJourney = opts.maxJourneyMin ?? 2880;
-    const maxWait = opts.maxWaitMin ?? 480;
+    const maxJourney = opts.maxJourneyMin ?? DEFAULT_MAX_JOURNEY_MIN;
+    const maxWait = opts.maxWaitMin ?? DEFAULT_MAX_WAIT_MIN;
     const horizon = opts.departureMin + maxWait + maxJourney;
     const maxFare = opts.maxFareRupees ?? null;
     const maxT = opts.maxTransfers;

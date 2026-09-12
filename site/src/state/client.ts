@@ -9,8 +9,9 @@
  */
 
 import type {
-  ResponseMap, WorkerRequest, WorkerResponse, WORKER_READY,
+  JourneysRequest, ResponseMap, WorkerRequest, WorkerResponse, WORKER_READY,
 } from '../lib/protocol';
+import type { ResolvedGroup } from '../router/terminals';
 
 interface Pending {
   resolve: (r: WorkerResponse) => void;
@@ -103,6 +104,10 @@ export class RouterClient {
   request(req: {
     type: 'station:trains'; station: number; limit?: number;
   }): Promise<ResponseMap['station:trains']>;
+  request(req: {
+    type: 'router:configure'; groups: ResolvedGroup[];
+  }): Promise<ResponseMap['router:configure']>;
+  request(req: Omit<JourneysRequest, 'id'>): Promise<ResponseMap['journeys']>;
   request(req: Omit<WorkerRequest, 'id'>): Promise<WorkerResponse & { ok: true }> {
     const id = this.nextId++;
     return new Promise<WorkerResponse & { ok: true }>((resolve, reject) => {

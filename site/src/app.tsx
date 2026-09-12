@@ -1,14 +1,21 @@
 /**
- * app.tsx — Phase 0 shell.
+ * app.tsx — the planner.
  *
- * Phase 0 is foundations, so the honest scope here is: prove the packed dataset loads,
- * prove autocomplete works before the graph does, prove the worker answers lookups, and
- * carry the legal/staleness notices on every screen. Journey search (CSA) is Phase 1 and
- * is deliberately NOT stubbed with a fake result — the UI says what it can and cannot do.
+ * Two screens' worth of concerns live here and are kept deliberately separate:
+ *
+ *   1. The PLAN — where you start, when you can leave, optionally where you want to end up.
+ *      This is the product.
+ *   2. The BROWSE — what leaves a given station, and a train's full stop list. This shipped in
+ *      Phase 0 and stays, because "what can I catch from here" is a question people ask before
+ *      they know where they want to go.
+ *
+ * Nothing here routes. The search runs in the worker (see state/client.ts and worker/handlers.ts)
+ * so a 100 ms scan over 135,949 timetable rows never blocks the autocomplete.
  */
-import { useCallback, useEffect, useState } from 'preact/hooks';
+import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import { router } from './state/client';
 import { useDataset } from './state/useDataset';
+import { useJourneys, useWorkerConfigure, type PlanInput } from './state/useJourneys';
 import type { Station } from './lib/stations';
 import type { GraphStats, RawStop, TrainSummary } from './lib/protocol';
 import { StationAutocomplete } from './ui/StationAutocomplete';
@@ -16,25 +23,41 @@ import { StatusBar } from './ui/StatusBar';
 import { TrainCard } from './ui/TrainCard';
 import { StopTable } from './ui/StopTable';
 import { Disclaimer } from './ui/Disclaimer';
+import { JourneyForm } from './ui/JourneyForm';
+import { ItineraryCard } from './ui/ItineraryCard';
+import { addDaysIso, todayIso } from './state/plan';
+import type { Journey } from './router/journey';
+
+const DEFAULT_PLAN = (): PlanInput => ({
+  origin: null,
+  date: addDaysIso(todayIso(), 1),
+  timeMin: 8 * 60,
+  destination: null,
+  maxTransfers: 2,
+  preferredClass: null,
+  returnDate: null,
+  daysAtDestination: null,
+});
 
 export function App() {
   const dataset = useDataset();
-  const [origin, setOrigin] = useState<Station | null>(null);
+  const stations = dataset.stations;
+
+  const [plan, setPlan] = useState<PlanInput>(DEFAULT_PLAN);
+  const { state, search } = useJourneys(stations);
   const [graphStats, setGraphStats] = useState<GraphStats | null>(null);
+
+  // Phase 0 browse state, kept because it is still useful on its own.
+  const [browse, setBrowse] = useState<Station | null>(null);
   const [trains, setTrains] = useState<TrainSummary[] | null>(null);
   const [trainsLoading, setTrainsLoading] = useState(false);
   const [openTrain, setOpenTrain] = useState<number | null>(null);
   const [stops, setStops] = useState<RawStop[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const stations = dataset.stations;
+  useEffect(() => { void router.start(); }, []);
 
-  useEffect(() => {
-    void router.start();
-  }, []);
-
-  // Ask the worker to warm the graph as soon as the page settles, so the first station
-  // lookup does not pay the download cost. Failures are non-fatal: lookups retry lazily.
+  // Warm the graph as soon as the page settles, so the first search does not pay the download.
   useEffect(() => {
     let cancelled = false;
     void router.request({ type: 'graph:load' })
@@ -43,8 +66,23 @@ export function App() {
     return () => { cancelled = true; };
   }, []);
 
-  const selectOrigin = useCallback((s: Station | null) => {
-    setOrigin(s);
+  // The worker needs the city terminal groups resolved to indices, and only this thread can do it.
+  useWorkerConfigure(stations, dataset.phase === 'ready');
+
+  const nameOf = useCallback((i: number) => {
+    if (!stations || i < 0 || i >= stations.count) return { code: '????', name: 'unknown station' };
+    const s = stations.at(i);
+    return { code: s.code, name: s.name };
+  }, [stations]);
+
+  const coordsFor = useCallback((i: number) => {
+    if (!stations || i < 0 || i >= stations.count) return null;
+    const s = stations.at(i);
+    return s.lat === null || s.lon === null ? null : { lat: s.lat, lon: s.lon };
+  }, [stations]);
+
+  const selectBrowse = useCallback((s: Station | null) => {
+    setBrowse(s);
     setOpenTrain(null);
     setStops(null);
     setError(null);
@@ -67,17 +105,22 @@ export function App() {
       .catch((err: unknown) => setError(err instanceof Error ? err.message : String(err)));
   }, [openTrain]);
 
-  const nameAt = useCallback(
-    (i: number) => (stations ? stations.at(i).name : `#${i}`),
-    [stations],
-  );
-  const codeAt = useCallback(
-    (i: number) => (stations ? stations.at(i).code : `#${i}`),
-    [stations],
-  );
+  const submit = useCallback(() => { void search(plan); }, [plan, search]);
 
   const datasetLabel = dataset.manifest?.bootstrapLabel ?? 'BOOTSTRAP · 2016';
   const openTrainSummary = trains?.find((t) => t.train === openTrain) ?? null;
+  const notReady = dataset.phase === 'error'
+    ? 'The dataset failed to load, so searching is unavailable.'
+    : dataset.phase === 'ready' ? '' : 'Loading the timetable…';
+  const canSearch = dataset.phase === 'ready';
+
+  // Explore results arrive as one itinerary per candidate destination; group them so the screen
+  // reads as "here are places" rather than as a flat list of trains.
+  const grouped = useMemo(() => groupByDestination(
+    state.phase === 'done' || state.phase === 'empty' ? state.outcome.outbound : [],
+  ), [state]);
+
+  const exploring = plan.destination === null;
 
   return (
     <div class="shell">
@@ -86,9 +129,9 @@ export function App() {
           <p class="masthead__eyebrow">Indian Railways · unofficial</p>
           <h1>Kahan chalein?</h1>
           <p class="masthead__tagline">
-            You have holidays. You do not have a destination. Tell us where you are
-            starting from and when you are free — we will show you where you can actually
-            get a seat.
+            You have holidays. You do not have a destination. Tell us where you are starting
+            from and when you are free — we will show you where you can actually get to, and
+            how, splitting the journey across trains when no single one will do.
           </p>
         </div>
       </header>
@@ -96,70 +139,180 @@ export function App() {
       <main id="main" class="main">
         <Disclaimer datasetLabel={datasetLabel} />
 
-        <section class="panel" aria-labelledby="h-origin">
-          <h2 id="h-origin">Where are you starting from?</h2>
+        <section class="panel" aria-labelledby="h-plan">
+          <h2 id="h-plan">Plan a journey</h2>
           <p class="panel__note">
-            This is the only thing we insist on. Everything else — destination, return
-            date, how long you want to stay — is optional, and you can leave it blank.
+            Only your starting point and outbound date are required. Destination, return date and
+            how long you want to stay are all optional — leaving the destination blank is how you
+            ask us to suggest somewhere.
           </p>
 
-          <StationAutocomplete
-            index={stations}
-            label="Starting station"
-            value={origin}
-            onSelect={selectOrigin}
-            notReadyMessage={
-              dataset.phase === 'error'
-                ? 'The station list failed to load.'
-                : 'Loading station list…'
-            }
+          <JourneyForm
+            stations={stations}
+            plan={plan}
+            onChange={setPlan}
+            onSubmit={submit}
+            busy={state.phase === 'searching'}
+            canSearch={canSearch}
+            notReadyMessage={notReady || 'Loading station list…'}
           />
 
           <StatusBar dataset={dataset} graphStats={graphStats} />
         </section>
 
         {error && (
-          <div class="alert" role="alert">
-            <strong>Something went wrong.</strong> {error}
-          </div>
+          <div class="alert" role="alert"><strong>Something went wrong.</strong> {error}</div>
         )}
 
-        <section class="panel" aria-labelledby="h-trains" aria-busy={trainsLoading}>
-          <h2 id="h-trains">
-            {origin ? `Trains from ${origin.name}` : 'Trains from your station'}
+        {state.phase === 'searching' && (
+          <section class="panel" aria-busy="true" aria-live="polite">
+            <h2>{state.label}</h2>
+            <p class="panel__note">Scanning the whole timetable. This usually takes well under a second.</p>
+          </section>
+        )}
+
+        {state.phase === 'error' && (
+          <section class="panel"><div class="alert" role="alert"><strong>Search failed.</strong> {state.message}</div></section>
+        )}
+
+        {state.phase === 'empty' && (
+          <section class="panel" aria-labelledby="h-none">
+            <h2 id="h-none">Nothing found</h2>
+            <p>{state.reason}</p>
+            <p class="panel__note">
+              We searched up to {state.outcome.used.maxTransfers} changes and{' '}
+              {Math.round(state.outcome.used.maxJourneyMin / 60)} hours in transit across{' '}
+              {state.outcome.rows.toLocaleString('en-IN')} scheduled departures.
+            </p>
+            <ul class="ticks">
+              <li>Try a different date — a weekly train simply does not exist on the days it does not run.</li>
+              <li>Try a nearby bigger station at either end.</li>
+              <li>Allow more changes, or leave the destination blank and see what is reachable.</li>
+            </ul>
+          </section>
+        )}
+
+        {state.phase === 'done' && (
+          <section class="panel" aria-labelledby="h-results">
+            <h2 id="h-results">
+              {exploring
+                ? `${grouped.length} place${grouped.length === 1 ? '' : 's'} you could go`
+                : `${state.outcome.outbound.length} itinerar${state.outcome.outbound.length === 1 ? 'y' : 'ies'}`}
+            </h2>
+
+            <p class="panel__note">
+              {state.outcome.ms.toFixed(0)} ms of search over{' '}
+              {state.outcome.rows.toLocaleString('en-IN')} scheduled
+              departures{state.outcome.widened && (
+                <> · <strong>we widened the search</strong> to {state.outcome.used.maxTransfers} changes
+                  and {Math.round(state.outcome.used.maxJourneyMin / 60)} h to find these</>
+              )}.
+              These are the options that are not beaten by another on <em>every</em> measure at once —
+              arrival time, changes, and fare.
+            </p>
+
+            {exploring ? (
+              <div class="destinations">
+                {grouped.map((g) => (
+                  <div class="dest" key={g.station}>
+                    <h3>
+                      {nameOf(g.station).name}
+                      <span class="code">{nameOf(g.station).code}</span>
+                    </h3>
+                    {g.journeys.map((j, i) => (
+                      <ItineraryCard
+                        key={`d${g.station}-${i}`}
+                        journey={j}
+                        nameOf={nameOf}
+                        date={plan.date}
+                        coordsFor={coordsFor}
+                        expandedByDefault={false}
+                      />
+                    ))}
+                  </div>
+                ))}
+                {grouped.length === 0 && (
+                  <p class="panel__note">No candidate destination was reachable.</p>
+                )}
+              </div>
+            ) : (
+              <div class="itineraries">
+                {state.outcome.outbound.map((j, i) => (
+                  <ItineraryCard
+                    key={i}
+                    journey={j}
+                    nameOf={nameOf}
+                    date={plan.date}
+                    coordsFor={coordsFor}
+                    expandedByDefault={i === 0}
+                  />
+                ))}
+              </div>
+            )}
+
+            {state.outcome.inbound !== null && (
+              <div class="return">
+                <h3>Returning {plan.returnDate}</h3>
+                {state.outcome.inbound.length === 0 ? (
+                  <p class="panel__note">
+                    No return itinerary found on that date. The outbound options above still stand —
+                    try another return date.
+                  </p>
+                ) : state.outcome.inbound.map((j, i) => (
+                  <ItineraryCard
+                    key={`r${i}`}
+                    journey={j}
+                    nameOf={nameOf}
+                    date={plan.returnDate ?? plan.date}
+                    coordsFor={coordsFor}
+                  />
+                ))}
+              </div>
+            )}
+
+            <p class="panel__note">
+              Fares are published-tariff estimates and <strong>seat availability is not yet
+              connected</strong>. Both arrive in Phase 2. Nothing on this page is a booking or a
+              guarantee of a berth.
+            </p>
+          </section>
+        )}
+
+        <section class="panel" aria-labelledby="h-browse" aria-busy={trainsLoading}>
+          <h2 id="h-browse">
+            {browse ? `What leaves ${browse.name}?` : 'Browse a station'}
           </h2>
+          <p class="panel__note">
+            Not planning a journey yet? Pick any station to see its services and full timetables.
+          </p>
+          <StationAutocomplete
+            index={stations}
+            label="Station"
+            value={browse}
+            onSelect={selectBrowse}
+            notReadyMessage={notReady || 'Loading station list…'}
+          />
 
-          {!origin && (
+          {browse && trainsLoading && <p class="panel__note">Looking up services…</p>}
+          {browse && !trainsLoading && trains && trains.length === 0 && (
             <p class="panel__note">
-              Pick a starting station above to see what leaves from there.
+              No train in this dataset stops at {browse.name}. That usually means it is a small
+              halt — try the nearest junction.
             </p>
           )}
-
-          {origin && trainsLoading && (
-            <p class="panel__note">Looking up services…</p>
-          )}
-
-          {origin && !trainsLoading && trains && trains.length === 0 && (
-            <p class="panel__note">
-              No train in this dataset stops at {origin.name}. That usually means it is a
-              small halt — try the nearest junction.
-            </p>
-          )}
-
-          {origin && trains && trains.length > 0 && (
+          {browse && trains && trains.length > 0 && (
             <>
               <p class="panel__note">
                 {trains.length} service{trains.length === 1 ? '' : 's'} shown
-                {trains.length >= 40 ? ' (capped at 40)' : ''}. Select one to see its full
-                timetable.
+                {trains.length >= 40 ? ' (capped at 40)' : ''}.
               </p>
               <ul class="trainlist">
                 {trains.map((t) => (
                   <li key={t.train}>
                     <TrainCard
                       train={t}
-                      originName={nameAt(t.origin)}
-                      destinationName={nameAt(t.destination)}
+                      originName={nameOf(t.origin).name}
+                      destinationName={nameOf(t.destination).name}
                       onOpen={openTrainStops}
                       expanded={openTrain === t.train}
                     />
@@ -167,13 +320,11 @@ export function App() {
                       <StopTable
                         train={openTrainSummary}
                         stops={stops}
-                        stationName={nameAt}
-                        stationCode={codeAt}
+                        stationName={(i) => nameOf(i).name}
+                        stationCode={(i) => nameOf(i).code}
                       />
                     )}
-                    {openTrain === t.train && !stops && (
-                      <p class="panel__note">Loading timetable…</p>
-                    )}
+                    {openTrain === t.train && !stops && <p class="panel__note">Loading timetable…</p>}
                   </li>
                 ))}
               </ul>
@@ -184,23 +335,25 @@ export function App() {
         <section class="panel panel--muted" aria-labelledby="h-next">
           <h2 id="h-next">What this build does and does not do yet</h2>
           <p>
-            This is <strong>Phase 0</strong>: the data foundations. The full timetable
-            graph for {graphStats ? graphStats.trains.toLocaleString('en-IN') : '—'} trains
-            is packed into {dataset.manifest
+            This is <strong>Phase 1</strong>: the routing engine. It searches{' '}
+            {graphStats ? graphStats.trains.toLocaleString('en-IN') : '—'} trains over{' '}
+            {graphStats ? graphStats.connections.toLocaleString('en-IN') : '—'} station-to-station
+            legs, packed into{' '}
+            {dataset.manifest
               ? `${((dataset.manifest.files['graph.bin']?.gzipBytes ?? 0) / 1024).toFixed(0)} KB`
-              : '—'} of gzipped binary, cached in your browser, and queried in a Web
-            Worker so the interface never freezes.
+              : '—'} of gzipped binary and queried in a Web Worker.
           </p>
           <ul class="ticks">
-            <li>Station search across {stations ? stations.count.toLocaleString('en-IN') : '—'} stations, live before the timetable finishes downloading.</li>
-            <li>Every train's full stop list, with distances and running days.</li>
+            <li>Multi-criteria results: arrival time, number of changes and fare are all weighed, so you see the fast option, the cheap option and the direct one instead of just the first.</li>
+            <li>Journeys split across trains, with a real minimum transfer time per station rather than an optimistic zero.</li>
+            <li>Road transfers between terminals in the same city — a train into Nizamuddin can connect to one out of New Delhi.</li>
+            <li>Every leg priced, with the estimate labelled as an estimate.</li>
             <li>Nothing leaves your browser. No account, no API key, no tracking.</li>
           </ul>
           <p class="panel__note">
-            Journey search with seat availability, multi-leg splitting when a direct train
-            is full, and destination discovery arrive in later phases. Seat availability
-            shown anywhere on this site is an <em>estimate</em>, never a booking guarantee
-            — only IRCTC can confirm a seat.
+            <strong>Not here yet:</strong> seat availability, and the leg-splitting that responds
+            to a waitlisted berth. Those are Phase 2, and until then every fare is a
+            published-tariff estimate — only IRCTC can confirm a seat.
           </p>
         </section>
       </main>
@@ -216,8 +369,8 @@ export function App() {
             OpenStreetMap (ODbL), Wikipedia (CC BY-SA) and Open-Meteo.
           </p>
           <p>
-            <strong>Not a booking service.</strong> Unofficial, non-commercial, and not
-            affiliated with Indian Railways or IRCTC. Verify everything on{' '}
+            <strong>Not a booking service.</strong> Unofficial, non-commercial, and not affiliated
+            with Indian Railways or IRCTC. Verify everything on{' '}
             <a href="https://www.irctc.co.in" rel="noopener noreferrer" target="_blank">
               irctc.co.in
             </a>{' '}
@@ -227,4 +380,19 @@ export function App() {
       </footer>
     </div>
   );
+}
+
+/** Group itineraries by the destination they reach, preserving arrival order within each. */
+function groupByDestination(journeys: readonly Journey[]): Array<{ station: number; journeys: Journey[] }> {
+  const byStation = new Map<number, Journey[]>();
+  for (const j of journeys) {
+    const list = byStation.get(j.destination);
+    if (list) list.push(j);
+    else byStation.set(j.destination, [j]);
+  }
+  const out = [...byStation.entries()].map(([station, list]) => ({ station, journeys: list }));
+  // Nearest first: when someone asks "where could I go?", the useful ordering is by how easy it
+  // is to get there, which arrival time measures and straight-line distance does not.
+  out.sort((a, b) => a.journeys[0].arrMin - b.journeys[0].arrMin);
+  return out;
 }

@@ -419,7 +419,7 @@ both more defensible and more useful.
 
 ```
 ┌─ Live availability (optional) ─────────────────────────────────┐
-│ RailRoam works fully without this. A key upgrades predictions  │
+│ Kahan Chalein? works fully without this. A key upgrades predictions  │
 │ to real 14-day availability.                                   │
 │ Provider ( ) none ( ) RailRadar ( ) RapidAPI ( ) other         │
 │ API key    [ ____________________ ]                            │

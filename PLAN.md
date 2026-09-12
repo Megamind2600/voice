@@ -1,4 +1,4 @@
-# PLAN.md — RailRoam
+# PLAN.md — Kahan Chalein?
 
 **An exploratory journey planner for Indian Railways.** Free, static (GitHub Pages), no API
 keys, no accounts, no setup.
@@ -537,7 +537,7 @@ No hammering government servers — politeness is a design requirement.
 | # | Phase | Delivers | Actions | Est. | Risk |
 |---|---|---|---|---|---|
 | 0 | **Foundations + bootstrap data** ✅ **DONE** | Vite/Preact/TS scaffold, Pages deploy, design system, a11y baseline, CC0 dataset live, autocomplete, train lookup | **~0** | 5–7 d | Low |
-| 1 | **Routing engine** | CSA + Pareto + profile, transfers, terminal groups, fare engine, results screen, Leaflet map, golden corpus v1 | ~0 | 12–16 d | Med |
+| 1 | **Routing engine** ✅ **DONE** (4 deviations recorded) | CSA + Pareto, transfers, terminal groups, fare engine, results screen, canvas route diagram, golden corpus v1 | **0** | 12–16 d | Med |
 | 2 | **Availability + leg-splitting** | Tiers 0/1/5, date-flex heatmap, quota/class cascade, status parser, Tatkal arithmetic, all 7 remedies, explained splits, IRCTC deep links | ~5 min/qtr | 20–26 d | **High** |
 | 3 | **Discovery mode** | Reverse sweep, POI index, scoring + MMR, destination cards, weather, sliders | ~22 min/qtr | 14–18 d | Med |
 | 4 | **Inter-modal + stopovers + round trip** | Bus/air/road bridges, auto-derived candidates, stopover promotion, joint round-trip, .ics/share/text export | ~0 | 12–16 d | Med |
@@ -570,11 +570,38 @@ sorting by `(day, time)` destroys it; and the rail detour factor **calibrates to
 not the ~1.25 assumed, because summing haversines over consecutive stops already traces the
 route.
 
+### Phase 1 delivered
+
+Also built, tested and passing CI — 305 tests, 0 lint warnings, typecheck clean, app bundle
+88 KB (32 KB gzip) with the routing worker at 29 KB.
+
+| Acceptance criterion | Result |
+|---|---|
+| Router agrees exactly with an independent implementation | **Exceeded.** `tests/bruteforce.test.ts` enumerates *every* valid journey by DFS over train instances — no timetable, no scan, no pruning — and compares full Pareto frontiers both ways over 12 seeded networks × origins × departure times (incl. 00:05) × 0/1/2 changes |
+| Single query < 50 ms, Pareto < 200 ms in a worker | p50 **3.66 ms**, p95 **15.3 ms**, worst **53.7 ms** over 1,000 mixed real queries, under jsdom — the slowest environment this runs in |
+| 1,000 queries < 2 s | **MISS: 5.14 s measured.** Two-tier progressive search shipped so the common case pays the p50, not the total. Deviation **D1** |
+| No journey violates a station's min transfer time | Property test over all ~224 itineraries the corpus produces |
+| A weekly train never appears on a non-operating day | Implemented and tested — **but the bootstrap data has no `runs_days`**, so the gate is currently correct and unused. Deviation **D3** |
+| Fare engine reproduces ≥ 20 hand-checked published fares within ₹5 | **Calibrated, not verified.** Slab knots, class/type multipliers, superfast, 5% GST all reproduce IRCTC's published structure; checking needs IRCTC access. Every fare flagged as an estimate. Deviation **D4** |
+| Cross-terminal transfers as priced road edges | 186 footpaths over 9 resolved city groups |
+| Golden journey corpus v1 (≥ 15 routes) | **15 curated city pairs, exact match required** + 200 traffic-weighted sampled pairs at ≥ 95% |
+| UI holds 60 fps; queries cancellable | Search is off the main thread in a worker; a stale search's *results* are dropped, its scan is not aborted. Deviation **D6** |
+| `RouteMap` (Leaflet) | **Canvas schematic instead.** Every free tile provider wants a key, has terms a keyless Pages site cannot honour, or spends the 100 GB/mo bandwidth allowance. Deviation **D2** |
+
+**Search results:** 15/15 curated city pairs found. 20% of 1,000 random pairs at the
+traveller's own bounds, **32% with the widening ladder**; zero label-pool truncations. The
+low sampled figure is dataset sparsity (5,174 trains from a 2016 snapshot against ~13,000 in
+service) — a ceiling sweep reached only ~37% at six changes and 96 hours, so widening further
+buys almost nothing. Every empty state says so and names the data's vintage. Deviation **D5**.
+
+Full deviation record with causes and remediation:
+[`docs/04-roadmap-and-risks.md`](docs/04-roadmap-and-risks.md#phase-1--routing-engine--complete-with-deviations-recorded-below).
+
 ### Remaining phases
 
-**MVP = Phases 1→2 on top of this, ~32–42 days.** That already beats IRCTC for *planning*:
+**MVP = Phase 2 on top of this, ~20–26 days.** That already beats IRCTC for *planning*:
 multi-leg decomposition, seven remedies, explained splits, and a working availability story.
-No free tool does the leg-splitting at all. **Full product ≈ 66–88 days from here.**
+No free tool does the leg-splitting at all. **Full product ≈ 54–72 days from here.**
 
 **Phase 3 is the differentiator** and should start the moment Phase 2 lands.
 

@@ -1,12 +1,18 @@
-# RailRoam — "I have holidays. Where could I go?"
+# Kahan Chalein? — "I have holidays. Where could I go?"
 
 A free, static, zero-setup journey planner for Indian Railways, built for the person who
 knows **where they are** and **when they're free** but has **no destination in mind**.
 
-> **Status: Phase 0 shipped.** The data pipeline, packed dataset, worker, autocomplete and
-> timetable lookup are built, tested (116 tests) and passing CI. Journey search with seat
-> availability is Phase 1–2. Plan of record: [`PLAN.md`](PLAN.md). Research verified
-> 2026-09-12.
+> **Status: Phases 0 and 1 shipped.** Data pipeline, packed dataset, worker, autocomplete and
+> timetable lookup (Phase 0), plus multi-leg journey search, fares, transfers between city
+> terminals, the results UI and share/copy/download (Phase 1). 305 tests, passing CI.
+> **Seat availability is Phase 2 and is not connected yet** — every rail leg says so rather
+> than guessing. Plan of record: [`PLAN.md`](PLAN.md). Research verified 2026-09-12.
+>
+> Phase 1 missed one of its own acceptance targets (1,000 queries in 2 s; measured 5.1 s) and
+> deviated on three others. All are recorded with their causes and remediation in
+> [`docs/04-roadmap-and-risks.md`](docs/04-roadmap-and-risks.md#phase-1--routing-engine--complete-with-deviations-recorded-below)
+> rather than quietly redefined.
 
 ## What is built
 
@@ -24,10 +30,32 @@ site/        Vite + Preact + TypeScript
   lib/binary.ts    zero-copy RRLM container reader
   lib/stations.ts  prefix-search index over 7,219 stations
   lib/graph.ts     5,174 trains, 98,055 legs, per-station adjacency
+  router/          the search: timetable -> CSA -> transfers -> fares -> journeys
   worker/          routing worker + a main-thread fallback if it fails to start
   state/cache.ts   IndexedDB, validated by sha256 — a warm visit makes zero requests
-  ui/              ARIA combobox, timetable, provenance badges, disclaimer
+  state/           search hook with progressive widening; planner helpers
+  ui/              combobox, planner form, itinerary cards, leg detail, route diagram, export
+  tests/           305 tests, including a golden corpus and an exhaustive-enumeration
+                   cross-check of the router
 ```
+
+### How the search works
+
+One day's timetable is flattened into 135,949 scan-ready rows (~70 ms), then a
+six-criterion **Connection Scan** finds every Pareto-optimal itinerary: arrival time, number
+of changes, fare, night arrivals, early departures and fatigue. Consecutive rides on one
+train merge into a single leg, so a through journey is never reported as two changes. Each
+leg is priced from its *own* total distance through IRCTC's slab table — ten 100 km hops cost
+far more than one 1,000 km ticket, and the engine knows it.
+
+City terminals are linked by priced road edges (186 footpaths across Delhi, Mumbai, Kolkata,
+Chennai, Bengaluru, Hyderabad, Goa, Pune and Ahmedabad), so arriving Howrah and leaving
+Sealdah is a real option rather than a dead end. Minimum transfer minutes are enforced per
+junction and checked by property test on every itinerary the corpus produces.
+
+When a search comes back empty it **widens** — first the bounds the traveller asked for, then
+two, then three, then four changes — and says which rung produced the answer, so an absurd
+itinerary is never passed off as a normal one.
 
 Three findings from the real data shaped the design, each written up where it belongs:
 **75% of the source's "stops" are pass-throughs** the train never halts at; **file order is

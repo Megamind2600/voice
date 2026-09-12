@@ -79,33 +79,122 @@ total · 116 tests · 0 lint warnings · typecheck clean · all integrity gates 
 
 ---
 
-### Phase 1 — Routing engine (12–16 d) · ~0 Actions minutes
+### Phase 1 — Routing engine ✅ COMPLETE (with deviations, recorded below)
 
-`CSA.ts` with `runs_days`, cancellation and min-transfer gating **inside the scan** ·
-`Transfers.ts` with per-junction minimums and cross-terminal road footpaths ·
-`terminals.json` + radius-based nearby-station expansion · `ParetoCSA.ts` (6 criteria,
-dominance pruning, frontier cap) · `Profile.ts` · `FareEngine.ts` + `FlexiFare.ts` ·
-results screen with strategy grouping · `RouteMap` (Leaflet) · `ItineraryTimeline` ·
-one-off local NTES crawl published as a release asset.
+Shipped in `site/src/router/`: `timetable.ts` (per-date scan-ready row array, 135,949 rows for
+one day in ~70 ms) · `csa.ts` (Connection Scan, onboard/platform label split, six-criterion
+Pareto dominance, geometric lower-bound pruning) · `transfers.ts` (per-junction minimums plus
+cross-terminal road footpaths) · `terminals.ts` (city terminal groups) · `fares.ts` (slab +
+class + type + superfast + GST + flexi) · `journey.ts` (reconstruction, merge of consecutive
+rides, rendering, plain-text export). UI: planner form, results grouped by destination for
+explore mode, itinerary cards, per-leg detail, canvas route diagram, share/copy/download.
 
 **Acceptance**
-- [ ] CSA agrees **exactly** with brute-force Dijkstra on a synthetic test network
-- [ ] Single-destination query < 50 ms; Pareto query < 200 ms in a worker
-- [ ] No journey violates a station's min transfer time (property test)
-- [ ] **A weekly train never appears on a non-operating day**
-- [ ] Fare engine reproduces ≥ 20 hand-checked published fares within ₹5
-- [ ] Cross-terminal transfers priced as road edges with realistic durations
-- [ ] Golden journey corpus v1 (≥ 15 routes) passes
-- [ ] UI holds 60 fps during search; queries cancellable
-- [ ] `runs_days` populated for every active train in the NTES dataset
+
+- [x] **CSA agrees exactly with exhaustive enumeration** on synthetic networks — stronger than
+  the Dijkstra check that was planned: `tests/bruteforce.test.ts` enumerates *every* valid
+  journey by DFS over the train instances, without touching the timetable or the scan, and
+  compares full Pareto frontiers in both directions over 12 seeded random networks × several
+  origins × departure times (including 00:05) × `maxTransfers` 0/1/2. Soundness catches a
+  journey that does not exist; completeness catches a journey that was missed.
+- [x] Single-destination query < 50 ms; Pareto query < 200 ms in a worker — measured p50 3.7 ms,
+  p95 15.3 ms, worst 53.7 ms over 1,000 mixed real queries, under jsdom, which is the slowest
+  environment this code runs in.
+- [ ] **1,000 queries < 2 s — NOT MET. See deviation D1.**
+- [x] No journey violates a station's min transfer time — property test over all ~224 real
+  itineraries the corpus produces (`tests/golden.test.ts`).
+- [x] **A weekly train never appears on a non-operating day** — implemented and tested,
+  including a Sunday-only train found on Sunday and absent on Monday. *Caveat D3: the bootstrap
+  data has no `runs_days`, so the gate is currently correct and unused.*
+- [~] Fare engine reproduces published fares — **calibrated, not verified. See D4.**
+- [x] Cross-terminal transfers priced as road edges with realistic durations — 186 footpaths
+  across 9 resolved city groups (Delhi 7, Mumbai 8, Kolkata 4, Chennai 4, Bengaluru 5,
+  Hyderabad 4, Goa 5, Pune 3, Ahmedabad 3).
+- [x] Golden journey corpus v1 (≥ 15 routes) passes — 15 curated city pairs, all of which must
+  match byte-for-byte, plus 200 traffic-weighted sampled pairs held to ≥ 95%.
+- [~] UI holds 60 fps during search; queries cancellable — **partially. See D6.**
+
+**Measured behaviour** (1,000 real queries, one day's timetable, `tests/perf.test.ts`)
+
+| Metric | Value |
+|---|---|
+| Total | 5,146 ms |
+| p50 / p95 / worst | 3.66 / 15.26 / 53.7 ms |
+| Itineraries found | 200 of 1,000 pairs at the traveller's own bounds |
+| …with the widening ladder | 32% of pairs |
+| Label-pool truncations | 0 |
+| Curated city pairs with a result | 15 / 15 |
+
+**Deviations**
+
+*These are recorded rather than argued away. An acceptance criterion that was missed and says so
+is worth more than one that was quietly redefined until it passed.*
+
+**D1 — 1,000 queries in under 2 s is not met (measured 5.1 s).**
+The target assumed a warm single-criterion search. What shipped is a six-criterion Pareto search
+over the whole day's timetable, and 1,000 of those cost ~5.1 s under jsdom/Vitest — the slowest
+of the three environments this code runs in (plain Node is ~3x faster, a browser worker with
+fully JIT-optimised code faster still). Two responses:
+- *Shipped now:* a two-tier progressive search. The first rung uses exactly the bounds the
+  traveller asked for, and only if it comes back empty does the ladder widen
+  (`[2, 48 h, 8 h] → [3, 48 h, 12 h] → [4, 60 h, 24 h]`). The UI reports which rung produced
+  the result, so a four-change itinerary is never presented as if it were what was asked for.
+  Perceived latency for the common case is the p50 (3.7 ms), not the total.
+- *Not yet done:* the real fix is a transfer-pattern precompute (Phase 3) or trip-based routing,
+  which replaces the per-query timetable scan with a lookup. That is where the 2 s figure becomes
+  reachable for bulk workloads such as explore mode, which is the one place a traveller actually
+  triggers a thousand searches.
+The perf test asserts the shape (worst case < 1,500 ms, p95 < 300 ms) rather than the 2 s total,
+because a bound loosened until it passes reports green against a target that was missed.
+
+**D2 — the route diagram is canvas, not Leaflet.**
+Leaflet needs a tile provider. Every free one either wants a key, or has terms that a public
+GitHub Pages site with no attribution budget cannot honour, or would burn bandwidth against the
+100 GB/month Pages allowance on a project whose entire premise is zero cost and zero keys. So
+`RouteMap.tsx` draws a schematic diagram: real coordinates with cosine latitude correction,
+bounding-box fit, device-pixel-ratio scaling, `ResizeObserver` redraw, `role="img"` with a text
+caption. What is lost is genuine geography — no pan, no zoom, no sense of what the journey
+passes *near*. Revisit in Phase 5 with OSM tiles if people ask.
+
+**D3 — `runs_days` is implemented but has nothing to gate.**
+The CC0 bootstrap dataset carries no operating-days column at all, so every train is assumed to
+run daily. The weekly-train logic is written and tested (a Sunday-only train is found on Sunday
+and correctly absent on Monday), and the UI flags assumed running days on every affected leg so
+nobody books against it. It cannot be satisfied until the NTES harvest lands. This is the single
+largest correctness risk in the shipped build: a train shown on a day it does not run is worse
+than no train.
+
+**D4 — fares are calibrated, not verified against live bookings.**
+The engine reproduces IRCTC's published slab structure (base knots at 0/100/200/300/500/750/
+1000/1400/1800/2200/2600/3000 km), class multipliers on the base rather than the total, type
+multipliers, the superfast surcharge above 55 km/h average, and 5% GST. It is asserted against
+recognisable Delhi–Mumbai corridor fares, monotonicity, tapering marginal rate, and the ordering
+travellers expect (Garib Rath below 3A, Jan Shatabdi below Shatabdi, 1A dearest). The planned
+"≥ 20 hand-checked published fares within ₹5" was not done, because checking requires IRCTC
+access and IRCTC's own fare display is per-quota and per-date. Every fare is flagged as an
+estimate in the UI and in the data model. Flexi-fare trains are priced at the mid-band average
+and flagged, because their real fare moves with demand and cannot be estimated honestly.
+
+**D5 — coverage is limited by the dataset, not the algorithm.**
+About a third of randomly-chosen station pairs yield an itinerary even with the ladder fully
+climbed. This is sparsity: 5,174 trains from a 2016 snapshot, against ~13,000 in service. A
+ceiling sweep found ~37% at six changes and 96 hours, so widening further buys almost nothing —
+the missing pairs have no service in this data at all. Every empty state says so explicitly and
+names the data's vintage, rather than implying that no train exists.
+
+**D6 — cancellation abandons results, it does not stop the search.**
+A new search increments a generation counter and stale responses are dropped, so the UI never
+shows an answer to a question nobody asked any more. The worker scan already in flight runs to
+completion. That is invisible for a p50 of 3.7 ms and visible for explore mode, where a real
+abort (cooperative flag checked per round, or worker termination) is worth adding in Phase 3.
 
 **Risks**
 
 | Risk | Mitigation |
 |---|---|
 | NTES crawl takes hours / gets rate-limited | Run **locally once**; publish as release asset. Never lower the 1.2 s pause. CC0 bootstrap keeps dev unblocked |
-| Pareto frontier explosion with 6 criteria | Cap ~12/station; tune against the golden corpus |
-| Per-junction min-transfer data unavailable | Rank-based defaults (metro 30 / junction 20 / intermediate 10 / halt 5 min); refine later |
+| Pareto frontier explosion with 6 criteria | Cap ~12/station; tune against the golden corpus. Measured: zero label-pool truncations over 1,000 queries |
+| Per-junction min-transfer data unavailable | Rank-based defaults; measured bands {6 min: 1,404 stations, 12: 4,638, 15: 894, 20: 252, 25: 31} |
 | Station code drift (MGS→DDU, ALD→PRYJ) | Explicit rename map in the normaliser; orphan-station integrity gate |
 
 ---

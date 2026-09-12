@@ -25,6 +25,26 @@
 
 import type { Graph } from '../src/lib/graph';
 import type { StationIndex } from '../src/lib/stations';
+import type { Journey } from '../src/router/journey';
+
+/**
+ * A stable text digest of a journey, for the golden corpus.
+ *
+ * Deliberately NOT `summarise` from journey.ts: that one is also the share text, and letting a
+ * cosmetic wording change there rewrite the whole corpus would destroy its value as a
+ * regression signal. This depends only on routing facts — which trains, which stations, which
+ * minutes, which class, which rupees — so it changes only when the answer changes.
+ *
+ * Shared between the generator and the test on purpose. Two implementations of a digest is how a
+ * corpus ends up recording something the test does not compare.
+ */
+export function digestJourney(j: Journey): string {
+  const parts = j.segments.map((s) => (s.kind === 'rail'
+    ? `R:${s.trainNumber}:${s.from}>${s.to}:${s.depMin}:${s.arrMin}:${s.hops}:${s.distKm}:${s.klass}:${s.fareRupees}`
+    : `D:${s.from}>${s.to}:${s.depMin}:${s.arrMin}:${s.costRupees}`));
+  return `${j.origin}>${j.destination}|${j.depMin}|${j.arrMin}|${j.transfers}|${j.totalKm}`
+    + `|${j.fareRupees}|${parts.join(',')}`;
+}
 
 export interface CorpusQuery {
   /** Stable id, so a failing query can be named in a report. */
@@ -85,14 +105,24 @@ export function buildCorpus(
   const rnd = mulberry32(seed);
   const n = stations.count;
 
-  // Rank-weighted pick. Rank is a percentile, so raising it to a power sharpens the bias
-  // toward big stations without excluding small ones entirely — a journey from a village halt
-  // is rare but real, and the router must not be allowed to rot on it.
+  // Traffic-weighted pick, using how many trains actually call at a station.
+  //
+  // `Station.rank` was tried first and is the wrong proxy: it is a four-value category
+  // (halt / intermediate / junction / metro) derived from the data, not a percentile, so
+  // weighting by it barely biases anything. `calls` is a real traffic count. Normalising by the
+  // busiest station and taking a square root flattens the distribution enough that village
+  // halts still appear — a journey from one is rare but real, and a router never exercised on
+  // them quietly rots.
+  let maxCalls = 1;
+  for (let i = 0; i < n; i++) {
+    const c = stations.at(i).calls;
+    if (c > maxCalls) maxCalls = c;
+  }
   const pickWeighted = (): number => {
     for (let attempt = 0; attempt < 64; attempt++) {
       const s = Math.floor(rnd() * n);
-      const rank = stations.at(s).rank;
-      if (rnd() < Math.pow(Math.max(0.02, rank), 1.6)) return s;
+      const w = Math.sqrt(stations.at(s).calls / maxCalls);
+      if (rnd() < Math.max(0.02, w)) return s;
     }
     return Math.floor(rnd() * n);
   };
