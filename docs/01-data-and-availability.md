@@ -305,6 +305,53 @@ berths exist.
 trunk-route train is a completely different proposition from WL 23 against a 2-coach
 weekly** — and only this tier lets you tell them apart.
 
+### What shipped, and how it differs from the example above
+
+The JSON above assumes a per-train rake table. **No such table can be shipped.** Indian Railways
+publishes no coach composition in a redistributable form, and the CC0 bootstrap corpus carries
+none — `harvester/normalise.py` records exactly that ("no platform, quota, rake/composition, or
+fare data"), and its `classes` field is frequently empty. IRCTC and NTES know real compositions
+but expose them only per-query, behind a session, with no redistribution rights.
+
+So `site/src/availability/rake.ts` *constructs* Tier 0 instead:
+
+- **Berths per coach** — a verified table by class and generation (ICF / LHB / Vande Bharat),
+  checked 2026-09-12. Every entry is a **range**, because sources genuinely disagree: LHB sleeper
+  is 78 or 80, LHB 2A is 52 or 54, LHB 3A is 72 with some rakes at 75. The classic ICF figures are
+  stable across every source (SL 72, 3A 64, 2A 46) and are corroborated by published
+  berth-numbering lists that run 1..72, 1..64 and 1..46 respectively.
+- **Composition templates** — one per train type (Rajdhani, Shatabdi, Vande Bharat, Duronto,
+  Garib Rath, Superfast, Mail/Express, Passenger, Suburban), intersected with the classes the
+  train actually offers. A class the train offers but the template does not know is kept with a
+  one-to-two-coach range rather than dropped, because the train demonstrably runs it.
+- **Confidence** — `high` for the types whose composition is definitional (a Rajdhani is all-AC, a
+  Shatabdi is chair car, a Vande Bharat is EC+CC), `medium` for Mail/Express and Superfast, `low`
+  whenever the train's own class list was inferred, which is a guess on top of a guess.
+- **The segment caveat travels with the number.** Capacity is the whole rake; IRCTC allots quota
+  per `(train, board, alight, date, class, quota)` tuple, so the pool competing for one leg is
+  smaller and sometimes much smaller. The caveat is part of the returned value rather than a
+  footnote, so the UI cannot render the figure without it.
+
+**What Tier 0 is allowed to answer.** It never claims a seat exists. As a cascade source it
+returns a verdict only for combinations that certainly cannot be booked — a class the train does
+not run, Tatkal in `1A`, a berth-position quota (`HP`/`SS`/`LB`) in a chair car, a quota code
+IRCTC does not use — and `null` for everything else, so higher tiers get their turn. Those arrive
+as `verdict: REGRET, source: STATIC`, where REGRET means **"this accommodation does not exist"**,
+not "it is sold out"; the explanation says which, and the UI must not render it as a live result.
+
+**Uncertain is not impossible.** `quotaApplies()` is three-state — `yes` / `no` / `unknown` — and
+only `no` may rule an option out. Sources conflict on whether the Ladies quota reaches the AC
+berth classes, and nothing rules it out of a chair car, so those stay `unknown`. An empty class
+list is likewise a hole in the data rather than evidence: reading it as "runs nothing" would
+delete every booking on the affected trains, which is the same harm as inventing availability,
+only quieter.
+
+**Where the capacity goes.** `RailSegment` now carries `trainClasses`, so the panel can reason
+about a leg without a round trip to the worker's graph. Remedy ③ uses `staticallyImpossible()` to
+stop posing queries that cannot exist — before this, a Shatabdi leg happily posed Divyangjan and
+senior-citizen queries against a train with no berths to reserve — and `quotaOptions()` to say how
+large each pool is, since pool size is what makes "switch quota" rankable at all.
+
 ---
 
 ## 9. Tier 1 — the prediction model (the default)

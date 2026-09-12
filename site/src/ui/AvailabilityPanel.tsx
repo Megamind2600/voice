@@ -27,6 +27,8 @@ import type { RailSegment } from '../router/journey';
 import type { StationResolver } from '../router/journey';
 import { bookingFacts, istNow } from '../availability/rules';
 import { handoff } from '../availability/links';
+import { capacityFor, staticallyImpossible } from '../availability/rake';
+import type { TrainFacts } from '../availability/rake';
 
 export interface AvailabilityPanelProps {
   segment: RailSegment;
@@ -46,6 +48,24 @@ export function AvailabilityPanel(props: AvailabilityPanelProps) {
   const to = nameOf(s.to);
   const now = istNow();
   const facts = bookingFacts(dateIso, s.serviceDayOffset, s.klass, now.dateIso, now.minuteOfDay);
+  // Tier 0 needs nothing but what the segment already carries: the train's type and its full
+  // class list. It answers two questions the timetable alone cannot — how many berths this class
+  // roughly has, and whether the requested class/quota pair can exist at all.
+  const trainFacts: TrainFacts = {
+    type: s.trainType,
+    classes: s.trainClasses,
+    classesInferred: s.classesInferred,
+    distanceKm: s.distKm,
+  };
+  const capacity = capacityFor(trainFacts, s.klass);
+  const ruledOut = staticallyImpossible(
+    {
+      trainNumber: s.trainNumber, board: from.code, alight: to.code,
+      dateIso: facts.originDate, klass: s.klass, quota,
+    },
+    trainFacts,
+  );
+
   const hand = handoff({
     trainNumber: s.trainNumber,
     board: from.code,
@@ -92,6 +112,20 @@ export function AvailabilityPanel(props: AvailabilityPanelProps) {
         a berth exists, and no number on this page should be read as one that does. What follows
         is what can be stated without guessing.
       </p>
+
+      {ruledOut && (
+        <p class="avail__ruledout">
+          <strong>This combination cannot be booked.</strong> {ruledOut}
+        </p>
+      )}
+
+      {!ruledOut && capacity && (
+        <p class="avail__capacity">
+          <span class="avail__badge">estimate</span>
+          Roughly <strong>{capacity.low.toLocaleString('en-IN')}–{capacity.high.toLocaleString('en-IN')}</strong>{' '}
+          {capacity.klass} berths exist on this train. {capacity.basis}
+        </p>
+      )}
 
       {facts.notes.length > 0 && (
         <ul class="avail__notes">

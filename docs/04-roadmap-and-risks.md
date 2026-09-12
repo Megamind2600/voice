@@ -244,6 +244,7 @@ Built and tested in this increment, all of it pure functions with no network dep
 | `availability/remedies.ts` | All seven remedies with honest labels: *splits this leg* / *re-runs the search* / *needs an availability source*. Ruled-out options are listed with reasons and pose no queries. |
 | `availability/links.ts` | Handoff to IRCTC with the six values in the form's own order and DD/MM/YYYY dates. Only three verified URLs are referenced. |
 | `ui/AvailabilityPanel.tsx` | Replaces the static "not connected" paragraph on every rail leg with the booking-window facts, the handoff values, a copy button, and a link to IRCTC's charts-and-vacancy page. |
+| `availability/rake.ts` | **Tier 0 — the denominator.** Berths per coach by class and generation as verified *ranges* (sources disagree: LHB sleeper 78 or 80, LHB 2A 52 or 54), composition templates per train type intersected with the classes the train actually offers, and confidence that drops to `low` whenever the class list was inferred. Answers only what is certain — a class the train does not run, Tatkal in `1A`, a berth-position quota in a chair car — and returns `null` otherwise. |
 
 Acceptance criteria from the list above that are now covered by tests: the 12927
 Dadar 23:50 → Borivali 00:06 Tatkal case; no split under a 10-minute halt with a warning below
@@ -258,8 +259,15 @@ is the single place it goes. Second, every criterion that depends on a **predict
 (Brier, calibration, `pConfirm` precision, `PQWL 8` scoring worse than `GNWL 8` in output) is
 untouched — that is Phase 2b, and none of the ranking above should be read as a probability.
 
-**Still to do in Phase 2:** Tier 0 rake data (the real unlock — coach composition, berth
-counts, quota pools); Tier 1 training on the Apache-2.0 corpus; Tier 3 relay (only after Pages
+**Tier 0 deviation.** The plan called for a per-train `trains.meta` rake table. That table cannot
+be shipped: no redistributable source publishes coach composition, and the CC0 bootstrap carries
+none. Tier 0 is therefore *constructed* from verified per-coach berth ranges plus composition
+templates keyed by train type, every figure carrying a range, a confidence and a basis sentence.
+It is a denominator and a set of ruled-out options, never a seat count, and the "whole rake, not
+your segment" caveat travels inside the returned value so it cannot be rendered without it. See
+docs/01 §8 for the full account.
+
+**Still to do in Phase 2:** Tier 1 training on the Apache-2.0 corpus; Tier 3 relay (only after Pages
 bandwidth telemetry proves it is needed); Tier 4 bring-your-own-key; wiring remedies into the
 worker so they drive a re-search; `DateFlexHeatmap`; and golden corpus v2 with split-requiring
 cases.

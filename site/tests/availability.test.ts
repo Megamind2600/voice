@@ -73,7 +73,8 @@ function railSeg(over: Partial<RailSegment> = {}): RailSegment {
     distKm: 600, fareRupees: 500, baseFare: 400, reservation: 45, surcharge: 30, gst: 25,
     trainIx: 0, trainNumber: '12927', trainName: 'Test Express', trainType: 'SUF', klass: 'SL',
     classFellBack: false, fareEstimate: true, flexiFare: false, runsDaysAssumed: false,
-    classesInferred: false, serviceDayOffset: 0, nightArrival: false, ...over,
+    classesInferred: false, serviceDayOffset: 0, nightArrival: false,
+    trainClasses: ['SL', '3A', '2A'], ...over,
   };
 }
 
@@ -499,7 +500,12 @@ describe('the seven remedies', () => {
   });
 
   it('rules out Tatkal for First AC and says why, rather than omitting it', () => {
-    const r = remediesForLeg(legRef({ segment: railSeg({ klass: '1A' }) }), ctx());
+    // The train has to actually run 1A for this to be a statement about Tatkal. Asking for a
+    // class the train does not carry is a larger problem, and Tier 0 now reports that first.
+    const r = remediesForLeg(
+      legRef({ segment: railSeg({ klass: '1A' }) }),
+      ctx({ offeredClasses: ['1A', '2A', '3A', 'SL'] }),
+    );
     const quota = r.find((x) => x.id === 'quota')!;
     expect(quota.note).toMatch(/no Tatkal quota/i);
     for (const code of ['TQ', 'PT']) {
@@ -511,6 +517,61 @@ describe('the seven remedies', () => {
     // booking form that will reject them.
     const ld = quota.options.find((x) => x.label.startsWith('LD'))!;
     expect(ld.cost).toMatch(/woman travelling alone/i);
+  });
+
+  it('says how large each quota pool is, because that decides whether switching is worth it', () => {
+    const r = remediesForLeg(legRef(), ctx({ offeredClasses: ['SL', '3A', '2A'] }));
+    const quota = r.find((x) => x.id === 'quota')!;
+    const ld = quota.options.find((x) => x.label.startsWith('LD'))!;
+    // Six lower berths per Sleeper coach is the published figure, and it is the whole reason
+    // the Ladies quota is often free while the general pool is not.
+    expect(ld.note).toMatch(/6 lower berths/i);
+    const tq = quota.options.find((x) => x.label.startsWith('TQ'))!;
+    expect(tq.note).toMatch(/Pool:/);
+    expect(tq.note).toMatch(/sleeper/i);
+    // A ruled-out option gets no pool note: there is no pool to describe.
+    const r1a = remediesForLeg(
+      legRef({ segment: railSeg({ klass: '1A' }) }),
+      ctx({ offeredClasses: ['1A', '2A', '3A', 'SL'] }),
+    );
+    const tq1a = r1a.find((x) => x.id === 'quota')!.options.find((x) => x.label.startsWith('TQ'))!;
+    expect(tq1a.ruledOut).toMatch(/no Tatkal quota/i);
+    expect(tq1a.note).toBeNull();
+  });
+
+  it('reports a class this train does not carry before anything else about quota', () => {
+    // Same leg, but the train's own class list has no 1A. Every quota option is then ruled out
+    // for the same reason, which is more useful than seven separate quota explanations.
+    const r = remediesForLeg(legRef({ segment: railSeg({ klass: '1A' }) }), ctx());
+    const quota = r.find((x) => x.id === 'quota')!;
+    expect(quota.options.length).toBeGreaterThan(0);
+    for (const o of quota.options) {
+      expect(o.ruledOut, o.label).toMatch(/does not run 1A/);
+      expect(o.query, o.label).toBeNull();
+    }
+  });
+
+  it('never poses a berth-position quota in a chair car — the gap Tier 0 closed', () => {
+    // Before Tier 0, remedy 3 only checked Tatkal eligibility, so a Shatabdi leg happily posed
+    // Divyangjan and senior-citizen queries against a train with no berths to reserve.
+    const r = remediesForLeg(
+      legRef({ segment: railSeg({ klass: 'CC', trainClasses: ['CC', 'EC'] }) }),
+      ctx({ offeredClasses: ['CC', 'EC'] }),
+    );
+    const quota = r.find((x) => x.id === 'quota')!;
+    for (const code of ['HP', 'SS']) {
+      const o = quota.options.find((x) => x.label.startsWith(code))!;
+      expect(o.ruledOut, code).toMatch(/seats, not berths/);
+      expect(o.query, code).toBeNull();
+    }
+    // Tatkal genuinely does exist in a chair car, so it must still be posed.
+    const tq = quota.options.find((x) => x.label.startsWith('TQ'))!;
+    expect(tq.ruledOut).toBeNull();
+    expect(tq.query).not.toBeNull();
+    // And the Ladies quota is not published either way for chair cars, so it stays available
+    // rather than being deleted on a guess.
+    const ld = quota.options.find((x) => x.label.startsWith('LD'))!;
+    expect(ld.ruledOut).toBeNull();
   });
 
   it('offers only classes the train actually has, and marks the rest as ruled out', () => {

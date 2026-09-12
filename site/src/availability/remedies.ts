@@ -35,6 +35,8 @@
 import type { RailSegment } from '../router/journey';
 import type { AvailabilityQuery } from './tier';
 import { addDays, hasTatkal, originDateOf, QUOTAS, quotaOf, runsOnDate, TATKAL_CLASSES } from './rules';
+import { quotaOptions, staticallyImpossible } from './rake';
+import type { TrainFacts } from './rake';
 import { offerable, RANKING_UNAVAILABLE, SPLIT_FRAMING, splitCandidates, type SplitCandidate } from './split';
 
 export type RemedyId = 'split' | 'date' | 'quota' | 'class' | 'route' | 'terminal' | 'intermodal';
@@ -46,6 +48,11 @@ export interface RemedyOption {
   change: string;
   /** What it costs the traveller beyond money: a different date, an eligibility requirement. */
   cost: string | null;
+  /**
+   * Context that is neither the action nor its cost — for a quota, how large the pool being
+   * joined actually is. Optional so existing options need not supply it.
+   */
+  note?: string | null;
   /** The exact availability question this option poses, when it poses one. */
   query: AvailabilityQuery | null;
   /** True when this option is impossible or pointless and is listed only to say so. */
@@ -151,6 +158,19 @@ export function remediesForLeg(leg: LegRef, ctx: RemedyContext): Remedy[] {
   const originDate = originDateOf(dateIso, seg.serviceDayOffset);
   const base = baseQuery(seg, originDate, boardCode, alightCode);
 
+  // Tier 0's view of this train, assembled from what the leg already carries — no extra round
+  // trip to the worker's graph. The caller's `offeredClasses` wins because the rest of the
+  // remedies already reason from it; the segment's own list is the fallback. An empty list means
+  // the bootstrap data had none, which Tier 0 treats as unknown rather than as "runs nothing".
+  const trainFacts: TrainFacts = {
+    type: seg.trainType,
+    classes: ctx.offeredClasses.length > 0 ? ctx.offeredClasses : seg.trainClasses,
+    classesInferred: seg.classesInferred,
+    distanceKm: seg.distKm,
+  };
+  /** Tier 0's published pool sizes for this class, keyed by quota code. */
+  const pools = quotaOptions(seg.klass);
+
   // ① Same-train split -------------------------------------------------------
   const splits = offerable(splitCandidates({
     stops: ctx.stops, boardStation: seg.from, alightStation: seg.to,
@@ -229,14 +249,19 @@ export function remediesForLeg(leg: LegRef, ctx: RemedyContext): Remedy[] {
       : `${seg.klass} has no Tatkal quota at all, so the two Tatkal options below are listed only `
         + 'to say so.',
     options: QUOTAS.filter((q) => q.code !== 'GN').map((q) => {
-      const tatkal = q.code === 'TQ' || q.code === 'PT';
-      const ruledOut = tatkal && !hasTatkal(seg.klass)
-        ? `There is no Tatkal quota in ${seg.klass}.`
-        : null;
+      // Tier 0 answers this one outright: a quota that cannot exist in this class poses no query.
+      // That covers Tatkal in 1A, and also the berth-position quotas in a chair car, which the
+      // Tatkal check alone let through on every Shatabdi and Vande Bharat.
+      const ruledOut = staticallyImpossible({ ...base, quota: q.code }, trainFacts);
+      // How big the pool is decides whether switching quota is worth trying at all: the Ladies
+      // quota is six berths per Sleeper coach, so it is often free precisely because so few
+      // people are eligible, while the general pool is where the competition is.
+      const pool = pools.find((o) => o.code === q.code)?.pool ?? null;
       return {
         label: `${q.code} — ${q.name}`,
         change: `Ask for the ${q.name} quota instead of General.`,
         cost: q.eligibility,
+        note: pool && !ruledOut ? `Pool: ${pool}.` : null,
         query: ruledOut ? null : { ...base, quota: q.code },
         ruledOut,
       };

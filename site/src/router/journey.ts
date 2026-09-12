@@ -76,6 +76,15 @@ export interface RailSegment {
   /** Provenance, so the UI can flag a schedule that was assumed rather than sourced. */
   runsDaysAssumed: boolean;
   classesInferred: boolean;
+  /**
+   * Every class this train runs, not just the one this leg was priced in.
+   *
+   * Carried so Tier 0 can reason about the leg without a round trip to the worker's graph: the
+   * class list is what constrains a rake estimate, and it is what makes "you cannot book Tatkal
+   * in 1A on this train" answerable on the spot. Empty means the bootstrap data had no class
+   * list, which Tier 0 treats as unknown rather than as "runs nothing".
+   */
+  trainClasses: readonly string[];
   /** Negative day offset from the query date: -1 means the train left yesterday evening. */
   serviceDayOffset: number;
   nightArrival: boolean;
@@ -226,6 +235,7 @@ export function reconstructJourney(
         trainNumber: tr.number,
         trainName: tr.name,
         trainType: tr.type,
+        trainClasses: tr.classes,
         klass: fare.klass,
         classFellBack: fellBack,
         fareEstimate: true,

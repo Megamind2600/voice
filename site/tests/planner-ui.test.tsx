@@ -217,6 +217,44 @@ describe('LegDetail, rail leg', () => {
     }
   });
 
+  it('carries the train class list on the segment, which is what Tier 0 reasons from', () => {
+    // Tier 0 cannot see the worker's graph, so the class list has to travel with the leg.
+    expect(rail(overnight)[0].trainClasses.length).toBeGreaterThan(0);
+  });
+
+  it('shows the capacity denominator as an estimate, and never as seats', () => {
+    const s = rail(overnight)[0];
+    render(<LegDetail segment={s} index={1} total={2} nameOf={nameOf} dateLabel={DATE} />);
+    expect(screen.getAllByText('estimate').length).toBeGreaterThan(0);
+    const text = document.body.textContent ?? '';
+    expect(text).toMatch(/berths exist on this train/);
+    // Both caveats must travel with the number: it is a whole-rake figure built from a template.
+    expect(text).toMatch(/not your segment/i);
+    expect(text).toMatch(/not published/i);
+    // An estimate of how many berths EXIST must not read as how many are FREE.
+    expect(text).not.toMatch(/\d+\s*(seats|berths)\s+available/i);
+    expect(text).not.toMatch(/confirmed berths/i);
+  });
+
+  it('says a combination cannot be booked, instead of sending anyone to IRCTC for it', () => {
+    const base = rail(overnight)[0];
+    // A class this train does not carry. Tier 0 is certain about this without any live data.
+    render(
+      <LegDetail
+        segment={{ ...base, klass: '1A', trainClasses: ['SL'] }}
+        index={1}
+        total={2}
+        nameOf={nameOf}
+        dateLabel={DATE}
+      />,
+    );
+    const text = document.body.textContent ?? '';
+    expect(text).toMatch(/cannot be booked/i);
+    expect(text).toMatch(/does not run 1A/);
+    // And no capacity estimate is offered for a class that is not there.
+    expect(screen.queryAllByText('estimate').length).toBe(0);
+  });
+
   it('offers to copy the handoff details, for a phone without the app installed', () => {
     render(<LegDetail segment={rail(overnight)[0]} index={1} total={2} nameOf={nameOf} dateLabel={DATE} />);
     expect(screen.getByRole('button', { name: /copy these details/i })).toBeTruthy();
