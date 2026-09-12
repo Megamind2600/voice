@@ -467,9 +467,32 @@ Binding constraint is bytes shipped to the browser, not compute.
 | `graph.bin` | 5,174 trains + 98,055 legs + geo | 1.32 MB | **782 KB** | into the worker, real progress |
 | **Total first visit** | | **1.54 MB** | **890 KB** | |
 
+**Measured, Phase 1 (same data, the planner UI added on top):**
+
+| Asset | Raw | Served (gzip) | Budget | Used |
+|---|---|---|---|---|
+| `app.js` (form, cards, leg detail, canvas map, export) | 88 KB | **31.5 KB** | 39.1 KB | 81% |
+| `worker.js` + `inline.js` (routing engine) | 34 KB | **13.2 KB** | 15.6 KB | 84% |
+| CSS | 15 KB | **3.8 KB** | 4.9 KB | 78% |
+| **Total JS + CSS** | | **44.7 KB** | 56.6 KB | 79% |
+| **Total first visit** | | **914 KB** | 1 MB | 91% |
+
+The whole planner interface, the six-criterion search and the fare engine cost **22.7 KB
+gzip** on top of Phase 0. No routing library, no map library, no UI framework beyond Preact:
+the route diagram is ~90 lines of canvas, which is why `app.js` grew by 10 KB rather than by
+the 150 KB a Leaflet bundle would have added.
+
 Ceilings are committed in `site/budget.json` and enforced by `npm run budget` in CI: a size
-regression **fails the build**. Current headroom — first paint 76 KB against a 120 KB
-budget, total 890 KB against 1 MB.
+regression **fails the build**. Phase 1 raised two of them — `app.js` 21.5 → 39.1 KB and
+`total.js` 43.9 → 56.6 KB — because the Phase 0 ceilings predated there being any interface.
+They were set with headroom rather than ratcheted to the measured size: `npm run budget --
+--update` would have written 31.5 KB, leaving zero room for Phase 2's availability UI and
+turning the gate into a formality that fails on the next legitimate change.
+
+**Watch item:** `total.gzip` is at 91% of its 1 MB ceiling. The 40 KB availability model that
+Phase 2 ships lands in `data/`, which brings it to ~95%, and the POI index would take it over.
+That ceiling will need an explicit, justified raise at Phase 2 — it should not be discovered
+by a red build.
 
 **Projected, full product (NTES-era, ~12,000 trains):**
 
