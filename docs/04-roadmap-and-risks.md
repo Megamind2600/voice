@@ -316,8 +316,59 @@ confidence interval unless the table ships `ciHalfWidth`. None of the three is d
 single logistic head, and inventing them would produce numbers indistinguishable from measured
 ones.
 
-**Still to do in Phase 2:** Tier 1 *training* on the Apache-2.0 corpus (the inference runtime is
-built and tested; it needs a table to run); Tier 3 relay (only after Pages bandwidth telemetry
+**Progress — Tier 1 feature extraction and cascade assembly (shipped, still not bundled)**
+
+`availability/features.ts` turns an `AvailabilityQuery` into the `ModelFeatures` the runtime
+consumes, and returns `null` rather than a half-built vector whenever it cannot do so honestly: an
+unknown station code, a stop the train does not serve, an alighting stop before the boarding one, a
+zero-length segment, a journey date already gone, or a class Tier 0 has no capacity figure for.
+Each is a missing *denominator*, and a feature vector with a guessed denominator yields a
+probability indistinguishable from a measured one.
+
+Three details are pinned by tests because they fail silently rather than loudly:
+
+- Weekday and festival features come from the **boarding** date, not the origin date. Kota on the
+  Mumbai Rajdhani is reached at 00:50 on the second day; using the origin date puts a Saturday
+  boarding on a Friday and loses the Friday-evening peak, one of the strongest calendar signals.
+- `serviceFrequency` is absent when the running-days bitmask was *assumed* rather than read. A
+  weekly train on a migrant corridor waitlists instantly, so rounding an assumed bitmask to
+  "daily" predicts the opposite of the truth.
+- The capacity denominator comes from Tier 0's `capacityFor()`, so the two tiers cannot disagree
+  about how big a train is.
+
+`availability/festivals.ts` holds the published 2026 calendar plus New Year 2027, each entry with
+the length of its pre-festival run-up window. It answers "is this date in the run-up", because
+demand peaks *before* a festival — people travel to reach home, and the return movement comes
+after. Overlapping windows (Durga Puja and Dussehra are a day apart) resolve to the nearest
+festival, so the answer cannot depend on array order. The table is data rather than calculation on
+purpose: these dates come from lunisolar and lunar calendars, and the Islamic ones depend on moon
+*sighting*, which no calculation settles in advance, so they are flagged `tentative`. Dates were
+cross-checked against india.gov.in's holiday list, the DoPT restricted-holiday notification and
+four published calendars; where sources disagreed — Ram Navami, Rath Yatra, Onam, Janmashtami,
+Durga Ashtami, Diwali and Chhath each had one outlier a week adrift — the majority reading is used.
+Outside the published span the feature returns null: a stale calendar degrades to "no festival",
+while one that extrapolated would place Diwali on a date that is not Diwali. A test fails the build
+once the published calendar is entirely in the past, which is when the next year is due.
+
+`availability/stack.ts` assembles the cascade and loads a table. `loadModel()` **never throws**: a
+404 is the normal case in this build, a 503 and a network failure and a malformed table are three
+different things, and the reason is carried back so a screen can say which rather than silently
+omitting a feature the documentation mentions. `TrainGeometryCache` puts a synchronous resolver in
+front of stop lists that arrive asynchronously from the worker — until a train's geometry is
+cached, Tier 1 declines rather than inventing a segment share.
+
+**Deviations recorded here**
+
+| Where | Deviation | Why |
+|---|---|---|
+| docs/01 §9 | Inference runs on the **main thread**, not in the worker | The worker deliberately holds no `StationIndex` so strings never cross that boundary, while `AvailabilityQuery` is keyed by station *codes* because it also crosses a network one. Features need both, and only the main thread has both. Remedy exploration already lives there for the same reason. Shipping a code→index map into the worker would undo a deliberate architectural choice to save a few hundred microseconds the router dwarfs |
+| docs/01 §9 | The **directional** festival feature is not implemented | Chhath is Delhi→Patna waitlisted and Patna→Delhi empty, then it flips. The coefficient-table format has no directional festival term, so this cannot be expressed. A guessed `festivalDirection` field the model would ignore is worse than a documented gap; a corridor-aware model can still learn direction from the (board, alight) pair it already receives |
+| docs/01 §8 | Cascade order is **[T0, T1]**, not freshness-ordered | The published order is about *observations* — which answer about seats is likelier to be true now. Tier 0's answer is not an observation: "sleeper on a Rajdhani does not exist" is a structural fact that never goes stale. Predicting first would produce a probability for a ticket nobody can buy, wearing the same badge as a real prediction. The cost is nil, because T0 declines everything it cannot rule out |
+| docs/01 §9 | Tier 1 is **not bundled yet** | Wiring it into the UI ships `model.ts`, `features.ts` and `festivals.ts` in app.js — about 3 KB gzipped against 4.3 KB of headroom — to activate a path that cannot answer anything until a trained table exists. Paying that when the table lands is a one-line change; paying now buys nothing a traveller can see |
+
+**Still to do in Phase 2:** Tier 1 *training* on the Apache-2.0 corpus (the inference runtime, the
+feature extractor and the cascade assembly are built and tested; they need a table to run); Tier 3
+relay (only after Pages bandwidth telemetry
 proves it is needed); Tier 4 bring-your-own-key; wiring remedies into the worker so they drive a
 re-search; rendering predictions in the UI behind the badge; and golden corpus v2 with
 split-requiring cases.
