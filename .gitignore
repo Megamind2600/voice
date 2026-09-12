@@ -1,0 +1,89 @@
+# --- OS / editor junk (the repo already shipped a .DS_Store) ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# --- Node / frontend build ---
+node_modules/
+dist/
+dist-ssr/
+build/
+out/
+.vite/
+.turbo/
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.output/
+.svelte-kit/
+*.local
+.eslintcache
+.stylelintcache
+
+# --- Generated railway datasets (rebuilt by CI, never hand-edited) ---
+# Raw NTES crawl corpus is deliberately NOT committed: see docs/09-risks-legal.md
+data/raw/
+data/out/
+data/tmp/
+site/data/generated/
+*.bin
+*.pmtiles
+tracks.geojson
+# ...but DO commit small curated seed data
+!site/data/seed/*.json
+
+# --- Python (ETL / harvesters) ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+.python-version
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.tox/
+.nox/
+coverage/
+htmlcov/
+*.egg-info/
+.eggs/
+uv.lock.bak
+
+# --- Secrets: NEVER commit, even though the app needs none ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.json
+.irctc-session.json
+
+# --- Logs & temp ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+tmp/
+temp/
+
+# --- GitHub Pages build output (deployed via Actions artifact, not source) ---
+_site/
+gh-pages/
