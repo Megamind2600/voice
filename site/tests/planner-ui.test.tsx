@@ -41,6 +41,7 @@ import { AvailabilityPanel } from '../src/ui/AvailabilityPanel';
 import { PREDICTED_BADGE, parseModel, predict } from '../src/availability/model';
 import type { Prediction } from '../src/availability/model';
 import { noReading, type AvailabilityReading } from '../src/availability/tier';
+import { ESTIMATE_BADGE } from '../src/availability/estimate';
 import { ItineraryCard } from '../src/ui/ItineraryCard';
 import { ExportMenu } from '../src/ui/ExportMenu';
 import { JourneyForm } from '../src/ui/JourneyForm';
@@ -143,12 +144,23 @@ const rail = (j: Journey): RailSegment[] => j.segments.filter((s): s is RailSegm
 // ---------------------------------------------------------------------------
 
 describe('LegDetail, rail leg', () => {
-  it('says seat availability is not connected, and does not soften it', () => {
-    render(<LegDetail segment={rail(overnight)[0]} index={1} total={2} nameOf={nameOf} dateLabel={DATE} />);
-    expect(screen.getByText(/seat availability: not connected/i)).toBeTruthy();
-    // The whole reason this notice exists: a reader must be pointed at the real source of truth.
-    // The panel now mentions IRCTC in several places, so this is a count, not a single match.
+  it('labels seat availability an estimate on the leg, and never a live reading', () => {
+    const { container } = render(<LegDetail segment={rail(overnight)[0]} index={1} total={2} nameOf={nameOf} dateLabel={DATE} />);
+    // The headline must say both halves: that something was estimated, and that it was not read
+    // from IRCTC. Either half alone is a misleading sentence.
+    expect(screen.getByText(/seat availability: estimated from the timetable, not read from IRCTC/i)).toBeTruthy();
+    expect(container.querySelector('.est__badge')?.textContent).toBe(ESTIMATE_BADGE);
+    // And the estimate must never harden into a claim anywhere in the leg.
+    expect(container.textContent ?? '').not.toMatch(/seat available|seats available|berth confirmed|confirmed berth/i);
     expect(screen.getAllByText(/IRCTC/i).length).toBeGreaterThan(0);
+  });
+
+  it('shows the estimate arithmetic, so a traveller can disagree with the estimate', () => {
+    const { container } = render(<LegDetail segment={rail(overnight)[0]} index={1} total={2} nameOf={nameOf} dateLabel={DATE} />);
+    const factors = container.querySelectorAll('.est__factor');
+    expect(factors.length).toBeGreaterThanOrEqual(5);
+    expect(container.querySelector('.est__method')?.textContent).toMatch(/structural/i);
+    expect(container.querySelectorAll('.est__caveats li').length).toBeGreaterThan(0);
   });
 
   it('labels the fare an estimate wherever it appears', () => {
@@ -333,21 +345,23 @@ describe('ItineraryCard', () => {
     const { container } = render(<ItineraryCard journey={overnight} nameOf={nameOf} date={DATE} />);
     const toggle = toggleOf(container);
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
-    expect(screen.queryByText(/seat availability: not connected/i)).toBeNull();
+    expect(screen.queryByText(/seat availability: estimated/i)).toBeNull();
+    // The collapsed row still carries the estimate, as a chip rather than a number.
+    expect(container.querySelector('.itin__flags')?.textContent).toMatch(/estimated seats/i);
 
     await user.click(toggle);
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
     // aria-controls has to point at something that exists, or it is decoration, not a contract.
     const controls = toggle.getAttribute('aria-controls') as string;
     expect(container.querySelector(`[id="${controls}"]`)).toBeTruthy();
-    // One notice per rail leg. Putting it once per card is how a three-train itinerary ends up
-    // with the warning apparently attached to only one of its three trains.
-    expect(screen.getAllByText(/seat availability: not connected/i).length).toBe(rail(overnight).length);
+    // One estimate per rail leg. Putting it once per card is how a three-train itinerary ends up
+    // with the disclaimer apparently attached to only one of its three trains.
+    expect(screen.getAllByText(/seat availability: estimated/i).length).toBe(rail(overnight).length);
   });
 
   it('can be opened on render, for a result worth looking at closely', () => {
     render(<ItineraryCard journey={overnight} nameOf={nameOf} date={DATE} expandedByDefault />);
-    expect(screen.getAllByText(/seat availability: not connected/i).length).toBe(rail(overnight).length);
+    expect(screen.getAllByText(/seat availability: estimated/i).length).toBe(rail(overnight).length);
   });
 
   it('is an article landmark, so a screen reader can step between itineraries', () => {

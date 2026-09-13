@@ -225,6 +225,16 @@ round-trip) remain as specced below.
 
 ### Phase 2 — Availability + leg-splitting (20–26 d) · **highest risk, core IP**
 
+**Shipped early (2026-09-13):** the availability surface — a structural estimate on every rail
+leg, labelled `ESTIMATED` (`availability/estimate.ts`, method `structural-v1 · uncalibrated`),
+built from the Tier 0 capacity, the booking window, the festival calendar, quota and corridor
+load, with its arithmetic shown and an explicit refusal to answer for combinations it cannot
+reason about (a class the train does not carry, a Tatkal quota before it opens). Also shipped:
+the destination notes and road-hop estimates that give explore mode a reason to go somewhere
+(`discovery/`, `data/profiles.json`). Still open: the fitted Tier 1 model — the runtime is in
+the tree, but nothing is trained into the repository, so nothing is fed invented coefficients —
+and the parts of this phase that depend on it.
+
 `StatusParser.ts` with **waitlist types** preserved · `QuotaRules.ts` (60-day ARP, 08:00
 general, Tatkal 10:00 AC / 11:00 non-AC from **origin**, `1A` excluded, Aadhaar note,
 maintenance window) · Tier 0 `trains.meta` with rake + berths/coach + quota pools ·

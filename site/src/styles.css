@@ -682,3 +682,74 @@ code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-si
   letter-spacing: 0.04em;
   font-weight: 700;
 }
+
+/* --- Availability estimates ------------------------------------------------
+   Deliberately distinct from the PREDICTED block above it: one is a fitted
+   model's probability, the other is arithmetic on published rules and an
+   authored demand table. They must never look like the same kind of claim. */
+.est {
+  margin: 0.5rem 0 0.7rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 3%, var(--card));
+}
+.est__headline { margin: 0 0 0.45rem; font-size: 0.9rem; line-height: 1.5; }
+.est__badge {
+  display: inline-block;
+  margin-right: 0.4rem;
+  padding: 0.05rem 0.35rem;
+  border: 1px dashed color-mix(in srgb, var(--accent) 60%, transparent);
+  border-radius: 3px;
+  color: var(--accent);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.est__pool { margin: 0 0 0.5rem; font-size: 0.82rem; line-height: 1.55; color: color-mix(in srgb, var(--ink) 82%, transparent); }
+.est__how { font-size: 0.82rem; }
+.est__how > summary { cursor: pointer; font-weight: 600; }
+.est__method { margin: 0.45rem 0 0.4rem; line-height: 1.55; color: color-mix(in srgb, var(--ink) 78%, transparent); }
+.est__factors { margin: 0 0 0.4rem; padding-left: 1.05rem; line-height: 1.6; }
+.est__factor { margin-bottom: 0.15rem; }
+.est__x { margin-left: 0.35rem; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--ink) 60%, transparent); }
+.est__note { margin: 0.3rem 0 0; color: color-mix(in srgb, var(--ink) 68%, transparent); }
+.est__caveats {
+  margin: 0.55rem 0 0;
+  padding-left: 1.05rem;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--ink) 70%, transparent);
+}
+.est__caveats li { margin-bottom: 0.2rem; }
+
+/* --- Destination cards -----------------------------------------------------
+   The explore screen's answer to "why would I go there". Editorial content sits
+   on the same card as the timetable, so it has to look like a note and not like
+   a fact pulled from the dataset. */
+.dc { margin: 0 0 0.7rem; }
+.dc--thin { color: color-mix(in srgb, var(--ink) 78%, transparent); }
+.dc__why { margin: 0 0 0.4rem; font-size: 0.92rem; line-height: 1.55; }
+.dc__tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0 0 0.5rem; }
+.dc__tag {
+  padding: 0.1rem 0.4rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600;
+  background: var(--brand-soft); color: var(--brand);
+}
+.dc__season { padding: 0.1rem 0.4rem; font-size: 0.7rem; color: var(--ink-soft); border: 1px solid var(--line); border-radius: 999px; }
+.dc__sights { margin: 0 0 0.5rem; padding-left: 1.05rem; font-size: 0.85rem; line-height: 1.65; }
+.dc__sights li { margin-bottom: 0.15rem; }
+.dc__sight { font-weight: 600; }
+.dc__kind { margin-left: 0.4rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
+.dc__km { margin-left: 0.4rem; font-size: 0.78rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.dc__hops { margin: 0 0 0.5rem; padding: 0.5rem 0.6rem; border-left: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--accent) 5%, transparent); border-radius: var(--radius); }
+.dc__hops-head { margin: 0 0 0.3rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); font-weight: 700; }
+.dc__hops ul { margin: 0; padding-left: 1.05rem; font-size: 0.85rem; line-height: 1.6; }
+.dc__hops li { margin-bottom: 0.25rem; }
+.dc__hop { margin-left: 0.4rem; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.dc__hopnote { display: block; font-size: 0.78rem; color: color-mix(in srgb, var(--ink) 72%, transparent); }
+.dc__near { margin: 0 0 0.35rem; font-size: 0.85rem; line-height: 1.55; }
+.dc__source { margin: 0; font-size: 0.74rem; line-height: 1.5; color: color-mix(in srgb, var(--ink) 62%, transparent); }
+
+.dc--pending { font-style: italic; color: color-mix(in srgb, var(--ink) 62%, transparent); }

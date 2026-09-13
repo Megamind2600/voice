@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import { router } from './state/client';
 import { dataLocation } from './state/cache';
 import { useDataset } from './state/useDataset';
+import { useProfiles } from './state/useProfiles';
 import { useJourneys, useWorkerConfigure, type PlanInput } from './state/useJourneys';
 import { applyDecodedPlan, decodePlan, encodePlan } from './state/urlState';
 import { resolveTerminalGroups } from './router/terminals';
@@ -31,6 +32,7 @@ import { JourneyForm } from './ui/JourneyForm';
 import { ItineraryCard } from './ui/ItineraryCard';
 import { CopyPlanLink } from './ui/CopyPlanLink';
 import { WeatherCard } from './ui/WeatherCard';
+import { DestinationCard } from './ui/DestinationCard';
 import { addDaysIso, todayIso } from './state/plan';
 import type { Journey } from './router/journey';
 
@@ -48,6 +50,9 @@ const DEFAULT_PLAN = (): PlanInput => ({
 export function App() {
   const dataset = useDataset();
   const stations = dataset.stations;
+  // The destination notes are editorial prose, so they ship as data and arrive on their own
+  // schedule; nothing on the search path waits for them.
+  const notes = useProfiles();
 
   const [plan, setPlan] = useState<PlanInput>(DEFAULT_PLAN);
   const { state, search } = useJourneys(stations);
@@ -286,6 +291,10 @@ export function App() {
               )}.
               These are the options that are not beaten by another on <em>every</em> measure at once —
               arrival time, changes, and fare.
+              {exploring && (
+                <> Each one says why it is worth the journey: what is in the city, and what is a
+                  road hop from the station rather than a walk.</>
+              )}
             </p>
 
             {exploring ? (
@@ -307,6 +316,13 @@ export function App() {
                         placeName={nameOf(g.station).name}
                       />
                     )}
+                    <DestinationCard
+                      station={g.station}
+                      stations={stations}
+                      nameOf={nameOf}
+                      profiles={notes.index}
+                      loadingNotes={notes.loading}
+                    />
                     {g.journeys.map((j, i) => (
                       <ItineraryCard
                         key={`d${g.station}-${i}`}
@@ -372,9 +388,10 @@ export function App() {
             )}
 
             <p class="panel__note">
-              Fares are published-tariff estimates and <strong>seat availability is not yet
-              connected</strong>. Both arrive in Phase 2. Nothing on this page is a booking or a
-              guarantee of a berth.
+              Fares are published-tariff estimates. Seat availability is <strong>estimated, not
+              read from IRCTC</strong> — open a leg to see the estimate, the range behind it and
+              the arithmetic it came from. Nothing on this page is a booking or a guarantee of a
+              berth.
             </p>
           </section>
         )}
@@ -449,6 +466,11 @@ export function App() {
             <li>Journeys split across trains, with a real minimum transfer time per station rather than an optimistic zero.</li>
             <li>Road transfers between terminals in the same city — a train into Nizamuddin can connect to one out of New Delhi.</li>
             <li>Every leg priced, with the estimate labelled as an estimate.</li>
+            <li>Seat availability estimated per leg from the train's capacity, the booking
+                window, the day of the week, the festival calendar and how busy each end of the
+                corridor is — labelled ESTIMATED wherever it appears, never presented as live.</li>
+            <li>Destination notes: what is actually in the city you are being sent to, and which
+                sights need a road hop from the station rather than a walk.</li>
             <li>Seven remedies for a waitlisted leg — split the ticket, shift the date, change
                 quota or class, find another route, use a different terminal in the same city, or
                 go by road — each with what it costs and the exact question it would put to IRCTC.</li>
@@ -461,11 +483,12 @@ export function App() {
                 the weather outlook or a link you clicked.</li>
           </ul>
           <p class="panel__note">
-            <strong>Not here yet:</strong> live seat availability. The booking-window rules, the
-            capacity denominator and the remedies a waitlisted berth calls for are all here, but no
-            availability source is connected — so nothing on this page knows whether a berth is
-            free, and every fare is still a published-tariff estimate. Only IRCTC can confirm a
-            seat.
+            <strong>Not here yet:</strong> live seat availability. No availability source is
+            connected, so nothing on this page knows whether a berth is free — what it has instead
+            is a structural estimate, labelled ESTIMATED, built from the rake capacity, the
+            booking window, the season and the corridor. Read it as guidance about which date and
+            train to prefer, and treat IRCTC as the only answer to whether a seat exists. Every
+            fare is still a published-tariff estimate.
           </p>
         </section>
       </main>
