@@ -116,7 +116,7 @@ export function ItineraryCard(props: ItineraryCardProps) {
           <span class="itin__chevron" aria-hidden="true">{open ? '▾' : '▸'}</span>
         </button>
 
-        <ExportMenu journey={j} nameOf={nameOf} />
+        <ExportMenu journey={j} nameOf={nameOf} date={props.date} />
       </div>
 
       {open && (

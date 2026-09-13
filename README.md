@@ -36,6 +36,7 @@ site/        Vite + Preact + TypeScript
   lib/binary.ts    zero-copy RRLM container reader
   lib/stations.ts  prefix-search index over 7,219 stations
   lib/graph.ts     5,174 trains, 98,055 legs, per-station adjacency
+  lib/calendar.ts  RFC 5545 emitter — an itinerary as an .ics file, in IST
   router/          the search: timetable -> CSA -> transfers -> fares -> journeys
   worker/          routing worker + a main-thread fallback if it fails to start
   state/cache.ts   IndexedDB, validated by sha256 — a warm visit makes zero requests
@@ -163,8 +164,9 @@ plus date shifts, quota shifts, terminal substitution and road/air bridges — i
 ## Roadmap in one line
 
 **Phases 0→2 (~37–49 days) is the MVP** — multi-leg planning, predicted availability, all
-seven remedies, IRCTC handoff. Phase 3 (discovery mode) is the differentiator. Crons stay
-disabled until Phase 5, so early work consumes almost no Actions minutes.
+seven remedies, IRCTC handoff. Phase 3 (discovery mode) is the differentiator. Early Phase 3/4
+features — calendar export, shareable links, destination weather — ship ahead of the rest.
+Crons stay disabled until Phase 5, so early work consumes almost no Actions minutes.
 
 ## Repository history
 

@@ -46,8 +46,15 @@ import { ItineraryCard } from '../src/ui/ItineraryCard';
 import { ExportMenu } from '../src/ui/ExportMenu';
 import { JourneyForm } from '../src/ui/JourneyForm';
 import type { PlanInput } from '../src/state/useJourneys';
+import { icsDateTime, shiftIsoByMinutes } from '../src/lib/calendar';
 
 const DATE = '2026-09-14'; // a Monday
+
+/** The DTEND timestamp the exporter will write for an absolute arrival minute. */
+const dateTimeOf = (absMin: number): string => {
+  const { dateIso, minuteOfDay } = shiftIsoByMinutes(DATE, absMin);
+  return icsDateTime(dateIso, minuteOfDay);
+};
 
 // Alpha and Alpha Road are two terminals of one city, bridged by road. Delta is a mid-route
 // junction. Echo is only reachable from the second terminal, so reaching it from Alpha requires
@@ -397,6 +404,45 @@ describe('ExportMenu', () => {
     expect(screen.getByRole('menu')).toBeTruthy();
     expect(screen.getByRole('menuitem', { name: /copy as text/i })).toBeTruthy();
     expect(screen.getByRole('menuitem', { name: /download \.txt/i })).toBeTruthy();
+    expect(screen.getByRole('menuitem', { name: /add to calendar/i })).toBeTruthy();
+  });
+
+  it('downloads a calendar file whose event runs in IST, from first departure to final arrival', async () => {
+    const user = userEvent.setup();
+    // jsdom has no real blob URL or download, so capture what the component would hand to
+    // the browser and read it back.
+    const made = new Map<string, Blob>();
+    const createObjectURL = vi.fn((b: Blob) => {
+      made.set('blob:ics', b);
+      return 'blob:ics';
+    });
+    vi.stubGlobal('URL', {
+      ...URL,
+      createObjectURL,
+      revokeObjectURL: vi.fn(),
+    });
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    render(<ExportMenu journey={overnight} nameOf={nameOf} date={DATE} />);
+    await user.click(screen.getByRole('button', { name: /^export$/i }));
+    await user.click(screen.getByRole('menuitem', { name: /add to calendar/i }));
+
+    expect(createObjectURL).toHaveBeenCalledTimes(1);
+    const blob = made.get('blob:ics');
+    expect(blob?.type).toBe('text/calendar;charset=utf-8');
+    const ics = await new Promise<string>((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(String(fr.result));
+      fr.onerror = () => reject(fr.error);
+      fr.readAsText(blob!);
+    });
+    expect(ics).toContain('BEGIN:VCALENDAR');
+    expect(ics).toContain('BEGIN:VEVENT');
+    expect(ics).toContain('DTSTART;TZID=Asia/Kolkata:');
+    expect(ics).toContain(`DTEND;TZID=Asia/Kolkata:${dateTimeOf(overnight.arrMin)}`);
+    expect(ics).toMatch(/estimate/i); // the warning travels into the event too
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
+    clickSpy.mockRestore();
   });
 
   it('copies the text the traveller was shown, disclaimer included, and confirms it', async () => {
