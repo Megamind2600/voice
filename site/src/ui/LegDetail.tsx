@@ -14,13 +14,31 @@
  * "this train does not run on Tuesdays" is discoverable before the traveller is standing on the
  * platform on a Tuesday.
  */
+import { useContext, useMemo } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import type { Segment } from '../router/journey';
 import { classLabel, roadModeLabel, wallClock, dayOf } from '../router/journey';
 import { durationLabel, rupees } from '../state/plan';
 import type { StationResolver } from '../router/journey';
+import type { StationIndex } from '../lib/stations';
+import { estimateForLeg } from '../availability/estimate';
+import type { SeatEstimate } from '../availability/estimate';
 import { AvailabilityPanel } from './AvailabilityPanel';
 import { RemediesPanel } from './RemediesPanel';
+import { PlannerDepsContext } from './deps';
+
+/**
+ * How busy each end of the leg is, as the packed dataset counts it.
+ *
+ * `calls` is the number of trains that stop at a station — the only traffic figure the CC0
+ * bootstrap carries, and a fair proxy for how many other travellers are competing for the same
+ * corridor. Null when the index is not loaded, which the estimator treats as "no information"
+ * rather than as zero.
+ */
+function callsAt(stations: StationIndex | null, ix: number): number | null {
+  const st = stations?.at(ix);
+  return st ? st.calls : null;
+}
 
 export interface LegDetailProps {
   segment: Segment;
@@ -62,6 +80,26 @@ export function LegDetail(props: LegDetailProps) {
   const { segment: s, nameOf } = props;
   const from = nameOf(s.from);
   const to = nameOf(s.to);
+  const deps = useContext(PlannerDepsContext);
+
+  // ── the seat estimate ─────────────────────────────────────────────────────
+  // One call, on the main thread, from facts the segment already carries plus the two station
+  // traffic counts. No worker round trip: the arithmetic is a few dozen multiplies, and the
+  // router's own search costs orders of magnitude more.
+  //
+  // Skipped for road segments — a taxi has no berths — but the hook itself is called
+  // unconditionally, because a hook behind an early return is a bug waiting for the next edit.
+  const estimate = useMemo<SeatEstimate | null>(() => {
+    if (s.kind !== 'rail') return null;
+    return estimateForLeg({
+      segment: s,
+      segmentRunsDaysAssumed: s.runsDaysAssumed,
+      boardingDateIso: props.dateLabel,
+      serviceDayOffset: s.serviceDayOffset,
+      boardCalls: callsAt(deps.stations, s.from),
+      alightCalls: callsAt(deps.stations, s.to),
+    });
+  }, [s, props.dateLabel, deps.stations]);
 
   if (s.kind === 'road') {
     return (
@@ -166,7 +204,7 @@ export function LegDetail(props: LegDetailProps) {
         </ul>
       )}
 
-      <AvailabilityPanel segment={s} nameOf={nameOf} dateIso={props.dateLabel} />
+      <AvailabilityPanel segment={s} nameOf={nameOf} dateIso={props.dateLabel} estimate={estimate} />
 
       <RemediesPanel
         segment={s}

@@ -489,7 +489,17 @@ They were set with headroom rather than ratcheted to the measured size: `npm run
 --update` would have written 31.5 KB, leaving zero room for Phase 2's availability UI and
 turning the gate into a formality that fails on the next legitimate change.
 
-**Watch item:** `total.gzip` is at 91% of its 1 MB ceiling. The 40 KB availability model that
+**Phase 2, first slice (structural availability + destination notes):** those ceilings moved
+again as predicted. The estimate engine, the availability UI and the destination cards are code,
+and no trimming of prose would fit them under the Phase 1 figures, so `app.js` went 46.9 → 50.8 KB
+and `total.js` 60.5 → 64.5 KB with the raise recorded here and in the commit. What did *not* go
+into the bundle is the notes themselves: 143 authored destination profiles were moved from
+TypeScript modules to `data/profiles.json` (17.4 KB gzip, fetched after the planner is already
+interactive, and now gated in its own right). Keeping them as code would have put `app.js` at
+~67 KB; as data it is 50.9 KB. `total.gzip` is unchanged at 95% because the notes cost almost
+exactly what removing them from the bundle saved.
+
+**Watch item:** `total.gzip` is at 95% of its 1 MB ceiling. The 40 KB availability model that
 Phase 2 ships lands in `data/`, which brings it to ~95%, and the POI index would take it over.
 That ceiling will need an explicit, justified raise at Phase 2 — it should not be discovered
 by a red build.
