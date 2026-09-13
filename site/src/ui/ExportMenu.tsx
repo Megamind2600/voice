@@ -9,17 +9,22 @@
  *   - **Copy** is the fallback everywhere else, and the one that works in the most places.
  *   - **Download** keeps a copy that survives a closed tab, which matters when the app has no
  *     account and therefore no way to give the itinerary back to you later.
+ *   - **Add to calendar** writes an .ics file (see lib/calendar.ts) so the journey can land in
+ *     Google Calendar or any phone calendar as a single timed event in IST.
  *
- * All three render the SAME text through `renderItinerary`, so a shared plan and a downloaded
+ * All four render the SAME journey through `renderItinerary`, so a shared plan and a downloaded
  * plan cannot disagree about the fare or the platform.
  */
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Journey } from '../router/journey';
 import { renderItinerary, wallClock, type StationResolver } from '../router/journey';
+import { buildIcs, shiftIsoByMinutes } from '../lib/calendar';
 
 export interface ExportMenuProps {
   journey: Journey;
   nameOf: StationResolver;
+  /** ISO date the journey departs, so the calendar event lands on the right day. */
+  date?: string;
 }
 
 type Status = { kind: 'idle' } | { kind: 'ok'; text: string } | { kind: 'err'; text: string };
@@ -129,6 +134,45 @@ export function ExportMenu(props: ExportMenuProps) {
     }
   };
 
+  const downloadIcs = (): void => {
+    // The event runs door-to-door: first departure to final arrival, so the calendar shows
+    // the whole journey rather than one leg at a time. A journey with no date (older call
+    // sites) falls back to today rather than exporting an event on the wrong day.
+    const j = props.journey;
+    const nameOf = props.nameOf;
+    const date = props.date ?? new Date().toISOString().slice(0, 10);
+    const origin = nameOf(j.origin);
+    const destination = nameOf(j.destination);
+    const start = shiftIsoByMinutes(date, j.depMin);
+    const end = shiftIsoByMinutes(date, j.arrMin);
+
+    const ics = buildIcs([{
+      title: `${origin.name} → ${destination.name}`,
+      startDateIso: start.dateIso,
+      startMin: start.minuteOfDay,
+      endDateIso: end.dateIso,
+      endMin: end.minuteOfDay,
+      location: `${origin.name} (${origin.code}) → ${destination.name} (${destination.code})`,
+      description: renderItinerary(j, nameOf),
+      uid: `kahan-chalein-${date}-${origin.code}-${destination.code}-${j.depMin}`,
+    }], { name: 'Kahan Chalein? journey' });
+
+    try {
+      const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${title().replace(/[^\w-]+/g, '-')}.ics`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      setStatus({ kind: 'ok', text: 'Calendar file downloaded.' });
+    } catch (err) {
+      setStatus({ kind: 'err', text: `Calendar export failed: ${err instanceof Error ? err.message : String(err)}` });
+    }
+  };
+
   const canShare = typeof navigator !== 'undefined'
     && typeof (navigator as Navigator & { share?: unknown }).share === 'function';
 
@@ -150,6 +194,7 @@ export function ExportMenu(props: ExportMenuProps) {
           )}
           <button type="button" role="menuitem" onClick={() => void copy()}>Copy as text</button>
           <button type="button" role="menuitem" onClick={download}>Download .txt</button>
+          <button type="button" role="menuitem" onClick={downloadIcs}>Add to calendar (.ics)</button>
         </div>
       )}
       {status.kind !== 'idle' && (
