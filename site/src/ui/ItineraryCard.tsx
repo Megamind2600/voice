@@ -7,11 +7,13 @@
  * want the leg-by-leg detail, so that lives behind a disclosure rather than on the page — with
  * twelve itineraries on screen, showing every leg of every one would be a wall nobody reads.
  */
-import { useId, useState } from 'preact/hooks';
+import { useContext, useId, useMemo, useState } from 'preact/hooks';
 import type { Journey, RailSegment } from '../router/journey';
 import { renderItinerary, wallClock, type StationResolver } from '../router/journey';
 import { arrivalLabel, durationLabel, rupees } from '../state/plan';
+import { ESTIMATE_BADGE, estimateChip, estimateForLeg, worstEstimate } from '../availability/estimate';
 import { LegDetail } from './LegDetail';
+import { PlannerDepsContext } from './deps';
 import { ExportMenu } from './ExportMenu';
 import { RouteMap } from './RouteMap';
 
@@ -44,6 +46,20 @@ export function ItineraryCard(props: ItineraryCardProps) {
   const destination = nameOf(j.destination);
   const changes = j.transfers;
   const direct = changes === 0 && trains.length === 1;
+
+  // The seat estimate for the collapsed row. A journey is as bookable as its worst leg, so the
+  // chip shows the hardest leg rather than the friendliest one — and it is a chip, not a number:
+  // the qualifier travels with it, because a summary line is exactly where an estimate is most
+  // likely to be read as a fact.
+  const deps = useContext(PlannerDepsContext);
+  const worst = useMemo(() => worstEstimate(trains.map((s) => estimateForLeg({
+    segment: s,
+    segmentRunsDaysAssumed: s.runsDaysAssumed,
+    boardingDateIso: props.date,
+    serviceDayOffset: s.serviceDayOffset,
+    boardCalls: deps.stations?.at(s.from)?.calls ?? null,
+    alightCalls: deps.stations?.at(s.to)?.calls ?? null,
+  }))), [trains, props.date, deps.stations]);
 
   return (
     <article class={`itin${open ? ' itin--open' : ''}`}>
@@ -90,6 +106,11 @@ export function ItineraryCard(props: ItineraryCardProps) {
             {j.classFallback && <span class="pill">class substituted</span>}
             {j.earlyDepartures > 0 && <span class="pill">early start</span>}
             <span class="pill pill--est">fare est.</span>
+            {worst !== null && (
+              <span class="pill pill--est" title={worst.headline}>
+                {ESTIMATE_BADGE.toLowerCase()} seats · {estimateChip(worst)}
+              </span>
+            )}
           </span>
 
           <span class="itin__chevron" aria-hidden="true">{open ? '▾' : '▸'}</span>
