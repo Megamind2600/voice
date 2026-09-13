@@ -12,11 +12,12 @@
  * Nothing here routes. The search runs in the worker (see state/client.ts and worker/handlers.ts)
  * so a 100 ms scan over 135,949 timetable rows never blocks the autocomplete.
  */
-import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { router } from './state/client';
 import { dataLocation } from './state/cache';
 import { useDataset } from './state/useDataset';
 import { useJourneys, useWorkerConfigure, type PlanInput } from './state/useJourneys';
+import { applyDecodedPlan, decodePlan, encodePlan } from './state/urlState';
 import { resolveTerminalGroups } from './router/terminals';
 import { PlannerDepsContext, type PlannerDeps } from './ui/deps';
 import type { Station } from './lib/stations';
@@ -28,6 +29,8 @@ import { StopTable } from './ui/StopTable';
 import { Disclaimer } from './ui/Disclaimer';
 import { JourneyForm } from './ui/JourneyForm';
 import { ItineraryCard } from './ui/ItineraryCard';
+import { CopyPlanLink } from './ui/CopyPlanLink';
+import { WeatherCard } from './ui/WeatherCard';
 import { addDaysIso, todayIso } from './state/plan';
 import type { Journey } from './router/journey';
 
@@ -49,6 +52,43 @@ export function App() {
   const [plan, setPlan] = useState<PlanInput>(DEFAULT_PLAN);
   const { state, search } = useJourneys(stations);
   const [graphStats, setGraphStats] = useState<GraphStats | null>(null);
+
+  // Shareable-link plumbing. A `#v1:…` fragment restores the form and, once the timetable is
+  // loaded, re-runs the search it describes; afterwards the bar is kept in step with the form
+  // so a refresh or a copied link reproduces what is on screen.
+  const hashApplied = useRef(false);
+  const autoSearch = useRef(false);
+  const planRef = useRef(plan);
+  useEffect(() => { planRef.current = plan; }, [plan]);
+  const [linkNote, setLinkNote] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!stations || hashApplied.current) return;
+    hashApplied.current = true;
+    const decoded = decodePlan(window.location.hash, stations);
+    if (!decoded) return;
+    setPlan((cur) => applyDecodedPlan(cur, decoded));
+    if (decoded.unknown.length > 0) {
+      setLinkNote(`This link names ${decoded.unknown.join(', ')}, which is not in the current `
+        + 'station list — that part was ignored and the rest kept.');
+    }
+    if (decoded.searchable) autoSearch.current = true;
+  }, [stations]);
+
+  useEffect(() => {
+    if (dataset.phase === 'ready' && autoSearch.current) {
+      autoSearch.current = false;
+      void search(planRef.current);
+    }
+  }, [dataset.phase, search]);
+
+  useEffect(() => {
+    if (!plan.origin) return;
+    const enc = encodePlan(plan);
+    if (!enc) return;
+    const url = `${window.location.pathname}${window.location.search}#${enc}`;
+    try { window.history.replaceState(null, '', url); } catch { /* non-fatal: copying still works */ }
+  }, [plan]);
 
   // Phase 0 browse state, kept because it is still useful on its own.
   const [browse, setBrowse] = useState<Station | null>(null);
@@ -128,6 +168,11 @@ export function App() {
 
   const exploring = plan.destination === null;
 
+  // The window the weather outlook should cover: the return date when there is one, otherwise
+  // the stay the traveller said, otherwise a two-night default. Only ever sent to Open-Meteo
+  // when a card is opened, never on load.
+  const stayEnd = plan.returnDate ?? addDaysIso(plan.date, Math.max(1, plan.daysAtDestination ?? 2));
+
   // Worked out outside the JSX: TypeScript's narrowing of `inbound !== null` does not survive into
   // the map callback, and a non-null assertion would be a claim the compiler cannot check.
   const returnAlternatives = (state.phase === 'done' || state.phase === 'empty')
@@ -183,6 +228,11 @@ export function App() {
             canSearch={canSearch}
             notReadyMessage={notReady || 'Loading station list…'}
           />
+
+          <div class="plan__share">
+            <CopyPlanLink plan={plan} />
+            {linkNote && <p class="plan__hint plan__hint--warn" role="note">{linkNote}</p>}
+          </div>
 
           <StatusBar dataset={dataset} graphStats={graphStats} />
         </section>
@@ -240,12 +290,23 @@ export function App() {
 
             {exploring ? (
               <div class="destinations">
-                {grouped.map((g) => (
+                {grouped.map((g) => {
+                  const c = coordsFor(g.station);
+                  return (
                   <div class="dest" key={g.station}>
                     <h3>
                       {nameOf(g.station).name}
                       <span class="code">{nameOf(g.station).code}</span>
                     </h3>
+                    {c && (
+                      <WeatherCard
+                        lat={c.lat}
+                        lon={c.lon}
+                        startIso={plan.date}
+                        endIso={stayEnd}
+                        placeName={nameOf(g.station).name}
+                      />
+                    )}
                     {g.journeys.map((j, i) => (
                       <ItineraryCard
                         key={`d${g.station}-${i}`}
@@ -258,13 +319,23 @@ export function App() {
                       />
                     ))}
                   </div>
-                ))}
+                  );
+                })}
                 {grouped.length === 0 && (
                   <p class="panel__note">No candidate destination was reachable.</p>
                 )}
               </div>
             ) : (
               <div class="itineraries">
+                {plan.destination && coordsFor(plan.destination.i) && (
+                  <WeatherCard
+                    lat={coordsFor(plan.destination.i)!.lat}
+                    lon={coordsFor(plan.destination.i)!.lon}
+                    startIso={plan.date}
+                    endIso={stayEnd}
+                    placeName={plan.destination.name}
+                  />
+                )}
                 {state.outcome.outbound.map((j, i) => (
                   <ItineraryCard
                     key={i}

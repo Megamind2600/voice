@@ -322,6 +322,10 @@ code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-si
 .plan__actions {
   display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem; margin-top: 1.1rem;
 }
+.plan__share { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem; margin-top: 0.6rem; }
+.sharelink { display: inline-flex; align-items: center; gap: 0.6rem; }
+.sharelink__status { font-size: 0.83rem; color: var(--ok); }
+.sharelink__status--err { color: var(--err); }
 
 /* Itinerary card */
 .itin {
@@ -450,6 +454,26 @@ code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-si
 }
 .return { margin-top: 1.3rem; border-top: 1px solid var(--line); padding-top: 0.9rem; }
 .return > h3 { margin: 0 0 0.6rem; }
+
+/* Weather outlook */
+.weather { margin: 0.4rem 0 0.9rem; }
+.weather__note { margin: 0.3rem 0; font-size: 0.83rem; color: var(--ink-soft); }
+.weather__note--err { color: var(--err); }
+.weather__days {
+  list-style: none; margin: 0.4rem 0 0.5rem; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+}
+.weather__day {
+  display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+  min-width: 3.6rem; padding: 0.45rem 0.4rem;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+  font-size: 0.8rem;
+}
+.weather__date { color: var(--ink-soft); font-size: 0.72rem; }
+.weather__glyph { font-size: 1.15rem; line-height: 1; }
+.weather__temps { display: flex; gap: 0.4rem; align-items: baseline; font-variant-numeric: tabular-nums; }
+.weather__lo { color: var(--ink-soft); }
+.weather__rain { font-size: 0.72rem; color: var(--focus); }
 
 /* --- Phase 2: the availability panel -------------------------------------
    Deliberately the most visually distinct block on a leg. It carries the one
