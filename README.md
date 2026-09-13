@@ -3,9 +3,11 @@
 A free, static, zero-setup journey planner for Indian Railways, built for the person who
 knows **where they are** and **when they're free** but has **no destination in mind**.
 
-> **Status: Phases 0 and 1 shipped.** Data pipeline, packed dataset, worker, autocomplete and
-> timetable lookup (Phase 0), plus multi-leg journey search, fares, transfers between city
-> terminals, the results UI and share/copy/download (Phase 1). 648 tests, passing CI.
+> **Status: Phases 0 and 1 shipped, plus the first Phase 3/4 features.** Data pipeline, packed
+> dataset, worker, autocomplete and timetable lookup (Phase 0), plus multi-leg journey search,
+> fares, transfers between city terminals, the results UI and share/copy/download (Phase 1),
+> plus **`.ics` calendar export, shareable search links, and an opt-in live weather outlook at
+> the destination** (early Phase 3/4). 690 tests, passing CI.
 > **Seat availability is Phase 2 and is not connected yet** — every rail leg says so rather
 > than guessing. Plan of record: [`PLAN.md`](PLAN.md). Research verified 2026-09-12.
 >
@@ -16,7 +18,7 @@ knows **where they are** and **when they're free** but has **no destination in m
 
 ## What is built
 
-The whole thing runs in the browser from a **890 KB gzip** download, with no server, no
+The whole thing runs in the browser from a **~930 KB gzip** download, with no server, no
 account and no API key.
 
 ```
@@ -30,12 +32,16 @@ site/        Vite + Preact + TypeScript
   lib/binary.ts    zero-copy RRLM container reader
   lib/stations.ts  prefix-search index over 7,219 stations
   lib/graph.ts     5,174 trains, 98,055 legs, per-station adjacency
+  lib/calendar.ts  RFC 5545 emitter — an itinerary as an .ics file, in IST
   router/          the search: timetable -> CSA -> transfers -> fares -> journeys
   worker/          routing worker + a main-thread fallback if it fails to start
   state/cache.ts   IndexedDB, validated by sha256 — a warm visit makes zero requests
+  state/urlState.ts shareable #v1:… links that round-trip the plan through the address bar
+  state/weather.ts keyless Open-Meteo forecast fetcher, with defensive parsing
   state/           search hook with progressive widening; planner helpers
-  ui/              combobox, planner form, itinerary cards, leg detail, route diagram, export
-  tests/           340 tests: a golden corpus of real itineraries, an exhaustive-enumeration
+  ui/              combobox, planner form, itinerary cards, leg detail, route diagram, export,
+                   calendar + share-link buttons, opt-in weather card
+  tests/           690 tests: a golden corpus of real itineraries, an exhaustive-enumeration
                    cross-check of the router, and DOM tests for the promises the UI makes
 ```
 
@@ -76,7 +82,7 @@ npm run dev        # → http://localhost:5173, hot reload
 
 | Command | What it does |
 |---|---|
-| `npm test` | full suite (648 tests, incl. the real-dataset golden corpus) |
+| `npm test` | full suite (690 tests, incl. the real-dataset golden corpus) |
 | `npm run build && npm run budget` | production build + bundle-size gate (fails on regression) |
 | `npm run lint` / `npm run typecheck` | zero-warning lint, strict typecheck incl. tests |
 
@@ -145,8 +151,9 @@ plus date shifts, quota shifts, terminal substitution and road/air bridges — i
 ## Roadmap in one line
 
 **Phases 0→2 (~37–49 days) is the MVP** — multi-leg planning, predicted availability, all
-seven remedies, IRCTC handoff. Phase 3 (discovery mode) is the differentiator. Crons stay
-disabled until Phase 5, so early work consumes almost no Actions minutes.
+seven remedies, IRCTC handoff. Phase 3 (discovery mode) is the differentiator. Early Phase 3/4
+features — calendar export, shareable links, destination weather — ship ahead of the rest.
+Crons stay disabled until Phase 5, so early work consumes almost no Actions minutes.
 
 ## Repository history
 

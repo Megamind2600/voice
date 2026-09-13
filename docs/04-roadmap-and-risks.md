@@ -199,6 +199,30 @@ abort (cooperative flag checked per round, or worker termination) is worth addin
 
 ---
 
+### Early Phase 3/4 features ✅ SHIPPED (ahead of the full phases)
+
+Three self-contained items from the later phases landed early, because each works today with
+zero keys, zero server and zero Actions minutes, and each was a gap a traveller would feel:
+
+- **`.ics` calendar export** (Phase 4 "share/text export"). `lib/calendar.ts` emits RFC 5545
+  with an Asia/Kolkata `VTIMEZONE` (fixed +05:30, no DST), 75-octet line folding measured in
+  UTF-8 bytes, and structural escaping. The Export menu writes one door-to-door event per
+  itinerary. Tests pin the IST timestamps and that the "fare est." warning travels into the
+  event body.
+- **Shareable search links** (Phase 4 "share"). `state/urlState.ts` encodes the plan into a
+  versioned `#v1:o=NDLS&date=…` fragment by station code; the address bar tracks the form, a
+  pasted link restores the plan and re-runs the search, and a stale code is reported rather
+  than silently dropped. Out-of-range and malformed fields are refused, not trusted.
+- **Destination weather** (Phase 3 "weather"). `state/weather.ts` + `ui/WeatherCard.tsx` fetch
+  Open-Meteo's keyless, CORS-enabled daily forecast on demand only (never on load — a page of
+  destination cards must not fire forty requests), parse defensively so a bad payload is an
+  error state instead of `NaN°C`, and show the CC BY 4.0 attribution on the card.
+
+The full phases (POI index, scoring + MMR, stopover promotion, bus/air bridges, joint
+round-trip) remain as specced below.
+
+---
+
 ### Phase 2 — Availability + leg-splitting (20–26 d) · **highest risk, core IP**
 
 `StatusParser.ts` with **waitlist types** preserved · `QuotaRules.ts` (60-day ARP, 08:00

@@ -32,7 +32,10 @@ describe('WeatherCard', () => {
   });
 
   it('fetches once on demand and shows the days with their source', async () => {
-    const fetchMock = vi.fn(async (_url: string) => ({ ok: true, status: 200, json: async () => payload }));
+    const fetchMock = vi.fn(async (url: string) => {
+      if (!url.startsWith('https://api.open-meteo.com')) throw new Error(`unexpected url ${url}`);
+      return { ok: true, status: 200, json: async () => payload } as Response;
+    });
     vi.stubGlobal('fetch', fetchMock);
     const user = userEvent.setup();
     render(<WeatherCard lat={28.6} lon={77.2} startIso="2026-09-14" endIso="2026-09-16" placeName="New Delhi" />);

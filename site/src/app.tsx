@@ -436,7 +436,7 @@ export function App() {
         <section class="panel panel--muted" aria-labelledby="h-next">
           <h2 id="h-next">What this build does and does not do yet</h2>
           <p>
-            This is <strong>Phase 1</strong>: the routing engine. It searches{' '}
+            This is <strong>Phases 0–1 plus the first Phase 3/4 features</strong>. It searches{' '}
             {graphStats ? graphStats.trains.toLocaleString('en-IN') : '—'} trains over{' '}
             {graphStats ? graphStats.connections.toLocaleString('en-IN') : '—'} station-to-station
             legs, packed into{' '}
@@ -452,7 +452,13 @@ export function App() {
             <li>Seven remedies for a waitlisted leg — split the ticket, shift the date, change
                 quota or class, find another route, use a different terminal in the same city, or
                 go by road — each with what it costs and the exact question it would put to IRCTC.</li>
-            <li>Nothing leaves your browser. No account, no API key, no tracking.</li>
+            <li>Add any itinerary to your calendar as an .ics file, timed in Indian Standard Time.</li>
+            <li>Copy a link that reopens this exact search — the address bar tracks the form, so a
+                refresh or a shared link brings the results back.</li>
+            <li>An opt-in weather outlook at the destination for your dates, fetched live from
+                Open-Meteo (keyless, no account) and shown with its source.</li>
+            <li>No account, no API key, no tracking. Nothing leaves your browser unless you open
+                the weather outlook or a link you clicked.</li>
           </ul>
           <p class="panel__note">
             <strong>Not here yet:</strong> live seat availability. The booking-window rules, the
