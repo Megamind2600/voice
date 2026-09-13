@@ -1,0 +1,5057 @@
+{
+  "schemaVersion": "1.0.0",
+  "about": "Authored destination notes for kahan-chalein: what is in a city, and what the last mile looks like. Editorial content, written for this project — not harvested data. Distances are approximate planning figures.",
+  "profiles": [
+    {
+      "codes": [
+        "NDLS"
+      ],
+      "name": "New Delhi",
+      "why": "The capital, and the densest cluster of monuments in the country.",
+      "tags": [
+        "city",
+        "monuments",
+        "museums"
+      ],
+      "sights": [
+        {
+          "name": "India Gate",
+          "kind": "monument",
+          "km": 4
+        },
+        {
+          "name": "Qutub Minar",
+          "kind": "monument",
+          "km": 15
+        },
+        {
+          "name": "Humayun’s Tomb",
+          "kind": "monument",
+          "km": 8
+        },
+        {
+          "name": "Lodhi Garden",
+          "kind": "garden",
+          "km": 6
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "DLI"
+      ],
+      "name": "Old Delhi",
+      "why": "Mughal Delhi: the Red Fort, the great mosque, and the lanes of Chandni Chowk.",
+      "tags": [
+        "Mughal",
+        "market",
+        "UNESCO"
+      ],
+      "sights": [
+        {
+          "name": "Red Fort",
+          "kind": "fort",
+          "km": 1
+        },
+        {
+          "name": "Jama Masjid",
+          "kind": "mosque",
+          "km": 2
+        },
+        {
+          "name": "Chandni Chowk",
+          "kind": "market",
+          "km": 1
+        },
+        {
+          "name": "Raj Ghat",
+          "kind": "memorial",
+          "km": 4
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "NZM"
+      ],
+      "name": "Delhi Nizamuddin",
+      "why": "The Sufi dargah and the tomb that gave Humayun’s architecture its rehearsal.",
+      "tags": [
+        "heritage",
+        "dargah"
+      ],
+      "sights": [
+        {
+          "name": "Humayun’s Tomb",
+          "kind": "monument",
+          "km": 2
+        },
+        {
+          "name": "Nizamuddin Dargah",
+          "kind": "dargah",
+          "km": 1
+        },
+        {
+          "name": "Delhi Zoo",
+          "kind": "zoo",
+          "km": 3
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "half a day"
+    },
+    {
+      "codes": [
+        "AGC"
+      ],
+      "name": "Agra",
+      "why": "The Taj Mahal, with a fort and a tomb that most day-trippers run out of time for.",
+      "tags": [
+        "UNESCO",
+        "Mughal"
+      ],
+      "sights": [
+        {
+          "name": "Taj Mahal",
+          "kind": "monument",
+          "km": 6
+        },
+        {
+          "name": "Agra Fort",
+          "kind": "fort",
+          "km": 4
+        },
+        {
+          "name": "Mehtab Bagh",
+          "kind": "garden",
+          "km": 8
+        },
+        {
+          "name": "Itmad-ud-Daulah (Baby Taj)",
+          "kind": "monument",
+          "km": 7
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Fatehpur Sikri",
+          "km": 40,
+          "note": "bus or taxi from Agra Cantt, about an hour"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "AF",
+        "AGA"
+      ],
+      "name": "Agra (Fort side)",
+      "why": "The fort end of Agra: the station is a walk from the fort and the river.",
+      "tags": [
+        "Mughal",
+        "UNESCO"
+      ],
+      "sights": [
+        {
+          "name": "Agra Fort",
+          "kind": "fort",
+          "km": 1
+        },
+        {
+          "name": "Jama Masjid, Agra",
+          "kind": "mosque",
+          "km": 1
+        },
+        {
+          "name": "Taj Mahal",
+          "kind": "monument",
+          "km": 3
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "MTJ"
+      ],
+      "name": "Mathura",
+      "why": "Krishna’s birthplace, with Vrindavan half an hour by road.",
+      "tags": [
+        "pilgrimage",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Krishna Janmabhoomi",
+          "kind": "temple",
+          "km": 2
+        },
+        {
+          "name": "Dwarkadhish Temple",
+          "kind": "temple",
+          "km": 2
+        },
+        {
+          "name": "Vishram Ghat",
+          "kind": "ghat",
+          "km": 3
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Vrindavan",
+          "km": 12,
+          "note": "auto or bus; the temple circuit needs half a day"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "BSB"
+      ],
+      "name": "Varanasi",
+      "why": "The ghats at dawn, and one of the oldest continuously lived-in cities anywhere.",
+      "tags": [
+        "ghats",
+        "pilgrimage"
+      ],
+      "sights": [
+        {
+          "name": "Dashashwamedh Ghat",
+          "kind": "ghat",
+          "km": 4
+        },
+        {
+          "name": "Kashi Vishwanath Temple",
+          "kind": "temple",
+          "km": 4
+        },
+        {
+          "name": "Assi Ghat",
+          "kind": "ghat",
+          "km": 6
+        },
+        {
+          "name": "Ramnagar Fort",
+          "kind": "fort",
+          "km": 14
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Sarnath",
+          "km": 10,
+          "note": "auto or bus; where the Buddha gave his first sermon"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "2 days"
+    },
+    {
+      "codes": [
+        "SRNT"
+      ],
+      "name": "Sarnath",
+      "why": "The deer park where Buddhism began to be taught, with its stupa and museum.",
+      "tags": [
+        "Buddhist",
+        "heritage"
+      ],
+      "sights": [
+        {
+          "name": "Dhamek Stupa",
+          "kind": "stupa",
+          "km": 2
+        },
+        {
+          "name": "Sarnath Museum",
+          "kind": "museum",
+          "km": 2
+        },
+        {
+          "name": "Chaukhandi Stupa",
+          "kind": "stupa",
+          "km": 3
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "half a day"
+    },
+    {
+      "codes": [
+        "PRYJ"
+      ],
+      "name": "Prayagraj",
+      "why": "The Sangam, where the Ganga and Yamuna meet — the Kumbh city.",
+      "tags": [
+        "pilgrimage",
+        "confluence"
+      ],
+      "sights": [
+        {
+          "name": "Triveni Sangam",
+          "kind": "ghat",
+          "km": 7
+        },
+        {
+          "name": "Anand Bhavan",
+          "kind": "museum",
+          "km": 4
+        },
+        {
+          "name": "Allahabad Fort",
+          "kind": "fort",
+          "km": 6
+        }
+      ],
+      "best": "Oct–Mar, or Kumbh years",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "AY"
+      ],
+      "name": "Ayodhya",
+      "why": "The Ram Janmabhoomi temple town on the Sarayu.",
+      "tags": [
+        "pilgrimage",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Ram Janmabhoomi",
+          "kind": "temple",
+          "km": 3
+        },
+        {
+          "name": "Hanuman Garhi",
+          "kind": "temple",
+          "km": 3
+        },
+        {
+          "name": "Kanak Bhawan",
+          "kind": "temple",
+          "km": 3
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "LKO"
+      ],
+      "name": "Lucknow",
+      "why": "Awadhi architecture and Awadhi food, both at their best here.",
+      "tags": [
+        "Nawabi",
+        "food"
+      ],
+      "sights": [
+        {
+          "name": "Bara Imambara",
+          "kind": "monument",
+          "km": 4
+        },
+        {
+          "name": "Rumi Darwaza",
+          "kind": "monument",
+          "km": 4
+        },
+        {
+          "name": "Chhota Imambara",
+          "kind": "monument",
+          "km": 5
+        },
+        {
+          "name": "Hazratganj",
+          "kind": "market",
+          "km": 2
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "CNB"
+      ],
+      "name": "Kanpur",
+      "why": "A leather-and-industry city on the Ganga; the big junction of the Kanpur–Delhi trunk.",
+      "tags": [
+        "city",
+        "junction"
+      ],
+      "sights": [
+        {
+          "name": "Nana Rao Park",
+          "kind": "park",
+          "km": 2
+        },
+        {
+          "name": "Kanpur Zoo (Allen Forest)",
+          "kind": "zoo",
+          "km": 6
+        },
+        {
+          "name": "JK Temple",
+          "kind": "temple",
+          "km": 4
+        }
+      ],
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "JHS"
+      ],
+      "name": "Jhansi",
+      "why": "The fort of Rani Lakshmibai, and the railhead for Orchha.",
+      "tags": [
+        "fort",
+        "history"
+      ],
+      "sights": [
+        {
+          "name": "Jhansi Fort",
+          "kind": "fort",
+          "km": 2
+        },
+        {
+          "name": "Rani Mahal",
+          "kind": "palace",
+          "km": 1
+        },
+        {
+          "name": "Government Museum",
+          "kind": "museum",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Orchha",
+          "km": 16,
+          "note": "auto or bus from Jhansi, about half an hour"
+        },
+        {
+          "name": "Datia Palace",
+          "km": 70,
+          "note": "on the Gwalior side; a stop on the way, not a day out"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "ORC"
+      ],
+      "name": "Orchha",
+      "why": "A Bundela capital left almost to itself: cenotaphs on the river and painted palace rooms.",
+      "tags": [
+        "palace",
+        "heritage"
+      ],
+      "sights": [
+        {
+          "name": "Jahangir Mahal",
+          "kind": "palace",
+          "km": 1
+        },
+        {
+          "name": "Chhatris (cenotaphs)",
+          "kind": "monument",
+          "km": 2
+        },
+        {
+          "name": "Ram Raja Temple",
+          "kind": "temple",
+          "km": 1
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "GWL"
+      ],
+      "name": "Gwalior",
+      "why": "A hill fort above the city, and a palace whose Durbar Hall is a museum of its own.",
+      "tags": [
+        "fort",
+        "palace"
+      ],
+      "sights": [
+        {
+          "name": "Gwalior Fort",
+          "kind": "fort",
+          "km": 3
+        },
+        {
+          "name": "Sas-Bahu Temples",
+          "kind": "temple",
+          "km": 3
+        },
+        {
+          "name": "Jai Vilas Palace",
+          "kind": "palace",
+          "km": 2
+        },
+        {
+          "name": "Tansen’s Tomb",
+          "kind": "monument",
+          "km": 4
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "GKP"
+      ],
+      "name": "Gorakhpur",
+      "why": "The Gorakhnath temple city, and the railhead for Kushinagar.",
+      "tags": [
+        "pilgrimage",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Gorakhnath Temple",
+          "kind": "temple",
+          "km": 3
+        },
+        {
+          "name": "Ramgarh Tal",
+          "kind": "lake",
+          "km": 4
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Kushinagar",
+          "km": 55,
+          "note": "bus or taxi; where the Buddha attained mahaparinirvana"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "HW"
+      ],
+      "name": "Haridwar",
+      "why": "The Ganga leaves the hills here — the evening aarti at Har Ki Pauri is the whole point.",
+      "tags": [
+        "pilgrimage",
+        "ghats"
+      ],
+      "sights": [
+        {
+          "name": "Har Ki Pauri",
+          "kind": "ghat",
+          "km": 2
+        },
+        {
+          "name": "Mansa Devi Temple",
+          "kind": "temple",
+          "km": 3
+        },
+        {
+          "name": "Chandi Devi Temple",
+          "kind": "temple",
+          "km": 4
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Rajaji National Park",
+          "km": 20,
+          "note": "shared jeep or taxi; mornings only in practice"
+        }
+      ],
+      "best": "Sep–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "RKSH"
+      ],
+      "name": "Rishikesh",
+      "why": "Yoga ashrams, rafting on the Ganga, and the road on towards the Garhwal hills.",
+      "tags": [
+        "yoga",
+        "rafting"
+      ],
+      "sights": [
+        {
+          "name": "Laxman Jhula",
+          "kind": "bridge",
+          "km": 5
+        },
+        {
+          "name": "Triveni Ghat",
+          "kind": "ghat",
+          "km": 2
+        },
+        {
+          "name": "Neelkanth Mahadev Temple",
+          "kind": "temple",
+          "km": 22
+        }
+      ],
+      "best": "Sep–Apr",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "DDN"
+      ],
+      "name": "Dehradun",
+      "why": "A valley city between the Doon and the first ridge, with Mussoorie above it.",
+      "tags": [
+        "hill",
+        "base camp"
+      ],
+      "sights": [
+        {
+          "name": "Robber’s Cave",
+          "kind": "cave",
+          "km": 8
+        },
+        {
+          "name": "Sahastradhara",
+          "kind": "waterfall",
+          "km": 15
+        },
+        {
+          "name": "Forest Research Institute",
+          "kind": "museum",
+          "km": 6
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Mussoorie",
+          "km": 35,
+          "note": "shared taxi or bus up the ridge, about 1.5 h"
+        }
+      ],
+      "best": "Mar–Jun, Sep–Nov",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "KGM"
+      ],
+      "name": "Kathgodam (Nainital)",
+      "why": "The railhead for the Kumaon lakes — Nainital is up the hill from here.",
+      "tags": [
+        "hill station",
+        "lakes"
+      ],
+      "sights": [
+        {
+          "name": "Nainital Lake",
+          "kind": "lake",
+          "km": 34
+        },
+        {
+          "name": "Naina Devi Temple",
+          "kind": "temple",
+          "km": 34
+        },
+        {
+          "name": "Bhimtal",
+          "kind": "lake",
+          "km": 22
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Nainital",
+          "km": 34,
+          "note": "taxi or bus up; about an hour from the station"
+        },
+        {
+          "name": "Bhimtal and Sattal lakes",
+          "km": 22,
+          "note": "on the way up — worth breaking the journey"
+        }
+      ],
+      "best": "Mar–Jun, Sep–Nov",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "RMR"
+      ],
+      "name": "Ramnagar (Corbett)",
+      "why": "The gate to Corbett National Park — tiger country in the Himalayan foothills.",
+      "tags": [
+        "wildlife",
+        "national park"
+      ],
+      "sights": [
+        {
+          "name": "Corbett Tiger Reserve",
+          "kind": "sanctuary",
+          "km": 15
+        },
+        {
+          "name": "Corbett Museum, Kaladhungi",
+          "kind": "museum",
+          "km": 30
+        },
+        {
+          "name": "Garjiya Devi Temple",
+          "kind": "temple",
+          "km": 14
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Dhikala zone",
+          "km": 50,
+          "note": "permit and a forest vehicle; book well ahead"
+        }
+      ],
+      "best": "Nov–Jun",
+      "days": "2 days"
+    },
+    {
+      "codes": [
+        "SML"
+      ],
+      "name": "Shimla",
+      "why": "The colonial summer capital on a ridge, reached by a mountain railway.",
+      "tags": [
+        "hill station",
+        "UNESCO railway"
+      ],
+      "sights": [
+        {
+          "name": "The Ridge",
+          "kind": "promenade",
+          "km": 2
+        },
+        {
+          "name": "Mall Road",
+          "kind": "market",
+          "km": 2
+        },
+        {
+          "name": "Jakhoo Temple",
+          "kind": "temple",
+          "km": 3
+        },
+        {
+          "name": "Viceregal Lodge",
+          "kind": "heritage",
+          "km": 4
+        }
+      ],
+      "best": "Mar–Jun, Sep–Nov",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "KLK"
+      ],
+      "name": "Kalka",
+      "why": "Where the plains end and the Shimla toy train starts — a UNESCO mountain railway.",
+      "tags": [
+        "UNESCO railway",
+        "junction"
+      ],
+      "sights": [
+        {
+          "name": "Kalka Railway Heritage",
+          "kind": "railway",
+          "km": 1
+        },
+        {
+          "name": "Mansa Devi Temple, Kalka",
+          "kind": "temple",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Shimla by toy train",
+          "km": 96,
+          "note": "the narrow-gauge service from this platform; book the window seats"
+        }
+      ],
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "CDG"
+      ],
+      "name": "Chandigarh",
+      "why": "Le Corbusier’s planned city — the Capitol Complex is a World Heritage Site.",
+      "tags": [
+        "UNESCO",
+        "planned city"
+      ],
+      "sights": [
+        {
+          "name": "Rock Garden",
+          "kind": "garden",
+          "km": 4
+        },
+        {
+          "name": "Sukhna Lake",
+          "kind": "lake",
+          "km": 5
+        },
+        {
+          "name": "Capitol Complex",
+          "kind": "heritage",
+          "km": 6
+        },
+        {
+          "name": "Rose Garden",
+          "kind": "garden",
+          "km": 4
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Pinjore Gardens",
+          "km": 20,
+          "note": "taxi towards Kalka; a Mughal garden on the way"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "ASR"
+      ],
+      "name": "Amritsar",
+      "why": "The Golden Temple, open all night and free to every visitor, and a border ceremony nearby.",
+      "tags": [
+        "pilgrimage",
+        "food"
+      ],
+      "sights": [
+        {
+          "name": "Golden Temple",
+          "kind": "temple",
+          "km": 2
+        },
+        {
+          "name": "Jallianwala Bagh",
+          "kind": "memorial",
+          "km": 2
+        },
+        {
+          "name": "Partition Museum",
+          "kind": "museum",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Wagah border ceremony",
+          "km": 28,
+          "note": "taxi or shared jeep; go early for the seating"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "PTK"
+      ],
+      "name": "Pathankot",
+      "why": "The junction for the hills: Dharamshala, Dalhousie and the Kangra valley start here.",
+      "tags": [
+        "junction",
+        "hill gateway"
+      ],
+      "sights": [
+        {
+          "name": "Ranjit Sagar Dam",
+          "kind": "dam",
+          "km": 18
+        },
+        {
+          "name": "Mukteshwar Temple",
+          "kind": "temple",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Dharamshala / McLeod Ganj",
+          "km": 90,
+          "note": "taxi or bus up; about 2.5 h"
+        },
+        {
+          "name": "Dalhousie",
+          "km": 80,
+          "note": "taxi or bus; the road climbs from here"
+        }
+      ],
+      "best": "Mar–Jun, Sep–Nov",
+      "days": "a stop, not a stay"
+    },
+    {
+      "codes": [
+        "JAT"
+      ],
+      "name": "Jammu",
+      "why": "The winter capital, and the railhead everyone uses before the climb to Vaishno Devi.",
+      "tags": [
+        "city",
+        "pilgrimage gateway"
+      ],
+      "sights": [
+        {
+          "name": "Raghunath Temple",
+          "kind": "temple",
+          "km": 2
+        },
+        {
+          "name": "Bahu Fort",
+          "kind": "fort",
+          "km": 4
+        },
+        {
+          "name": "Amar Mahal Palace",
+          "kind": "palace",
+          "km": 5
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Katra / Vaishno Devi",
+          "km": 50,
+          "note": "taxi or bus to Katra, then the 12 km climb"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "KKDE"
+      ],
+      "name": "Kurukshetra",
+      "why": "The Mahabharata plain: Brahma Sarovar and the spot the Gita was spoken.",
+      "tags": [
+        "pilgrimage",
+        "history"
+      ],
+      "sights": [
+        {
+          "name": "Brahma Sarovar",
+          "kind": "lake",
+          "km": 3
+        },
+        {
+          "name": "Jyotisar",
+          "kind": "heritage",
+          "km": 12
+        },
+        {
+          "name": "Sri Krishna Museum",
+          "kind": "museum",
+          "km": 3
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "half a day"
+    },
+    {
+      "codes": [
+        "AWR"
+      ],
+      "name": "Alwar",
+      "why": "A Rajput town under a hill fort, with Sariska’s tigers half an hour away.",
+      "tags": [
+        "fort",
+        "wildlife gateway"
+      ],
+      "sights": [
+        {
+          "name": "Bala Qila",
+          "kind": "fort",
+          "km": 1
+        },
+        {
+          "name": "Moosi Maharani ki Chhatri",
+          "kind": "monument",
+          "km": 1
+        },
+        {
+          "name": "Sariska Palace",
+          "kind": "palace",
+          "km": 1
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Sariska Tiger Reserve",
+          "km": 35,
+          "note": "taxi or bus; safari vehicles from the gate"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "MB"
+      ],
+      "name": "Moradabad",
+      "why": "The brass city of the Ramganga — a working town, useful as a junction.",
+      "tags": [
+        "city",
+        "junction"
+      ],
+      "sights": [
+        {
+          "name": "Brass market",
+          "kind": "market",
+          "km": 2
+        },
+        {
+          "name": "Ramganga barrage",
+          "kind": "lake",
+          "km": 8
+        }
+      ],
+      "days": "a stop"
+    },
+    {
+      "codes": [
+        "SRE"
+      ],
+      "name": "Saharanpur",
+      "why": "Wood carving workshops and a Mughal-era garden, between Delhi and the hills.",
+      "tags": [
+        "craft",
+        "garden"
+      ],
+      "sights": [
+        {
+          "name": "Company Garden",
+          "kind": "garden",
+          "km": 2
+        },
+        {
+          "name": "Wood carving workshops",
+          "kind": "craft",
+          "km": 2
+        }
+      ],
+      "days": "a stop"
+    },
+    {
+      "codes": [
+        "HWH",
+        "SDAH",
+        "KOAA"
+      ],
+      "name": "Kolkata",
+      "why": "The city that argues about everything, in a tram, over sweets — colonial monuments and a riverfront that still works.",
+      "tags": [
+        "city",
+        "heritage",
+        "food"
+      ],
+      "sights": [
+        {
+          "name": "Victoria Memorial",
+          "kind": "monument",
+          "km": 5
+        },
+        {
+          "name": "Howrah Bridge",
+          "kind": "bridge",
+          "km": 1
+        },
+        {
+          "name": "Dakshineswar Kali Temple",
+          "kind": "temple",
+          "km": 14
+        },
+        {
+          "name": "Indian Museum",
+          "kind": "museum",
+          "km": 4
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Sundarbans",
+          "km": 100,
+          "note": "train to Canning or Sonarpur, then launch; an overnight, not a day trip"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "2–4 days"
+    },
+    {
+      "codes": [
+        "NJP"
+      ],
+      "name": "New Jalpaiguri (Siliguri)",
+      "why": "The gateway to the eastern Himalaya: Darjeeling, Sikkim and the Dooars all start here.",
+      "tags": [
+        "gateway",
+        "hill"
+      ],
+      "sights": [
+        {
+          "name": "Siliguri",
+          "kind": "city",
+          "km": 8
+        },
+        {
+          "name": "Mahananda Wildlife Sanctuary",
+          "kind": "sanctuary",
+          "km": 12
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Darjeeling",
+          "km": 65,
+          "note": "taxi or the toy train from NJP; about 3 h by road uphill"
+        },
+        {
+          "name": "Gangtok",
+          "km": 125,
+          "note": "shared jeep or taxi; about 5 h, permits checked on the way"
+        },
+        {
+          "name": "Kalimpong",
+          "km": 70,
+          "note": "shared jeep; quieter than Darjeeling and worth the drive"
+        },
+        {
+          "name": "Dooars and Gorumara",
+          "km": 60,
+          "note": "taxi; forest lodges inside the reserve"
+        }
+      ],
+      "best": "Mar–May, Oct–Dec",
+      "days": "a night, then onward"
+    },
+    {
+      "codes": [
+        "DJ"
+      ],
+      "name": "Darjeeling",
+      "why": "Tea gardens on a ridge with Kanchenjunga behind them, and a steam railway up the middle.",
+      "tags": [
+        "hill station",
+        "UNESCO railway",
+        "tea"
+      ],
+      "sights": [
+        {
+          "name": "Tiger Hill sunrise",
+          "kind": "viewpoint",
+          "km": 11
+        },
+        {
+          "name": "Batasia Loop",
+          "kind": "railway",
+          "km": 4
+        },
+        {
+          "name": "Himalayan Mountaineering Institute and Zoo",
+          "kind": "museum",
+          "km": 3
+        },
+        {
+          "name": "Happy Valley Tea Estate",
+          "kind": "tea",
+          "km": 3
+        }
+      ],
+      "best": "Mar–May, Oct–Dec",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "PNBE"
+      ],
+      "name": "Patna",
+      "why": "A river city older than most of Europe’s capitals, and the base for Bodh Gaya and Nalanda.",
+      "tags": [
+        "city",
+        "history"
+      ],
+      "sights": [
+        {
+          "name": "Golghar",
+          "kind": "monument",
+          "km": 3
+        },
+        {
+          "name": "Bihar Museum",
+          "kind": "museum",
+          "km": 4
+        },
+        {
+          "name": "Patna Sahib Gurudwara",
+          "kind": "gurudwara",
+          "km": 8
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Bodh Gaya",
+          "km": 105,
+          "note": "better done from Gaya station, which is 13 km away"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "GAYA"
+      ],
+      "name": "Gaya",
+      "why": "The railhead for Bodh Gaya, where the Buddha attained enlightenment.",
+      "tags": [
+        "Buddhist",
+        "pilgrimage"
+      ],
+      "sights": [
+        {
+          "name": "Vishnupad Temple",
+          "kind": "temple",
+          "km": 3
+        },
+        {
+          "name": "Bodh Gaya Mahabodhi Temple",
+          "kind": "UNESCO",
+          "km": 13
+        },
+        {
+          "name": "Great Buddha Statue",
+          "kind": "monument",
+          "km": 13
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Bodh Gaya",
+          "km": 13,
+          "note": "auto or bus; the temple complex is walkable once there"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "RGD"
+      ],
+      "name": "Rajgir",
+      "why": "Hills, hot springs and the ruins of the first Buddhist monastery, in a valley that stayed quiet.",
+      "tags": [
+        "Buddhist",
+        "heritage"
+      ],
+      "sights": [
+        {
+          "name": "Vulture’s Peak",
+          "kind": "viewpoint",
+          "km": 3
+        },
+        {
+          "name": "Cyclopean Wall ruins",
+          "kind": "heritage",
+          "km": 3
+        },
+        {
+          "name": "Hot springs",
+          "kind": "spring",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Nalanda ruins",
+          "km": 12,
+          "note": "auto or bus; the university ruins are the draw"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "NLD"
+      ],
+      "name": "Nalanda",
+      "why": "The ruins of a monastic university that taught ten thousand students a thousand years ago.",
+      "tags": [
+        "UNESCO",
+        "Buddhist"
+      ],
+      "sights": [
+        {
+          "name": "Nalanda Mahavihara ruins",
+          "kind": "heritage",
+          "km": 2
+        },
+        {
+          "name": "Nalanda Archaeological Museum",
+          "kind": "museum",
+          "km": 2
+        },
+        {
+          "name": "Xuanzang Memorial",
+          "kind": "monument",
+          "km": 3
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "half a day"
+    },
+    {
+      "codes": [
+        "BGP"
+      ],
+      "name": "Bhagalpur",
+      "why": "A silk city on the Ganga, and the riverfront that goes with it.",
+      "tags": [
+        "city",
+        "river"
+      ],
+      "sights": [
+        {
+          "name": "Vikramshila ruins",
+          "kind": "heritage",
+          "km": 40
+        },
+        {
+          "name": "Bateshwar Nath Temple",
+          "kind": "temple",
+          "km": 5
+        },
+        {
+          "name": "Ganga riverfront",
+          "kind": "ghat",
+          "km": 2
+        }
+      ],
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "RNC"
+      ],
+      "name": "Ranchi",
+      "why": "Waterfalls and plateau forest at the edge of the Chota Nagpur — the base for Jharkhand’s falls.",
+      "tags": [
+        "waterfall",
+        "city"
+      ],
+      "sights": [
+        {
+          "name": "Dassam Falls",
+          "kind": "waterfall",
+          "km": 40
+        },
+        {
+          "name": "Hundru Falls",
+          "kind": "waterfall",
+          "km": 45
+        },
+        {
+          "name": "Ranchi Lake",
+          "kind": "lake",
+          "km": 2
+        }
+      ],
+      "best": "Jul–Feb, best just after the monsoon",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "TATA"
+      ],
+      "name": "Jamshedpur",
+      "why": "A company town built for a steel plant, with a hill of its own on the edge of it.",
+      "tags": [
+        "city",
+        "industry"
+      ],
+      "sights": [
+        {
+          "name": "Dalma Hills",
+          "kind": "hill",
+          "km": 15
+        },
+        {
+          "name": "Jubilee Park",
+          "kind": "park",
+          "km": 4
+        },
+        {
+          "name": "Dimna Lake",
+          "kind": "lake",
+          "km": 13
+        }
+      ],
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "BDME",
+        "DGHR"
+      ],
+      "name": "Deoghar",
+      "why": "Baidyanath, one of the twelve Jyotirlingas, and one of India’s largest pilgrimage movements.",
+      "tags": [
+        "pilgrimage",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Baidyanath Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Tapovan caves",
+          "kind": "cave",
+          "km": 2
+        },
+        {
+          "name": "Trikut Hills",
+          "kind": "hill",
+          "km": 20
+        }
+      ],
+      "best": "Oct–Mar, and Shravan month",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "DHN"
+      ],
+      "name": "Dhanbad",
+      "why": "Coal country — a working industrial landscape rather than a holiday one, but a major junction.",
+      "tags": [
+        "city",
+        "junction"
+      ],
+      "sights": [
+        {
+          "name": "Maithon Dam",
+          "kind": "dam",
+          "km": 45
+        },
+        {
+          "name": "Panchet Hill",
+          "kind": "hill",
+          "km": 50
+        }
+      ],
+      "days": "a stop"
+    },
+    {
+      "codes": [
+        "BBS"
+      ],
+      "name": "Bhubaneswar",
+      "why": "The temple city of Kalinga architecture, with caves and a stupa on its edge.",
+      "tags": [
+        "temple",
+        "heritage"
+      ],
+      "sights": [
+        {
+          "name": "Lingaraj Temple",
+          "kind": "temple",
+          "km": 2
+        },
+        {
+          "name": "Udayagiri and Khandagiri Caves",
+          "kind": "cave",
+          "km": 7
+        },
+        {
+          "name": "Dhauli Shanti Stupa",
+          "kind": "stupa",
+          "km": 8
+        },
+        {
+          "name": "Odisha State Museum",
+          "kind": "museum",
+          "km": 3
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Konark Sun Temple",
+          "km": 65,
+          "note": "taxi or bus; usually paired with Puri in one day"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "PURI"
+      ],
+      "name": "Puri",
+      "why": "One of the four Char Dham towns, with a long beach and the Konark temple down the coast.",
+      "tags": [
+        "pilgrimage",
+        "beach"
+      ],
+      "sights": [
+        {
+          "name": "Jagannath Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Puri Beach",
+          "kind": "beach",
+          "km": 1
+        },
+        {
+          "name": "Gundicha Temple",
+          "kind": "temple",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Konark Sun Temple",
+          "km": 35,
+          "note": "bus or taxi along the coast; a UNESCO site and a beach"
+        },
+        {
+          "name": "Chilika Lake",
+          "km": 50,
+          "note": "train to Satapada side, then boat; dolphins in winter"
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "CTC"
+      ],
+      "name": "Cuttack",
+      "why": "An old river capital of Odisha, with a fort mound in the middle of it.",
+      "tags": [
+        "city",
+        "history"
+      ],
+      "sights": [
+        {
+          "name": "Barabati Fort",
+          "kind": "fort",
+          "km": 2
+        },
+        {
+          "name": "Odisha State Maritime Museum",
+          "kind": "museum",
+          "km": 3
+        },
+        {
+          "name": "Netaji Birthplace Museum",
+          "kind": "museum",
+          "km": 2
+        }
+      ],
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "BHP"
+      ],
+      "name": "Bolpur (Shantiniketan)",
+      "why": "Tagore’s university town, where classes are still held under trees.",
+      "tags": [
+        "culture",
+        "UNESCO"
+      ],
+      "sights": [
+        {
+          "name": "Visva-Bharati and Uttarayan",
+          "kind": "heritage",
+          "km": 2
+        },
+        {
+          "name": "Kala Bhavana",
+          "kind": "museum",
+          "km": 2
+        },
+        {
+          "name": "Sonajhuri forest haat",
+          "kind": "market",
+          "km": 4
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "VSU"
+      ],
+      "name": "Bishnupur",
+      "why": "Terracotta temples: brickwork carved like ivory, in a town that was once a kingdom’s capital.",
+      "tags": [
+        "temple",
+        "craft"
+      ],
+      "sights": [
+        {
+          "name": "Rasmancha",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Jor Bangla Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Madan Mohan Temple",
+          "kind": "temple",
+          "km": 1
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "MBB"
+      ],
+      "name": "Murshidabad",
+      "why": "The last independent Nawab’s capital: a palace, a thousand doors, and a river in front of it.",
+      "tags": [
+        "heritage",
+        "history"
+      ],
+      "sights": [
+        {
+          "name": "Hazarduari Palace",
+          "kind": "palace",
+          "km": 2
+        },
+        {
+          "name": "Katra Mosque",
+          "kind": "mosque",
+          "km": 3
+        },
+        {
+          "name": "Motijheel",
+          "kind": "lake",
+          "km": 3
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "MLDT"
+      ],
+      "name": "Malda",
+      "why": "Mango country with two ruined capitals — Gaud and Pandua — in the fields around it.",
+      "tags": [
+        "heritage",
+        "history"
+      ],
+      "sights": [
+        {
+          "name": "Adina Mosque",
+          "kind": "mosque",
+          "km": 20
+        },
+        {
+          "name": "Gour ruins",
+          "kind": "heritage",
+          "km": 15
+        },
+        {
+          "name": "Firoz Minar",
+          "kind": "monument",
+          "km": 15
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "NDAE"
+      ],
+      "name": "Nabadwip Dham",
+      "why": "The birthplace town of Chaitanya Mahaprabhu, and a Krishna pilgrimage by the Ganga.",
+      "tags": [
+        "pilgrimage",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Mayapur ISKCON temple",
+          "kind": "temple",
+          "km": 4
+        },
+        {
+          "name": "Nabadwip ghats",
+          "kind": "ghat",
+          "km": 2
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "DGHA"
+      ],
+      "name": "Digha",
+      "why": "The closest sea beach to Kolkata — a broad, crowded, cheerful one.",
+      "tags": [
+        "beach"
+      ],
+      "sights": [
+        {
+          "name": "Digha Beach",
+          "kind": "beach",
+          "km": 1
+        },
+        {
+          "name": "Marine Aquarium",
+          "kind": "aquarium",
+          "km": 1
+        },
+        {
+          "name": "Talsari Beach",
+          "kind": "beach",
+          "km": 10
+        }
+      ],
+      "best": "Nov–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "TPF"
+      ],
+      "name": "Tarapith",
+      "why": "A Shakti temple town on the Dwarka river, unusual even by Bengali pilgrimage standards.",
+      "tags": [
+        "pilgrimage",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Tarapith Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Dwarka river ghats",
+          "kind": "ghat",
+          "km": 1
+        }
+      ],
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "GHY"
+      ],
+      "name": "Guwahati",
+      "why": "The gateway to the North East, with a Shakti temple on a hill above the Brahmaputra.",
+      "tags": [
+        "city",
+        "temple",
+        "gateway"
+      ],
+      "sights": [
+        {
+          "name": "Kamakhya Temple",
+          "kind": "temple",
+          "km": 8
+        },
+        {
+          "name": "Umananda Temple",
+          "kind": "temple",
+          "km": 5
+        },
+        {
+          "name": "Assam State Museum",
+          "kind": "museum",
+          "km": 3
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Shillong",
+          "km": 100,
+          "note": "shared taxi or bus; about 3 h, and the road is the scenery"
+        },
+        {
+          "name": "Kaziranga",
+          "km": 190,
+          "note": "better reached by train to Furkating or Jakhalabandha"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "FKG"
+      ],
+      "name": "Furkating (Kaziranga)",
+      "why": "The railhead for Kaziranga: rhinos, elephants and grassland the size of a country.",
+      "tags": [
+        "wildlife",
+        "national park",
+        "UNESCO"
+      ],
+      "sights": [
+        {
+          "name": "Kaziranga National Park",
+          "kind": "sanctuary",
+          "km": 30
+        },
+        {
+          "name": "Tea gardens",
+          "kind": "tea",
+          "km": 5
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Kaziranga ranges",
+          "km": 30,
+          "note": "taxi from the station; safaris are booked by range"
+        }
+      ],
+      "best": "Nov–Apr",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "AGTL"
+      ],
+      "name": "Agartala",
+      "why": "A palace, a lake and a border — Tripura’s capital, and now on the broad-gauge map.",
+      "tags": [
+        "city",
+        "palace"
+      ],
+      "sights": [
+        {
+          "name": "Ujjayanta Palace",
+          "kind": "palace",
+          "km": 2
+        },
+        {
+          "name": "Neermahal",
+          "kind": "palace",
+          "km": 55
+        },
+        {
+          "name": "Tripura Sundari Temple",
+          "kind": "temple",
+          "km": 55
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "SCL"
+      ],
+      "name": "Silchar",
+      "why": "The Barak valley — tea, a river, and the long way round to the rest of the country.",
+      "tags": [
+        "city",
+        "tea"
+      ],
+      "sights": [
+        {
+          "name": "Khaspur ruins",
+          "kind": "heritage",
+          "km": 20
+        },
+        {
+          "name": "Barak riverfront",
+          "kind": "river",
+          "km": 2
+        }
+      ],
+      "days": "a stop"
+    },
+    {
+      "codes": [
+        "DMV"
+      ],
+      "name": "Dimapur (Kohima)",
+      "why": "The railhead for Nagaland — Kohima’s war cemetery and the Angami hills above it.",
+      "tags": [
+        "hills",
+        "gateway"
+      ],
+      "sights": [
+        {
+          "name": "Kachari ruins",
+          "kind": "heritage",
+          "km": 3
+        },
+        {
+          "name": "Dimapur market",
+          "kind": "market",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Kohima",
+          "km": 74,
+          "note": "shared taxi or bus; about 2.5 h up, permits for some areas"
+        }
+      ],
+      "best": "Oct–Apr",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "JTTN"
+      ],
+      "name": "Jorhat",
+      "why": "Tea research country, and the ferry point for Majuli — the largest river island anywhere.",
+      "tags": [
+        "tea",
+        "island"
+      ],
+      "sights": [
+        {
+          "name": "Tocklai Tea Research Centre",
+          "kind": "tea",
+          "km": 3
+        },
+        {
+          "name": "Jorhat town",
+          "kind": "city",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Majuli island",
+          "km": 20,
+          "note": "taxi to Nimati ghat, then ferry; the ferry stops in low water"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "DBRG"
+      ],
+      "name": "Dibrugarh",
+      "why": "The end of the line in upper Assam: tea estates, the Brahmaputra, and rainforest beyond.",
+      "tags": [
+        "tea",
+        "river"
+      ],
+      "sights": [
+        {
+          "name": "Tea estates",
+          "kind": "tea",
+          "km": 10
+        },
+        {
+          "name": "Brahmaputra ghats",
+          "kind": "ghat",
+          "km": 3
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Namdapha and Arunachal",
+          "km": 150,
+          "note": "permits and a 4x4; plan it as its own trip"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "CSTM",
+        "BCT",
+        "DR"
+      ],
+      "name": "Mumbai",
+      "why": "The sea on one side, Gothic and Art Deco on the other, and the best street food in the country.",
+      "tags": [
+        "city",
+        "UNESCO",
+        "coast"
+      ],
+      "sights": [
+        {
+          "name": "Gateway of India",
+          "kind": "monument",
+          "km": 1
+        },
+        {
+          "name": "Marine Drive",
+          "kind": "promenade",
+          "km": 3
+        },
+        {
+          "name": "Chhatrapati Shivaji Terminus",
+          "kind": "UNESCO",
+          "km": 0
+        },
+        {
+          "name": "Sanjay Gandhi National Park",
+          "kind": "sanctuary",
+          "km": 30
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Elephanta Caves",
+          "km": 10,
+          "note": "ferry from the Gateway of India, about an hour each way; boats stop in bad weather"
+        },
+        {
+          "name": "Alibaug",
+          "km": 95,
+          "note": "ferry or road; a coastal weekend rather than a day trip"
+        }
+      ],
+      "best": "Nov–Feb",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "PUNE"
+      ],
+      "name": "Pune",
+      "why": "The Maratha capital: Peshwa palaces in the city and hill forts down every road out of it.",
+      "tags": [
+        "history",
+        "city"
+      ],
+      "sights": [
+        {
+          "name": "Shaniwar Wada",
+          "kind": "palace",
+          "km": 3
+        },
+        {
+          "name": "Aga Khan Palace",
+          "kind": "palace",
+          "km": 6
+        },
+        {
+          "name": "Sinhagad Fort",
+          "kind": "fort",
+          "km": 30
+        },
+        {
+          "name": "Pataleshwar Cave Temple",
+          "kind": "temple",
+          "km": 3
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Lonavala and Karla Caves",
+          "km": 65,
+          "note": "train or road; the caves are a climb from the highway"
+        }
+      ],
+      "best": "Jul–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "LNL"
+      ],
+      "name": "Lonavala",
+      "why": "A Sahyadri hill halt with the Karla and Bhaja cave complexes above it.",
+      "tags": [
+        "hill",
+        "caves"
+      ],
+      "sights": [
+        {
+          "name": "Karla Caves",
+          "kind": "cave",
+          "km": 5
+        },
+        {
+          "name": "Bhaja Caves",
+          "kind": "cave",
+          "km": 8
+        },
+        {
+          "name": "Bhushi Dam",
+          "kind": "waterfall",
+          "km": 6
+        }
+      ],
+      "best": "Jun–Sep for the monsoon, or Dec–Feb",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "NK"
+      ],
+      "name": "Nashik",
+      "why": "Temples on the Godavari, and the vineyards that made Indian wine a thing.",
+      "tags": [
+        "pilgrimage",
+        "vineyards"
+      ],
+      "sights": [
+        {
+          "name": "Panchvati and Ramkund",
+          "kind": "ghat",
+          "km": 3
+        },
+        {
+          "name": "Pandavleni Caves",
+          "kind": "cave",
+          "km": 8
+        },
+        {
+          "name": "Sula Vineyards",
+          "kind": "vineyard",
+          "km": 12
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Trimbakeshwar",
+          "km": 28,
+          "note": "bus or taxi; one of the twelve Jyotirlingas"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "SNSI"
+      ],
+      "name": "Shirdi",
+      "why": "The Sai Baba temple — a pilgrimage town built entirely around one shrine.",
+      "tags": [
+        "pilgrimage"
+      ],
+      "sights": [
+        {
+          "name": "Sai Baba Samadhi Mandir",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Dwarkamai",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Shani Shingnapur",
+          "kind": "temple",
+          "km": 70
+        }
+      ],
+      "best": "all year",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "AWB"
+      ],
+      "name": "Aurangabad",
+      "why": "The base for both the Ajanta and Ellora cave complexes, which deserve separate days.",
+      "tags": [
+        "caves",
+        "UNESCO"
+      ],
+      "sights": [
+        {
+          "name": "Bibi Ka Maqbara",
+          "kind": "monument",
+          "km": 5
+        },
+        {
+          "name": "Aurangabad Caves",
+          "kind": "cave",
+          "km": 6
+        },
+        {
+          "name": "Daulatabad Fort",
+          "kind": "fort",
+          "km": 15
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Ellora Caves",
+          "km": 30,
+          "note": "taxi or bus; half a day of walking"
+        },
+        {
+          "name": "Ajanta Caves",
+          "km": 100,
+          "note": "taxi or the morning bus; a full day out, and closed on Mondays"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "NGP"
+      ],
+      "name": "Nagpur",
+      "why": "The orange city at the centre of the country, with tigers and hill stations around it.",
+      "tags": [
+        "city",
+        "junction"
+      ],
+      "sights": [
+        {
+          "name": "Deekshabhoomi",
+          "kind": "monument",
+          "km": 4
+        },
+        {
+          "name": "Zero Mile Stone",
+          "kind": "monument",
+          "km": 2
+        },
+        {
+          "name": "Futala Lake",
+          "kind": "lake",
+          "km": 6
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Tadoba Andhari Tiger Reserve",
+          "km": 150,
+          "note": "a separate trip; stay near Chandrapur, not Nagpur"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "KOP"
+      ],
+      "name": "Kolhapur",
+      "why": "The Mahalaxmi temple, its own fierce chilli-and-jaggery food, and Panhala fort above.",
+      "tags": [
+        "temple",
+        "food"
+      ],
+      "sights": [
+        {
+          "name": "Mahalaxmi Temple",
+          "kind": "temple",
+          "km": 2
+        },
+        {
+          "name": "New Palace Museum",
+          "kind": "palace",
+          "km": 3
+        },
+        {
+          "name": "Rankala Lake",
+          "kind": "lake",
+          "km": 3
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Panhala Fort",
+          "km": 20,
+          "note": "bus or taxi up the ghat; half a day"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "WTR",
+        "STR"
+      ],
+      "name": "Mahabaleshwar (via Wathar)",
+      "why": "Strawberry country on the crest of the Sahyadris, with valley views on both sides.",
+      "tags": [
+        "hill station"
+      ],
+      "sights": [
+        {
+          "name": "Arthur’s Seat",
+          "kind": "viewpoint",
+          "km": 65
+        },
+        {
+          "name": "Venna Lake",
+          "kind": "lake",
+          "km": 62
+        },
+        {
+          "name": "Pratapgad Fort",
+          "kind": "fort",
+          "km": 80
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Mahabaleshwar from Wathar",
+          "km": 60,
+          "note": "bus or taxi; the climb takes about 2 h"
+        },
+        {
+          "name": "Satara town",
+          "km": 5,
+          "note": "from Satara station it is the same road, slightly shorter"
+        }
+      ],
+      "best": "Oct–Jun",
+      "days": "2 days"
+    },
+    {
+      "codes": [
+        "RN"
+      ],
+      "name": "Ratnagiri",
+      "why": "The Konkan coast at its calmest, with Alphonso mangoes and a cliff-top fort.",
+      "tags": [
+        "coast",
+        "fort"
+      ],
+      "sights": [
+        {
+          "name": "Ratnagiri Fort",
+          "kind": "fort",
+          "km": 3
+        },
+        {
+          "name": "Bhatye Beach",
+          "kind": "beach",
+          "km": 6
+        },
+        {
+          "name": "Thibaw Palace",
+          "kind": "palace",
+          "km": 4
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Ganpatipule",
+          "km": 25,
+          "note": "auto or bus along the coast"
+        }
+      ],
+      "best": "Oct–Mar, or April for mangoes",
+      "days": "2 days"
+    },
+    {
+      "codes": [
+        "MAO",
+        "THVM",
+        "VSG"
+      ],
+      "name": "Goa",
+      "why": "Beaches within a short ride of every station, plus Portuguese churches and a spice hinterland.",
+      "tags": [
+        "beach",
+        "UNESCO",
+        "coast"
+      ],
+      "sights": [
+        {
+          "name": "Basilica of Bom Jesus, Old Goa",
+          "kind": "church",
+          "km": 10
+        },
+        {
+          "name": "Se Cathedral, Old Goa",
+          "kind": "church",
+          "km": 10
+        },
+        {
+          "name": "Baga and Calangute beaches",
+          "kind": "beach",
+          "km": 25
+        },
+        {
+          "name": "Palolem Beach",
+          "kind": "beach",
+          "km": 40
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Dudhsagar Falls",
+          "km": 60,
+          "note": "jeep from Kulem, which is itself a station; closed in peak monsoon"
+        },
+        {
+          "name": "Spice plantations, Ponda",
+          "km": 30,
+          "note": "taxi; usually combined with Old Goa"
+        }
+      ],
+      "best": "Nov–Feb",
+      "days": "3–5 days"
+    },
+    {
+      "codes": [
+        "ADI"
+      ],
+      "name": "Ahmedabad",
+      "why": "Indo-Saracenic city of stepwells, the Sabarmati Ashram, and a night market worth planning around.",
+      "tags": [
+        "city",
+        "stepwell",
+        "heritage"
+      ],
+      "sights": [
+        {
+          "name": "Sabarmati Ashram",
+          "kind": "heritage",
+          "km": 5
+        },
+        {
+          "name": "Adalaj Stepwell",
+          "kind": "stepwell",
+          "km": 18
+        },
+        {
+          "name": "Sidi Saiyyed Mosque",
+          "kind": "mosque",
+          "km": 2
+        },
+        {
+          "name": "Manek Chowk night market",
+          "kind": "market",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Modhera Sun Temple and Rani ki Vav",
+          "km": 100,
+          "note": "a full-day drive; both are World Heritage Sites"
+        }
+      ],
+      "best": "Nov–Feb",
+      "days": "2 days"
+    },
+    {
+      "codes": [
+        "BRC"
+      ],
+      "name": "Vadodara",
+      "why": "A palace that still has its own railway station, and a World Heritage city half an hour away.",
+      "tags": [
+        "palace",
+        "UNESCO"
+      ],
+      "sights": [
+        {
+          "name": "Laxmi Vilas Palace",
+          "kind": "palace",
+          "km": 4
+        },
+        {
+          "name": "Sayaji Baug",
+          "kind": "garden",
+          "km": 3
+        },
+        {
+          "name": "Champaner-Pavagadh",
+          "kind": "UNESCO",
+          "km": 47
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Statue of Unity, Kevadiya",
+          "km": 90,
+          "note": "a long day out by road; better as an overnight"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "ST"
+      ],
+      "name": "Surat",
+      "why": "Diamond and textile money, a Dutch and English trading past, and beaches out along the coast.",
+      "tags": [
+        "city",
+        "coast"
+      ],
+      "sights": [
+        {
+          "name": "Dumas Beach",
+          "kind": "beach",
+          "km": 20
+        },
+        {
+          "name": "Surat Castle",
+          "kind": "fort",
+          "km": 2
+        },
+        {
+          "name": "Dutch Cemetery",
+          "kind": "heritage",
+          "km": 3
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "DWK"
+      ],
+      "name": "Dwarka",
+      "why": "Krishna’s city at the western edge of the country — a temple town by the sea.",
+      "tags": [
+        "pilgrimage",
+        "coast"
+      ],
+      "sights": [
+        {
+          "name": "Dwarkadhish Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Bet Dwarka",
+          "kind": "island",
+          "km": 30
+        },
+        {
+          "name": "Nageshwar Jyotirlinga",
+          "kind": "temple",
+          "km": 17
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "SMNH",
+        "VRL"
+      ],
+      "name": "Somnath",
+      "why": "The first of the twelve Jyotirlingas, rebuilt six times, with the sea behind it.",
+      "tags": [
+        "pilgrimage",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Somnath Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Triveni Sangam Ghat",
+          "kind": "ghat",
+          "km": 1
+        },
+        {
+          "name": "Prabhas Patan Museum",
+          "kind": "museum",
+          "km": 1
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Veraval harbour",
+          "km": 6,
+          "note": "auto; the fishing port next door"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "JND",
+        "SASG"
+      ],
+      "name": "Junagadh and Gir",
+      "why": "An old princely city under Girnar hill, with the last Asiatic lions an hour away.",
+      "tags": [
+        "fort",
+        "wildlife"
+      ],
+      "sights": [
+        {
+          "name": "Uparkot Fort",
+          "kind": "fort",
+          "km": 2
+        },
+        {
+          "name": "Girnar Hill temples",
+          "kind": "temple",
+          "km": 5
+        },
+        {
+          "name": "Gir National Park",
+          "kind": "sanctuary",
+          "km": 60
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Sasan Gir",
+          "km": 60,
+          "note": "there is a small station at Sasan Gir itself; safaris need booking"
+        }
+      ],
+      "best": "Dec–Mar",
+      "days": "2 days"
+    },
+    {
+      "codes": [
+        "BHUJ"
+      ],
+      "name": "Bhuj",
+      "why": "Kutch: white desert at full moon, mirrorwork craft villages, and a palace full of it.",
+      "tags": [
+        "desert",
+        "craft"
+      ],
+      "sights": [
+        {
+          "name": "Aina Mahal",
+          "kind": "palace",
+          "km": 1
+        },
+        {
+          "name": "Prag Mahal",
+          "kind": "palace",
+          "km": 1
+        },
+        {
+          "name": "Kutch desert (Rann)",
+          "kind": "desert",
+          "km": 80
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Great Rann of Kutch",
+          "km": 80,
+          "note": "taxi; the salt desert is the reason to come"
+        }
+      ],
+      "best": "Nov–Feb",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "PIT"
+      ],
+      "name": "Palitana",
+      "why": "A hill covered in Jain temples, reached by six hundred steps.",
+      "tags": [
+        "pilgrimage",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Shatrunjaya Temples",
+          "kind": "temple",
+          "km": 3
+        },
+        {
+          "name": "Taleti",
+          "kind": "temple",
+          "km": 3
+        }
+      ],
+      "best": "Nov–Feb",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "RJT"
+      ],
+      "name": "Rajkot",
+      "why": "A Kathiawar trading city, and a convenient base between Gir and the Kutch.",
+      "tags": [
+        "city",
+        "junction"
+      ],
+      "sights": [
+        {
+          "name": "Watson Museum",
+          "kind": "museum",
+          "km": 2
+        },
+        {
+          "name": "Kaba Gandhi No Delo",
+          "kind": "heritage",
+          "km": 3
+        }
+      ],
+      "days": "a stop"
+    },
+    {
+      "codes": [
+        "JP"
+      ],
+      "name": "Jaipur",
+      "why": "The pink city: a hill fort above, and a palace, an observatory and a bazaar in a walkable line.",
+      "tags": [
+        "UNESCO",
+        "fort",
+        "market"
+      ],
+      "sights": [
+        {
+          "name": "Amber Fort",
+          "kind": "fort",
+          "km": 11
+        },
+        {
+          "name": "Hawa Mahal",
+          "kind": "palace",
+          "km": 1
+        },
+        {
+          "name": "City Palace",
+          "kind": "palace",
+          "km": 1
+        },
+        {
+          "name": "Jantar Mantar",
+          "kind": "UNESCO",
+          "km": 1
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Nahargarh and Jaigarh",
+          "km": 15,
+          "note": "taxi up the ridge; sunset from above Amber"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "JU"
+      ],
+      "name": "Jodhpur",
+      "why": "The blue city under Mehrangarh, with the desert at its back.",
+      "tags": [
+        "fort",
+        "city"
+      ],
+      "sights": [
+        {
+          "name": "Mehrangarh Fort",
+          "kind": "fort",
+          "km": 5
+        },
+        {
+          "name": "Jaswant Thada",
+          "kind": "monument",
+          "km": 6
+        },
+        {
+          "name": "Sardar Market and the clock tower",
+          "kind": "market",
+          "km": 3
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Osian temples",
+          "km": 65,
+          "note": "taxi; a desert-outpost detour in the afternoon"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "JSM"
+      ],
+      "name": "Jaisalmer",
+      "why": "A living fort of yellow stone in the middle of the Thar, with dunes an hour out.",
+      "tags": [
+        "desert",
+        "fort"
+      ],
+      "sights": [
+        {
+          "name": "Jaisalmer Fort",
+          "kind": "fort",
+          "km": 1
+        },
+        {
+          "name": "Patwon ki Haveli",
+          "kind": "heritage",
+          "km": 1
+        },
+        {
+          "name": "Gadisar Lake",
+          "kind": "lake",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Sam Sand Dunes",
+          "km": 45,
+          "note": "taxi or jeep; camel rides and sunset, or a desert camp night"
+        }
+      ],
+      "best": "Nov–Feb",
+      "days": "2 days"
+    },
+    {
+      "codes": [
+        "BKN"
+      ],
+      "name": "Bikaner",
+      "why": "A walled desert city with a fort that was never taken, and the rats of Karni Mata nearby.",
+      "tags": [
+        "fort",
+        "desert"
+      ],
+      "sights": [
+        {
+          "name": "Junagarh Fort",
+          "kind": "fort",
+          "km": 2
+        },
+        {
+          "name": "Rampuria Havelis",
+          "kind": "heritage",
+          "km": 1
+        },
+        {
+          "name": "National Research Centre on Camel",
+          "kind": "museum",
+          "km": 8
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Karni Mata, Deshnoke",
+          "km": 30,
+          "note": "bus or taxi; the temple of the rats, an hour out"
+        }
+      ],
+      "best": "Nov–Feb",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "AII"
+      ],
+      "name": "Ajmer",
+      "why": "The Sufi dargah of Khwaja Moinuddin Chishti, with Pushkar’s lake just over the hill.",
+      "tags": [
+        "pilgrimage",
+        "dargah"
+      ],
+      "sights": [
+        {
+          "name": "Ajmer Sharif Dargah",
+          "kind": "dargah",
+          "km": 2
+        },
+        {
+          "name": "Ana Sagar Lake",
+          "kind": "lake",
+          "km": 3
+        },
+        {
+          "name": "Taragarh Fort",
+          "kind": "fort",
+          "km": 4
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Pushkar",
+          "km": 14,
+          "note": "auto or bus; the Brahma temple and the lake ghats"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "ABR"
+      ],
+      "name": "Abu Road (Mount Abu)",
+      "why": "The only hill station in Rajasthan, with Jain temples in marble at Dilwara.",
+      "tags": [
+        "hill station",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Dilwara Temples",
+          "kind": "temple",
+          "km": 30
+        },
+        {
+          "name": "Nakki Lake",
+          "kind": "lake",
+          "km": 28
+        },
+        {
+          "name": "Guru Shikhar",
+          "kind": "viewpoint",
+          "km": 40
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Mount Abu from Abu Road",
+          "km": 28,
+          "note": "taxi or bus up the ghat road, about an hour"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "COR"
+      ],
+      "name": "Chittaurgarh",
+      "why": "The fort every Rajput story measures itself against, spread over a whole hill.",
+      "tags": [
+        "fort",
+        "history"
+      ],
+      "sights": [
+        {
+          "name": "Chittorgarh Fort",
+          "kind": "fort",
+          "km": 5
+        },
+        {
+          "name": "Vijay Stambh",
+          "kind": "monument",
+          "km": 5
+        },
+        {
+          "name": "Rana Kumbha Palace",
+          "kind": "palace",
+          "km": 5
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "KOTA"
+      ],
+      "name": "Kota",
+      "why": "A river city with a palace on the Chambal, halfway between Delhi and Mumbai.",
+      "tags": [
+        "city",
+        "palace"
+      ],
+      "sights": [
+        {
+          "name": "Garh Palace",
+          "kind": "palace",
+          "km": 3
+        },
+        {
+          "name": "Chambal riverfront",
+          "kind": "ghat",
+          "km": 3
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Bundi",
+          "km": 40,
+          "note": "short train or taxi; the stepwells and the palace are better than Kota’s"
+        }
+      ],
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "SWM",
+        "RNT"
+      ],
+      "name": "Sawai Madhopur (Ranthambore)",
+      "why": "The tiger reserve with a fort inside it, and a tenth-century town beside the gate.",
+      "tags": [
+        "wildlife",
+        "fort"
+      ],
+      "sights": [
+        {
+          "name": "Ranthambore National Park",
+          "kind": "sanctuary",
+          "km": 12
+        },
+        {
+          "name": "Ranthambore Fort",
+          "kind": "fort",
+          "km": 14
+        },
+        {
+          "name": "Trinetra Ganesh Temple",
+          "kind": "temple",
+          "km": 14
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Park zones",
+          "km": 12,
+          "note": "safaris are booked per zone and sell out; the station is the base"
+        }
+      ],
+      "best": "Oct–Apr",
+      "days": "2 days"
+    },
+    {
+      "codes": [
+        "BTE"
+      ],
+      "name": "Bharatpur",
+      "why": "A bird sanctuary that is a World Heritage Site, on the road to Fatehpur Sikri.",
+      "tags": [
+        "UNESCO",
+        "wildlife"
+      ],
+      "sights": [
+        {
+          "name": "Keoladeo National Park",
+          "kind": "sanctuary",
+          "km": 3
+        },
+        {
+          "name": "Lohagarh Fort",
+          "kind": "fort",
+          "km": 2
+        },
+        {
+          "name": "Government Museum",
+          "kind": "museum",
+          "km": 2
+        }
+      ],
+      "best": "Oct–Mar for birds",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "BPL"
+      ],
+      "name": "Bhopal",
+      "why": "Two lakes, a Begum’s city, and the Buddhist stupas of Sanchi down the road.",
+      "tags": [
+        "city",
+        "lakes",
+        "UNESCO"
+      ],
+      "sights": [
+        {
+          "name": "Upper Lake",
+          "kind": "lake",
+          "km": 3
+        },
+        {
+          "name": "Taj-ul-Masajid",
+          "kind": "mosque",
+          "km": 3
+        },
+        {
+          "name": "Bhimbetka rock shelters",
+          "kind": "UNESCO",
+          "km": 45
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Sanchi Stupa",
+          "km": 46,
+          "note": "train or taxi; the stop for it is Sanchi, one stop before Bhopal"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "SCI"
+      ],
+      "name": "Sanchi",
+      "why": "The Great Stupa, the oldest stone structure in the country, in a quiet hillside complex.",
+      "tags": [
+        "UNESCO",
+        "Buddhist"
+      ],
+      "sights": [
+        {
+          "name": "Great Stupa",
+          "kind": "stupa",
+          "km": 1
+        },
+        {
+          "name": "Sanchi Museum",
+          "kind": "museum",
+          "km": 1
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "half a day"
+    },
+    {
+      "codes": [
+        "INDB"
+      ],
+      "name": "Indore",
+      "why": "The cleanest city in the country, and the best reason to stop eating elsewhere in Madhya Pradesh.",
+      "tags": [
+        "food",
+        "city"
+      ],
+      "sights": [
+        {
+          "name": "Rajwada Palace",
+          "kind": "palace",
+          "km": 2
+        },
+        {
+          "name": "Lal Bagh Palace",
+          "kind": "palace",
+          "km": 4
+        },
+        {
+          "name": "Sarafa night bazaar",
+          "kind": "market",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Mandu",
+          "km": 100,
+          "note": "a full day by road, or a night there; the monsoon is its season"
+        },
+        {
+          "name": "Omkareshwar",
+          "km": 77,
+          "note": "train to Omkareshwar Road, 10 km short, then auto"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "OM"
+      ],
+      "name": "Omkareshwar",
+      "why": "A Jyotirlinga on an island in the Narmada, shaped like the symbol it is named for.",
+      "tags": [
+        "pilgrimage",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Omkareshwar Temple",
+          "kind": "temple",
+          "km": 10
+        },
+        {
+          "name": "Narmada ghats",
+          "kind": "ghat",
+          "km": 10
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "UJN"
+      ],
+      "name": "Ujjain",
+      "why": "Mahakaleshwar and the Shipra ghats — one of the four Kumbh cities.",
+      "tags": [
+        "pilgrimage",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Mahakaleshwar Jyotirlinga",
+          "kind": "temple",
+          "km": 2
+        },
+        {
+          "name": "Ram Ghat",
+          "kind": "ghat",
+          "km": 2
+        },
+        {
+          "name": "Kal Bhairav Temple",
+          "kind": "temple",
+          "km": 4
+        },
+        {
+          "name": "Vedh Shala (observatory)",
+          "kind": "heritage",
+          "km": 3
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "JBP"
+      ],
+      "name": "Jabalpur",
+      "why": "Marble cliffs over the Narmada, with the Dhuandhar falls in the same afternoon.",
+      "tags": [
+        "river",
+        "waterfall"
+      ],
+      "sights": [
+        {
+          "name": "Bhedaghat marble rocks",
+          "kind": "viewpoint",
+          "km": 22
+        },
+        {
+          "name": "Dhuandhar Falls",
+          "kind": "waterfall",
+          "km": 23
+        },
+        {
+          "name": "Madan Mahal Fort",
+          "kind": "fort",
+          "km": 3
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Bhedaghat",
+          "km": 22,
+          "note": "auto or bus; boat rides on the Narmada run in season"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "KURJ"
+      ],
+      "name": "Khajuraho",
+      "why": "Chandela temples covered in sculpture, on the World Heritage list for it.",
+      "tags": [
+        "UNESCO",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Western Group of Temples",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Kandariya Mahadev",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Eastern and Southern groups",
+          "kind": "temple",
+          "km": 3
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Raneh Falls",
+          "km": 20,
+          "note": "taxi; a canyon of pink granite in season"
+        },
+        {
+          "name": "Panna National Park",
+          "km": 25,
+          "note": "taxi; tigers and the Ken river"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "PPI"
+      ],
+      "name": "Pipariya (Pachmarhi)",
+      "why": "The railhead for Pachmarhi, the hill station in the Satpura range.",
+      "tags": [
+        "hill gateway"
+      ],
+      "sights": [
+        {
+          "name": "Pachmarhi",
+          "kind": "hill station",
+          "km": 47
+        },
+        {
+          "name": "Satpura National Park",
+          "kind": "sanctuary",
+          "km": 60
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Pachmarhi",
+          "km": 47,
+          "note": "bus or taxi up the ghats, about 1.5 h"
+        }
+      ],
+      "best": "Oct–Jun",
+      "days": "a stop"
+    },
+    {
+      "codes": [
+        "R"
+      ],
+      "name": "Raipur",
+      "why": "The capital of Chhattisgarh, and the junction towards the waterfalls of Bastar.",
+      "tags": [
+        "city",
+        "junction"
+      ],
+      "sights": [
+        {
+          "name": "Mahant Ghasidas Museum",
+          "kind": "museum",
+          "km": 3
+        },
+        {
+          "name": "Purkhauti Muktangan",
+          "kind": "park",
+          "km": 15
+        }
+      ],
+      "days": "a stop"
+    },
+    {
+      "codes": [
+        "JDB"
+      ],
+      "name": "Jagdalpur",
+      "why": "Bastar — tribal country with waterfalls, caves and a very different India.",
+      "tags": [
+        "waterfall",
+        "tribal"
+      ],
+      "sights": [
+        {
+          "name": "Chitrakote Falls",
+          "kind": "waterfall",
+          "km": 38
+        },
+        {
+          "name": "Kanger Valley limestone caves",
+          "km": 0,
+          "kind": "cave"
+        },
+        {
+          "name": "Bastar Palace",
+          "kind": "palace",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Chitrakote and Tirathgarh falls",
+          "km": 38,
+          "note": "taxi or bus; the river is at its widest just after the monsoon"
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "MAS"
+      ],
+      "name": "Chennai",
+      "why": "A long city beach, Dravidian temples, and the best filter coffee in the country.",
+      "tags": [
+        "city",
+        "beach",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Marina Beach",
+          "kind": "beach",
+          "km": 4
+        },
+        {
+          "name": "Kapaleeshwarar Temple",
+          "kind": "temple",
+          "km": 6
+        },
+        {
+          "name": "Fort St George and museum",
+          "kind": "fort",
+          "km": 3
+        },
+        {
+          "name": "San Thome Basilica",
+          "kind": "church",
+          "km": 5
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Mahabalipuram",
+          "km": 55,
+          "note": "bus or taxi down the coast road; the shore temples are a UNESCO site"
+        },
+        {
+          "name": "Pulicat Lake",
+          "km": 60,
+          "note": "taxi; flamingos in winter"
+        }
+      ],
+      "best": "Nov–Feb",
+      "days": "2 days"
+    },
+    {
+      "codes": [
+        "CGL"
+      ],
+      "name": "Chengalpattu (Mahabalipuram)",
+      "why": "The railhead for the Pallava shore temples at Mahabalipuram.",
+      "tags": [
+        "UNESCO",
+        "coast"
+      ],
+      "sights": [
+        {
+          "name": "Shore Temple",
+          "kind": "UNESCO",
+          "km": 30
+        },
+        {
+          "name": "Pancha Rathas",
+          "kind": "monument",
+          "km": 29
+        },
+        {
+          "name": "Arjuna’s Penance",
+          "kind": "monument",
+          "km": 29
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Mahabalipuram",
+          "km": 30,
+          "note": "bus or auto from the station; half an hour"
+        }
+      ],
+      "best": "Nov–Feb",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "CJ"
+      ],
+      "name": "Kanchipuram",
+      "why": "One of the seven sacred cities, with silk saris woven in the same streets as the temples.",
+      "tags": [
+        "temple",
+        "silk"
+      ],
+      "sights": [
+        {
+          "name": "Kailasanathar Temple",
+          "kind": "temple",
+          "km": 3
+        },
+        {
+          "name": "Ekambareswarar Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Varadaraja Perumal Temple",
+          "kind": "temple",
+          "km": 3
+        }
+      ],
+      "best": "Nov–Feb",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "PDY"
+      ],
+      "name": "Puducherry",
+      "why": "French-grid streets with mustard-yellow walls, behind a promenade on the Bay of Bengal.",
+      "tags": [
+        "coast",
+        "colonial"
+      ],
+      "sights": [
+        {
+          "name": "Promenade and Rock Beach",
+          "kind": "beach",
+          "km": 2
+        },
+        {
+          "name": "Sri Aurobindo Ashram",
+          "kind": "ashram",
+          "km": 1
+        },
+        {
+          "name": "Basilica of the Sacred Heart",
+          "kind": "church",
+          "km": 1
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Auroville",
+          "km": 12,
+          "note": "auto or bus; the Matrimandir needs a booking to go inside"
+        },
+        {
+          "name": "Paradise Beach",
+          "km": 8,
+          "note": "ferry from the Chunnambar backwater"
+        }
+      ],
+      "best": "Nov–Feb",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "TJ"
+      ],
+      "name": "Thanjavur",
+      "why": "The Chola capital: the Big Temple is a thousand years old and still the tallest of its kind.",
+      "tags": [
+        "UNESCO",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Brihadisvara Temple (Big Temple)",
+          "kind": "UNESCO",
+          "km": 2
+        },
+        {
+          "name": "Thanjavur Maratha Palace",
+          "kind": "palace",
+          "km": 1
+        },
+        {
+          "name": "Schwartz Church",
+          "kind": "church",
+          "km": 1
+        },
+        {
+          "name": "Saraswathi Mahal Library",
+          "kind": "heritage",
+          "km": 1
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Darasuram Airavatesvara Temple",
+          "km": 35,
+          "note": "bus or taxi; the third of the Great Living Chola Temples"
+        },
+        {
+          "name": "Kumbakonam",
+          "km": 40,
+          "note": "a short train ride; better as its own stop"
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "KMU"
+      ],
+      "name": "Kumbakonam",
+      "why": "A Mahamaham tank ringed by temples, with two Chola masterpieces within half an hour.",
+      "tags": [
+        "temple",
+        "UNESCO"
+      ],
+      "sights": [
+        {
+          "name": "Adi Kumbeswarar Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Sarangapani Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Mahamaham Tank",
+          "kind": "ghat",
+          "km": 1
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Darasuram",
+          "km": 4,
+          "note": "auto; the Airavatesvara temple is a UNESCO site"
+        },
+        {
+          "name": "Swamimalai and Patteeswaram",
+          "km": 8,
+          "note": "auto; bronze casting workshops beside the temples"
+        }
+      ],
+      "best": "Oct–Feb, and the Mahamaham festival",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "CDM"
+      ],
+      "name": "Chidambaram",
+      "why": "The Nataraja temple, where Shiva is worshipped as the dancer.",
+      "tags": [
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Nataraja Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Pichavaram mangroves",
+          "kind": "mangrove",
+          "km": 15
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Pichavaram",
+          "km": 15,
+          "note": "bus or auto; boat through the mangrove channels"
+        }
+      ],
+      "best": "Nov–Feb",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "TPJ",
+        "SRGM"
+      ],
+      "name": "Tiruchirappalli",
+      "why": "A rock fort you climb by steps cut in the rock, and the great Srirangam temple island.",
+      "tags": [
+        "temple",
+        "fort"
+      ],
+      "sights": [
+        {
+          "name": "Rockfort Ucchi Pillayar Temple",
+          "kind": "temple",
+          "km": 2
+        },
+        {
+          "name": "Sri Ranganathaswamy Temple, Srirangam",
+          "kind": "temple",
+          "km": 7
+        },
+        {
+          "name": "Jambukeswarar Temple",
+          "kind": "temple",
+          "km": 5
+        }
+      ],
+      "best": "Nov–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "MDU"
+      ],
+      "name": "Madurai",
+      "why": "The Meenakshi temple, and a city that has organised its life around it for two thousand years.",
+      "tags": [
+        "temple",
+        "city"
+      ],
+      "sights": [
+        {
+          "name": "Meenakshi Amman Temple",
+          "kind": "temple",
+          "km": 2
+        },
+        {
+          "name": "Thirumalai Nayakkar Mahal",
+          "kind": "palace",
+          "km": 2
+        },
+        {
+          "name": "Gandhi Memorial Museum",
+          "kind": "museum",
+          "km": 3
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Thiruparankundram and Alagar Kovil",
+          "km": 12,
+          "note": "bus or auto; rock-cut temples on the edge of the city"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "RMM"
+      ],
+      "name": "Rameswaram",
+      "why": "A temple town on an island, reached by a bridge over the sea, with a beach on both sides.",
+      "tags": [
+        "pilgrimage",
+        "temple",
+        "coast"
+      ],
+      "sights": [
+        {
+          "name": "Ramanathaswamy Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Agni Theertham",
+          "kind": "beach",
+          "km": 1
+        },
+        {
+          "name": "Pamban bridge",
+          "kind": "bridge",
+          "km": 15
+        },
+        {
+          "name": "Dhanushkodi",
+          "kind": "ruins",
+          "km": 18
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Dhanushkodi",
+          "km": 18,
+          "note": "taxi; the road ends at the water, ruins on the way"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "CAPE"
+      ],
+      "name": "Kanyakumari",
+      "why": "The southern tip: sunrise and sunset over three seas, with a temple on the shore.",
+      "tags": [
+        "coast",
+        "pilgrimage"
+      ],
+      "sights": [
+        {
+          "name": "Vivekananda Rock Memorial",
+          "kind": "monument",
+          "km": 0
+        },
+        {
+          "name": "Thiruvalluvar Statue",
+          "kind": "monument",
+          "km": 1
+        },
+        {
+          "name": "Kumari Amman Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Gandhi Mandapam",
+          "kind": "memorial",
+          "km": 1
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "TEN"
+      ],
+      "name": "Tirunelveli",
+      "why": "A temple city on the Thamirabarani, with the Western Ghats and the coast both close.",
+      "tags": [
+        "temple",
+        "city"
+      ],
+      "sights": [
+        {
+          "name": "Nellaiappar Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Krishnapuram Palace area",
+          "kind": "heritage",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Manimuthar Falls and Kalakkad",
+          "km": 60,
+          "note": "taxi; hill forest on the Ghats edge"
+        }
+      ],
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "MTP",
+        "ONR"
+      ],
+      "name": "Mettupalayam and Coonoor",
+      "why": "The Nilgiri mountain railway: a rack line that climbs from the plains into the tea hills.",
+      "tags": [
+        "UNESCO railway",
+        "hill station"
+      ],
+      "sights": [
+        {
+          "name": "Nilgiri Mountain Railway",
+          "kind": "railway",
+          "km": 0
+        },
+        {
+          "name": "Coonoor tea estates",
+          "kind": "tea",
+          "km": 20
+        },
+        {
+          "name": "Dolphin’s Nose",
+          "kind": "viewpoint",
+          "km": 30
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Ooty (Udhagamandalam)",
+          "km": 50,
+          "note": "the same toy train continues up, or bus over the ghat road"
+        }
+      ],
+      "best": "Mar–Jun, Sep–Nov",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "CBE"
+      ],
+      "name": "Coimbatore",
+      "why": "A textile city under the Ghats gap, with the Adiyogi statue on its edge.",
+      "tags": [
+        "city",
+        "junction"
+      ],
+      "sights": [
+        {
+          "name": "Adiyogi Shiva statue",
+          "kind": "monument",
+          "km": 30
+        },
+        {
+          "name": "Marudamalai Temple",
+          "kind": "temple",
+          "km": 15
+        },
+        {
+          "name": "Vydehi Falls",
+          "kind": "waterfall",
+          "km": 35
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Isha Yoga Center",
+          "km": 30,
+          "note": "taxi; the statue is lit at night"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "KQN"
+      ],
+      "name": "Kodaikanal Road",
+      "why": "The railhead for Kodaikanal, up on the Palani hills.",
+      "tags": [
+        "hill gateway"
+      ],
+      "sights": [
+        {
+          "name": "Kodaikanal Lake",
+          "kind": "lake",
+          "km": 80
+        },
+        {
+          "name": "Coaker’s Walk",
+          "kind": "viewpoint",
+          "km": 80
+        },
+        {
+          "name": "Pillar Rocks",
+          "kind": "viewpoint",
+          "km": 87
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Kodaikanal",
+          "km": 80,
+          "note": "bus or taxi up the ghats; about 2.5 h from the station"
+        }
+      ],
+      "best": "Mar–Jun, Sep–Nov",
+      "days": "a stop"
+    },
+    {
+      "codes": [
+        "TPTY"
+      ],
+      "name": "Tirupati",
+      "why": "The Venkateswara temple at Tirumala, the busiest pilgrimage in the world by footfall.",
+      "tags": [
+        "pilgrimage",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Sri Venkateswara Temple, Tirumala",
+          "kind": "temple",
+          "km": 22
+        },
+        {
+          "name": "Sri Padmavathi Ammavari Temple",
+          "kind": "temple",
+          "km": 5
+        },
+        {
+          "name": "Kapila Theertham",
+          "kind": "temple",
+          "km": 3
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Tirumala",
+          "km": 22,
+          "note": "bus or the walking path; darshan tokens are the thing to arrange"
+        }
+      ],
+      "best": "Sep–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "BZA"
+      ],
+      "name": "Vijayawada",
+      "why": "A Krishna river city with a temple on a hill and caves across the water.",
+      "tags": [
+        "temple",
+        "city"
+      ],
+      "sights": [
+        {
+          "name": "Kanaka Durga Temple",
+          "kind": "temple",
+          "km": 3
+        },
+        {
+          "name": "Undavalli Caves",
+          "kind": "cave",
+          "km": 8
+        },
+        {
+          "name": "Prakasam Barrage",
+          "kind": "dam",
+          "km": 3
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "VSKP"
+      ],
+      "name": "Visakhapatnam",
+      "why": "Beaches and a harbour with the Eastern Ghats falling into the sea behind them.",
+      "tags": [
+        "coast",
+        "city"
+      ],
+      "sights": [
+        {
+          "name": "RK Beach",
+          "kind": "beach",
+          "km": 4
+        },
+        {
+          "name": "Kailasagiri",
+          "kind": "viewpoint",
+          "km": 8
+        },
+        {
+          "name": "Submarine Museum",
+          "kind": "museum",
+          "km": 4
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Araku Valley",
+          "km": 115,
+          "note": "the train through the ghats to Araku is the excursion; go and come back the same day"
+        },
+        {
+          "name": "Borra Caves",
+          "km": 90,
+          "note": "usually combined with the Araku train or a taxi"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "WL"
+      ],
+      "name": "Warangal",
+      "why": "A Kakatiya capital with a fort, a lake and a temple whose pillars are carved through.",
+      "tags": [
+        "fort",
+        "temple",
+        "UNESCO"
+      ],
+      "sights": [
+        {
+          "name": "Warangal Fort",
+          "kind": "fort",
+          "km": 6
+        },
+        {
+          "name": "Thousand Pillar Temple",
+          "kind": "temple",
+          "km": 4
+        },
+        {
+          "name": "Bhadrakali Temple",
+          "kind": "temple",
+          "km": 5
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Ramappa Temple",
+          "km": 70,
+          "note": "taxi; the Kakatiya temple that joined the World Heritage list"
+        },
+        {
+          "name": "Pakhal Lake",
+          "km": 50,
+          "note": "taxi; a Kakatiya reservoir in the forest"
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "SC",
+        "HYB",
+        "KCG"
+      ],
+      "name": "Hyderabad",
+      "why": "Biryani, pearls, and four hundred years of Deccan architecture in one old city.",
+      "tags": [
+        "city",
+        "food",
+        "history"
+      ],
+      "sights": [
+        {
+          "name": "Charminar",
+          "kind": "monument",
+          "km": 4
+        },
+        {
+          "name": "Golconda Fort",
+          "kind": "fort",
+          "km": 10
+        },
+        {
+          "name": "Chowmahalla Palace",
+          "kind": "palace",
+          "km": 4
+        },
+        {
+          "name": "Salar Jung Museum",
+          "kind": "museum",
+          "km": 4
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Ramoji Film City",
+          "km": 30,
+          "note": "taxi; a full day, and it is not really the city"
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "SBC",
+        "YPR"
+      ],
+      "name": "Bengaluru",
+      "why": "A garden city that turned into a tech city and kept the weather, the dosas and the parks.",
+      "tags": [
+        "city",
+        "garden"
+      ],
+      "sights": [
+        {
+          "name": "Lalbagh Botanical Garden",
+          "kind": "garden",
+          "km": 4
+        },
+        {
+          "name": "Cubbon Park",
+          "kind": "park",
+          "km": 2
+        },
+        {
+          "name": "Bangalore Palace",
+          "kind": "palace",
+          "km": 6
+        },
+        {
+          "name": "Vidhana Soudha",
+          "kind": "monument",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Nandi Hills",
+          "km": 60,
+          "note": "taxi, ideally before dawn for the sunrise"
+        },
+        {
+          "name": "Mysuru",
+          "km": 145,
+          "note": "a fast train from the city; a day trip that deserves two"
+        }
+      ],
+      "best": "all year",
+      "days": "2 days"
+    },
+    {
+      "codes": [
+        "MYS"
+      ],
+      "name": "Mysuru",
+      "why": "The palace, and a city that kept its own calendar of festivals and its own food.",
+      "tags": [
+        "palace",
+        "heritage"
+      ],
+      "sights": [
+        {
+          "name": "Mysore Palace",
+          "kind": "palace",
+          "km": 2
+        },
+        {
+          "name": "Chamundi Hill",
+          "kind": "temple",
+          "km": 8
+        },
+        {
+          "name": "Devaraja Market",
+          "kind": "market",
+          "km": 2
+        },
+        {
+          "name": "Brindavan Gardens",
+          "kind": "garden",
+          "km": 20
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Srirangapatna",
+          "km": 15,
+          "note": "bus or auto; Tipu Sultan’s island capital"
+        },
+        {
+          "name": "Coorg (Madikeri)",
+          "km": 120,
+          "note": "road only, and worth two nights rather than a day trip"
+        }
+      ],
+      "best": "Oct–Mar, and Dasara",
+      "days": "2 days"
+    },
+    {
+      "codes": [
+        "HPT"
+      ],
+      "name": "Hospet (Hampi)",
+      "why": "The railhead for Hampi, a boulder landscape full of a ruined empire.",
+      "tags": [
+        "UNESCO",
+        "heritage"
+      ],
+      "sights": [
+        {
+          "name": "Virupaksha Temple",
+          "kind": "temple",
+          "km": 13
+        },
+        {
+          "name": "Vittala Temple and stone chariot",
+          "kind": "temple",
+          "km": 15
+        },
+        {
+          "name": "Lotus Mahal",
+          "kind": "palace",
+          "km": 15
+        },
+        {
+          "name": "Matanga Hill",
+          "kind": "viewpoint",
+          "km": 14
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Hampi",
+          "km": 13,
+          "note": "auto or bus from Hospet; bicycles are the usual way around the ruins"
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "BDM"
+      ],
+      "name": "Badami",
+      "why": "Cave temples cut into red sandstone cliffs above a lake, with two more capitals nearby.",
+      "tags": [
+        "caves",
+        "UNESCO"
+      ],
+      "sights": [
+        {
+          "name": "Badami Cave Temples",
+          "kind": "cave",
+          "km": 1
+        },
+        {
+          "name": "Agastya Lake",
+          "kind": "lake",
+          "km": 1
+        },
+        {
+          "name": "Bhutanatha Temples",
+          "kind": "temple",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Pattadakal",
+          "km": 22,
+          "note": "bus or auto; a UNESCO site of Chalukyan temples"
+        },
+        {
+          "name": "Aihole",
+          "km": 35,
+          "note": "usually paired with Pattadakal in one taxi"
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "HAS",
+        "BEQ"
+      ],
+      "name": "Hassan (Belur and Halebidu)",
+      "why": "Hoysala temples where the stone is carved so finely it looks turned on a lathe.",
+      "tags": [
+        "temple",
+        "UNESCO"
+      ],
+      "sights": [
+        {
+          "name": "Chennakeshava Temple, Belur",
+          "kind": "temple",
+          "km": 40
+        },
+        {
+          "name": "Hoysaleswara Temple, Halebidu",
+          "kind": "temple",
+          "km": 32
+        },
+        {
+          "name": "Shravanabelagola",
+          "kind": "temple",
+          "km": 52
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Belur and Halebidu",
+          "km": 35,
+          "note": "bus or taxi; the two are usually done in one day"
+        },
+        {
+          "name": "Shravanabelagola",
+          "km": 52,
+          "note": "on the Bengaluru side, so stop on the way in"
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "UD"
+      ],
+      "name": "Udupi",
+      "why": "A temple town that gave the world its own cuisine, with a beach a bus ride away.",
+      "tags": [
+        "temple",
+        "food",
+        "coast"
+      ],
+      "sights": [
+        {
+          "name": "Sri Krishna Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Malpe Beach",
+          "kind": "beach",
+          "km": 6
+        },
+        {
+          "name": "St Mary’s Island",
+          "kind": "island",
+          "km": 8
+        }
+      ],
+      "gateways": [
+        {
+          "name": "St Mary’s Island",
+          "km": 8,
+          "note": "boat from Malpe; the basalt columns are the sight"
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "MAJN",
+        "MAQ"
+      ],
+      "name": "Mangaluru",
+      "why": "A port city of red-tiled roofs, beaches north and south, and its own very good food.",
+      "tags": [
+        "coast",
+        "city",
+        "food"
+      ],
+      "sights": [
+        {
+          "name": "Panambur Beach",
+          "kind": "beach",
+          "km": 12
+        },
+        {
+          "name": "Kadri Manjunath Temple",
+          "kind": "temple",
+          "km": 4
+        },
+        {
+          "name": "Sultan Battery",
+          "kind": "fort",
+          "km": 6
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "MRDW",
+        "GOK"
+      ],
+      "name": "Murdeshwar and Gokarna",
+      "why": "The Karnataka coast: a giant Shiva statue by the sea, then a temple town with empty beaches.",
+      "tags": [
+        "coast",
+        "temple",
+        "beach"
+      ],
+      "sights": [
+        {
+          "name": "Murdeshwar Temple and statue",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Om Beach, Gokarna",
+          "kind": "beach",
+          "km": 6
+        },
+        {
+          "name": "Mahabaleshwar Temple, Gokarna",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Yana caves",
+          "kind": "cave",
+          "km": 50
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "KAWR"
+      ],
+      "name": "Karwar",
+      "why": "A quiet harbour town between the Kali river and the sea, where Tagore once stayed.",
+      "tags": [
+        "coast",
+        "beach"
+      ],
+      "sights": [
+        {
+          "name": "Rabindranath Tagore Beach",
+          "kind": "beach",
+          "km": 2
+        },
+        {
+          "name": "Devbagh",
+          "kind": "island",
+          "km": 6
+        },
+        {
+          "name": "Kali river estuary",
+          "kind": "river",
+          "km": 5
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "DRU"
+      ],
+      "name": "Kadur (Chikmagalur)",
+      "why": "The railhead for coffee country in the Baba Budangiri hills.",
+      "tags": [
+        "hill",
+        "coffee"
+      ],
+      "sights": [
+        {
+          "name": "Mullayanagiri",
+          "kind": "viewpoint",
+          "km": 50
+        },
+        {
+          "name": "Baba Budangiri",
+          "kind": "hill",
+          "km": 55
+        },
+        {
+          "name": "Coffee estates",
+          "kind": "coffee",
+          "km": 30
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Chikmagalur",
+          "km": 45,
+          "note": "bus or taxi; the ghat road starts climbing here"
+        }
+      ],
+      "best": "Sep–Feb",
+      "days": "a stop"
+    },
+    {
+      "codes": [
+        "UBL"
+      ],
+      "name": "Hubballi",
+      "why": "A junction city in the northern plateau, useful as a base for Badami and Hampi.",
+      "tags": [
+        "city",
+        "junction"
+      ],
+      "sights": [
+        {
+          "name": "Unkal Lake",
+          "kind": "lake",
+          "km": 5
+        },
+        {
+          "name": "Chandramouleshwara Temple",
+          "kind": "temple",
+          "km": 3
+        }
+      ],
+      "days": "a stop"
+    },
+    {
+      "codes": [
+        "BJP"
+      ],
+      "name": "Bijapur",
+      "why": "The Gol Gumbaz, whose whispering gallery is worth the trip on its own.",
+      "tags": [
+        "monument",
+        "heritage"
+      ],
+      "sights": [
+        {
+          "name": "Gol Gumbaz",
+          "kind": "monument",
+          "km": 2
+        },
+        {
+          "name": "Ibrahim Rauza",
+          "kind": "monument",
+          "km": 2
+        },
+        {
+          "name": "Malik-e-Maidan",
+          "kind": "monument",
+          "km": 1
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "GR"
+      ],
+      "name": "Kalaburagi (Gulbarga)",
+      "why": "A Bahmani capital with a great mosque and a fort, off most itineraries.",
+      "tags": [
+        "heritage",
+        "fort"
+      ],
+      "sights": [
+        {
+          "name": "Jama Masjid, Gulbarga",
+          "kind": "mosque",
+          "km": 1
+        },
+        {
+          "name": "Gulbarga Fort",
+          "kind": "fort",
+          "km": 2
+        },
+        {
+          "name": "Sharama and Haft Gumbaz",
+          "kind": "monument",
+          "km": 5
+        }
+      ],
+      "days": "a stop"
+    },
+    {
+      "codes": [
+        "ERS",
+        "ERN"
+      ],
+      "name": "Kochi",
+      "why": "Chinese fishing nets, a Portuguese church and a Jewish quarter, all in one small peninsula.",
+      "tags": [
+        "coast",
+        "UNESCO",
+        "backwaters"
+      ],
+      "sights": [
+        {
+          "name": "Fort Kochi and the Chinese fishing nets",
+          "kind": "heritage",
+          "km": 12
+        },
+        {
+          "name": "Mattancherry Palace",
+          "kind": "palace",
+          "km": 13
+        },
+        {
+          "name": "Paradesi Synagogue",
+          "kind": "heritage",
+          "km": 13
+        },
+        {
+          "name": "Marine Drive, Ernakulam",
+          "kind": "promenade",
+          "km": 2
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Alappuzha backwaters",
+          "km": 55,
+          "note": "train or road; houseboats start from Alappuzha, not Kochi"
+        },
+        {
+          "name": "Munnar",
+          "km": 130,
+          "note": "road only; better done from Aluva, which is on the rail line"
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "2–3 days"
+    },
+    {
+      "codes": [
+        "AWY"
+      ],
+      "name": "Aluva (Munnar)",
+      "why": "The railhead people use for Munnar, up in the tea hills of the Western Ghats.",
+      "tags": [
+        "hill gateway"
+      ],
+      "sights": [
+        {
+          "name": "Munnar tea estates",
+          "kind": "tea",
+          "km": 110
+        },
+        {
+          "name": "Eravikulam National Park",
+          "kind": "sanctuary",
+          "km": 120
+        },
+        {
+          "name": "Aluva Sivarathri Manappuram",
+          "kind": "ghat",
+          "km": 1
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Munnar",
+          "km": 110,
+          "note": "bus or taxi up; about 4 h on a winding road"
+        }
+      ],
+      "best": "Sep–May",
+      "days": "a stop"
+    },
+    {
+      "codes": [
+        "ALLP"
+      ],
+      "name": "Alappuzha",
+      "why": "Backwater country: houseboats, canals, and a beach along the sandbar behind them.",
+      "tags": [
+        "backwaters",
+        "beach"
+      ],
+      "sights": [
+        {
+          "name": "Alappuzha backwaters",
+          "kind": "backwaters",
+          "km": 1
+        },
+        {
+          "name": "Alappuzha Beach and pier",
+          "kind": "beach",
+          "km": 2
+        },
+        {
+          "name": "Marari Beach",
+          "kind": "beach",
+          "km": 12
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "QLN",
+        "VAK"
+      ],
+      "name": "Kollam and Varkala",
+      "why": "The start of the backwater route south, and a cliff beach at Varkala below it.",
+      "tags": [
+        "backwaters",
+        "beach"
+      ],
+      "sights": [
+        {
+          "name": "Ashtamudi Lake",
+          "kind": "lake",
+          "km": 3
+        },
+        {
+          "name": "Varkala cliff and beach",
+          "kind": "beach",
+          "km": 30
+        },
+        {
+          "name": "Thangassery lighthouse",
+          "kind": "lighthouse",
+          "km": 5
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Varkala",
+          "km": 30,
+          "note": "it has its own station, four stops south of Kollam"
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "TVC"
+      ],
+      "name": "Thiruvananthapuram",
+      "why": "The Padmanabhaswamy temple, colonial museums, and beaches on both sides of the city.",
+      "tags": [
+        "temple",
+        "city",
+        "coast"
+      ],
+      "sights": [
+        {
+          "name": "Padmanabhaswamy Temple",
+          "kind": "temple",
+          "km": 2
+        },
+        {
+          "name": "Napier Museum",
+          "kind": "museum",
+          "km": 3
+        },
+        {
+          "name": "Kovalam Beach",
+          "kind": "beach",
+          "km": 16
+        },
+        {
+          "name": "Poovar backwaters",
+          "kind": "backwaters",
+          "km": 30
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Kovalam",
+          "km": 16,
+          "note": "bus or auto; the lighthouse beach is the quiet end"
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "CLT"
+      ],
+      "name": "Kozhikode",
+      "why": "Where Vasco da Gama landed, and where the Malabar coast eats best.",
+      "tags": [
+        "coast",
+        "food",
+        "city"
+      ],
+      "sights": [
+        {
+          "name": "Kozhikode Beach",
+          "kind": "beach",
+          "km": 2
+        },
+        {
+          "name": "Mananchira Square",
+          "kind": "park",
+          "km": 1
+        },
+        {
+          "name": "Kappad Beach",
+          "kind": "beach",
+          "km": 16
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Wayanad",
+          "km": 70,
+          "note": "taxi or bus up the ghats; a hill district rather than a town"
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "CAN"
+      ],
+      "name": "Kannur",
+      "why": "Theyyam country: ritual dance, cliff beaches and a fort on the Malabar coast.",
+      "tags": [
+        "coast",
+        "culture"
+      ],
+      "sights": [
+        {
+          "name": "St Angelo Fort",
+          "kind": "fort",
+          "km": 3
+        },
+        {
+          "name": "Payyambalam Beach",
+          "kind": "beach",
+          "km": 2
+        },
+        {
+          "name": "Arakkal Museum",
+          "kind": "museum",
+          "km": 3
+        }
+      ],
+      "best": "Oct–Feb, and Theyyam season (Nov–Feb)",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "TCR",
+        "OLR"
+      ],
+      "name": "Thrissur",
+      "why": "The cultural capital of Kerala, and the home of the Pooram festival.",
+      "tags": [
+        "temple",
+        "culture"
+      ],
+      "sights": [
+        {
+          "name": "Vadakkunnathan Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Shakthan Thampuran Palace",
+          "kind": "palace",
+          "km": 2
+        },
+        {
+          "name": "Athirappilly Falls",
+          "kind": "waterfall",
+          "km": 60
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Athirappilly",
+          "km": 60,
+          "note": "taxi; the falls are at their best right after the monsoon"
+        }
+      ],
+      "best": "Oct–Feb, and Pooram in Apr–May",
+      "days": "1–2 days"
+    },
+    {
+      "codes": [
+        "GUV"
+      ],
+      "name": "Guruvayur",
+      "why": "One of the most visited Krishna temples in the south, in a town built around it.",
+      "tags": [
+        "pilgrimage",
+        "temple"
+      ],
+      "sights": [
+        {
+          "name": "Guruvayur Temple",
+          "kind": "temple",
+          "km": 1
+        },
+        {
+          "name": "Punnathur Kotta",
+          "kind": "elephant",
+          "km": 3
+        },
+        {
+          "name": "Mammiyur Temple",
+          "kind": "temple",
+          "km": 2
+        }
+      ],
+      "best": "Oct–Mar",
+      "days": "a day"
+    },
+    {
+      "codes": [
+        "PGT"
+      ],
+      "name": "Palakkad",
+      "why": "The gap in the Western Ghats — the road and rail pass through it, and the hills are on both sides.",
+      "tags": [
+        "junction",
+        "hills"
+      ],
+      "sights": [
+        {
+          "name": "Palakkad Fort",
+          "kind": "fort",
+          "km": 2
+        },
+        {
+          "name": "Malampuzha Dam and gardens",
+          "kind": "dam",
+          "km": 10
+        },
+        {
+          "name": "Silent Valley National Park",
+          "kind": "sanctuary",
+          "km": 60
+        }
+      ],
+      "gateways": [
+        {
+          "name": "Silent Valley",
+          "km": 60,
+          "note": "permit and a forest vehicle; the station is the nearest rail point"
+        }
+      ],
+      "best": "Oct–Feb",
+      "days": "a day"
+    }
+  ]
+}

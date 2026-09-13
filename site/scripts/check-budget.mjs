@@ -25,12 +25,13 @@ const BUDGET_FILE = join(ROOT, 'budget.json');
 const UPDATE = process.argv.includes('--update');
 
 const DEFAULT_BUDGET = {
-  'app.js.gzip': 22000,
-  'app.css.gzip': 5000,
+  'app.js.gzip': 52000,
+  'app.css.gzip': 6000,
   'worker.js.gzip': 16000,
-  'total.js.gzip': 45000,
+  'total.js.gzip': 66000,
   'data/stations.bin.gzip': 122880,   // 120 KB — the first-paint budget from PLAN.md
   'data/graph.bin.gzip': 921600,      // 900 KB
+  'data/profiles.json.gzip': 24576,   // 24 KB — the authored destination notes, fetched lazily
   'total.gzip': 1024000,              // 1 MB everything, first visit
 };
 
@@ -65,7 +66,7 @@ measure['app.css.gzip'] = css.reduce((n, f) => n + gz(f.abs), 0);
 measure['worker.js.gzip'] = worker.reduce((n, f) => n + gz(f.abs), 0);
 measure['total.js.gzip'] = measure['app.js.gzip'] + measure['worker.js.gzip'];
 
-for (const f of ['data/stations.bin', 'data/graph.bin']) {
+for (const f of ['data/stations.bin', 'data/graph.bin', 'data/profiles.json']) {
   const hit = files.find((x) => x.rel === f);
   if (!hit) {
     console.error(`check-budget: ${f} is missing from dist/. The packed dataset must ship with the site.`);

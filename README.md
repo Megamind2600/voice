@@ -3,11 +3,15 @@
 A free, static, zero-setup journey planner for Indian Railways, built for the person who
 knows **where they are** and **when they're free** but has **no destination in mind**.
 
-> **Status: Phases 0 and 1 shipped.** Data pipeline, packed dataset, worker, autocomplete and
-> timetable lookup (Phase 0), plus multi-leg journey search, fares, transfers between city
-> terminals, the results UI and share/copy/download (Phase 1). 648 tests, passing CI.
-> **Seat availability is Phase 2 and is not connected yet** — every rail leg says so rather
-> than guessing. Plan of record: [`PLAN.md`](PLAN.md). Research verified 2026-09-12.
+> **Status: Phases 0–1 shipped, Phase 2's first half in.** Data pipeline, packed dataset, worker,
+> autocomplete and timetable lookup (Phase 0); multi-leg journey search, fares, transfers between
+> city terminals, the results UI and share/copy/download (Phase 1). Since then: **seat
+> availability as an explicitly labelled estimate** on every rail leg — no live source exists
+> without a key, so it is a structural estimate built from rake capacity, the booking window, the
+> day of the week, the festival calendar, quota and how busy each end of the corridor is, and it
+> says ESTIMATED everywhere it appears — plus **destination notes**: why a place is worth the
+> journey and what is a road hop from the station rather than a walk. 696 tests, passing CI.
+> Plan of record: [`PLAN.md`](PLAN.md). Research verified 2026-09-12.
 >
 > Phase 1 missed one of its own acceptance targets (1,000 queries in 2 s; measured 5.1 s) and
 > deviated on three others. All are recorded with their causes and remediation in
@@ -16,7 +20,7 @@ knows **where they are** and **when they're free** but has **no destination in m
 
 ## What is built
 
-The whole thing runs in the browser from a **890 KB gzip** download, with no server, no
+The whole thing runs in the browser from a **951 KB gzip** download, with no server, no
 account and no API key.
 
 ```
@@ -25,6 +29,8 @@ harvester/   Python, stdlib only
   normalise.py     417,080 raw stop rows -> 103,229 genuine stops, with a quality report
   pack_binary.py   -> stations.bin (76 KB gz) + graph.bin (782 KB gz) + manifest
   validate/        two gates; every record round-tripped binary <-> canonical
+  places/          station_dump.py — station code/name/rank/calls/coords as TSV, for the
+                   destination notes (the test checks the same thing programmatically)
 
 site/        Vite + Preact + TypeScript
   lib/binary.ts    zero-copy RRLM container reader
@@ -33,9 +39,13 @@ site/        Vite + Preact + TypeScript
   router/          the search: timetable -> CSA -> transfers -> fares -> journeys
   worker/          routing worker + a main-thread fallback if it fails to start
   state/cache.ts   IndexedDB, validated by sha256 — a warm visit makes zero requests
-  state/           search hook with progressive widening; planner helpers
-  ui/              combobox, planner form, itinerary cards, leg detail, route diagram, export
-  tests/           340 tests: a golden corpus of real itineraries, an exhaustive-enumeration
+  state/           search hook with progressive widening; planner helpers; notes loader
+  availability/    Tier 0 capacity, booking rules, festivals, quota/class arithmetic, the seven
+                   remedies — and the structural estimate that is actually shown on a leg
+  discovery/       destination notes, road hops from the station, nearest covered places
+  ui/              combobox, planner form, itinerary cards, leg detail, route diagram,
+                   availability estimate, destination cards, export
+  tests/           696 tests: a golden corpus of real itineraries, an exhaustive-enumeration
                    cross-check of the router, and DOM tests for the promises the UI makes
 ```
 
@@ -76,13 +86,14 @@ npm run dev        # → http://localhost:5173, hot reload
 
 | Command | What it does |
 |---|---|
-| `npm test` | full suite (648 tests, incl. the real-dataset golden corpus) |
+| `npm test` | full suite (696 tests, incl. the real-dataset golden corpus) |
 | `npm run build && npm run budget` | production build + bundle-size gate (fails on regression) |
 | `npm run lint` / `npm run typecheck` | zero-warning lint, strict typecheck incl. tests |
 
-No API keys, no accounts, no setup beyond `npm install`. The packed timetable
-(`site/public/data/`) is committed, so search works offline on first load — the only
-network use is fetching those static files, cached in IndexedDB afterwards.
+No API keys, no accounts, no setup beyond `npm install`. The packed timetable and the
+destination notes (`site/public/data/`) are committed, so search works offline on first load —
+the only network use is fetching those static files, the large ones cached in IndexedDB
+afterwards.
 
 ## Cost
 
@@ -125,6 +136,13 @@ prediction model → opt-in live probe → optional bring-your-own-key — with 
 link on every leg** for ground truth, and a provenance badge on every figure so a prediction
 can never masquerade as a reservation. Full treatment in
 [`docs/01-data-and-availability.md`](docs/01-data-and-availability.md).
+
+What ships today is the honest half of that: a **structural estimate**, not a prediction. The
+cascade's fitted Tier 1 model is specified and its runtime is in the tree, but no model is
+trained into the repository yet, so nothing is fed invented coefficients — the estimate is
+labelled `ESTIMATED`, prints the arithmetic behind it, and refuses to answer at all for
+combinations it cannot reason about (a class the train does not carry, a Tatkal quota before it
+opens). Tier 1 will replace it behind the same badge contract.
 
 The other half of the value is **segment-awareness**: IRCTC availability is per
 *(train, boarding station, alighting station, date, class, quota)*, not per train. One train

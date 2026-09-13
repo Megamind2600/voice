@@ -27,6 +27,8 @@ import type { RailSegment } from '../router/journey';
 import type { StationResolver } from '../router/journey';
 import { bookingFacts, istNow } from '../availability/rules';
 import { PREDICTED_BADGE, predictionText } from '../availability/model';
+import type { SeatEstimate } from '../availability/estimate';
+import { SeatEstimateBox } from './SeatEstimate';
 import type { AvailabilityReading } from '../availability/tier';
 import { handoff } from '../availability/links';
 import { capacityFor, staticallyImpossible } from '../availability/rake';
@@ -54,12 +56,23 @@ export interface AvailabilityPanelProps {
    * it cannot prove.
    */
   reading?: AvailabilityReading | null | undefined;
+  /**
+   * A structural estimate from `availability/estimate.ts`, when the caller has segment facts
+   * enough to build one.
+   *
+   * This is NOT a cascade reading and is deliberately not folded into `reading`: the cascade
+   * speaks in observed or model-fitted tiers, and a hand-tuned structural estimate dressed as
+   * either of those would borrow credibility it has not earned. It renders in its own block with
+   * its own badge, its own method line and its own arithmetic on display.
+   */
+  estimate?: SeatEstimate | null | undefined;
 }
 
 export function AvailabilityPanel(props: AvailabilityPanelProps) {
   const { segment: s, nameOf, dateIso } = props;
   const quota = props.quota ?? 'GN';
   const prediction = props.reading?.prediction ?? null;
+  const estimate = props.estimate ?? null;
   const [copied, setCopied] = useState(false);
 
   const from = nameOf(s.from);
@@ -126,14 +139,27 @@ export function AvailabilityPanel(props: AvailabilityPanelProps) {
   return (
     <div class="avail">
       <p class="avail__headline">
-        <strong>Seat availability: not connected in this build.</strong>{' '}
-        {prediction === null
-          ? 'Nothing here says whether a berth exists, and no number on this page should be read as one that does. What follows is what can be stated without guessing.'
-          // The headline has to change when a forecast appears, or it contradicts the block below
-          // it: "nothing here says whether a berth exists" is no longer the whole truth, and the
-          // whole truth is that something here estimates the odds.
-          : 'What follows is what can be stated without guessing, plus one model estimate — which is a probability about a berth, not a berth.'}
+        {estimate !== null ? (
+          <>
+            <strong>Seat availability: estimated from the timetable, not read from IRCTC.</strong>{' '}
+            No availability source is connected in this build, so the block below is this app's own
+            arithmetic — a hint about which date, train and class to prefer, and never a berth
+            count. Confirm on IRCTC before paying for anything.
+          </>
+        ) : (
+          <>
+            <strong>Seat availability: not connected in this build.</strong>{' '}
+            {prediction === null
+              ? 'Nothing here says whether a berth exists, and no number on this page should be read as one that does. What follows is what can be stated without guessing.'
+              // The headline has to change when a forecast appears, or it contradicts the block below
+              // it: "nothing here says whether a berth exists" is no longer the whole truth, and the
+              // whole truth is that something here estimates the odds.
+              : 'What follows is what can be stated without guessing, plus one model estimate — which is a probability about a berth, not a berth.'}
+          </>
+        )}
       </p>
+
+      {estimate !== null && <SeatEstimateBox estimate={estimate} />}
 
       {prediction !== null && (
         <div class="avail__predicted">
